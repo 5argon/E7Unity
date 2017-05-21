@@ -1,6 +1,6 @@
 # E7Unity - A collection of Unity things that Exceed7 Experiments is using.
 
-I have this as a Git submodule on both of my real game project. Maybe someone else needs it, so I decided to share it for free. Maybe you can submodule it too, or just copy what you want to use. The license for everything is MIT.
+I have this as a Git submodule on both of my real game projects. Maybe someone else needs it, so I decided to share it for free. Maybe you can submodule it too, or just copy what you want to use. The license for everything is MIT.
 
 I am not taking any responsibility if there are bugs, they don't compile (should not happen since it compiles in my games...), or cause revenue loss to your game!
 
@@ -34,7 +34,9 @@ VerticalAdjustOnHorizontal is cool for UI. On iPad the screen is taller, you oft
 
 ## PlayerData
 
-Use this to make a binary save file when you don't want to make it plainly visible like in PlayerPrefs
+Use this to make a AES-encrypted binary save file when you don't want to make it plainly visible like in PlayerPrefs. It is the save file system in both Duel Otters and Mel Cadence. Knowing this, please don't try to hack the game's save file. __/|\__
+
+DynaList is a tricky class that can do dictionary-like task, but it is serializable because it uses List<T>. I use this when I want to include dictionaries in the save file.
 
 ## SceneUtils 
 
