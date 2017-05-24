@@ -144,6 +144,7 @@ Kick start your game's sound effects..
 
 
 // TODO:
+// - Also auto generates a method that takes string to play the sound!
 // - Preview audio with respect to volume settings.
 // - Pitch variation support
 // - Gen code by right clicking on folders or type folder name in popup. Folder structure should produce headers.
