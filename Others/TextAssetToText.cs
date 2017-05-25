@@ -11,35 +11,37 @@ using System.Text;
 //Markdown # will not work if you don't have enough elements of markdownHashSize AND markdownHashColor.
 
 [ExecuteInEditMode]
-public class TextAssetToText : MonoBehaviour {
+public class TextAssetToText : MonoBehaviour
+{
 
-	public TextAsset textAsset;
-	public Text text;
-	public bool enableMarkdown;
+    public TextAsset textAsset;
+    public Text text;
+    public bool enableMarkdown;
     [Tooltip("If not enabled, you have to right click the component's header and select Read Text.")]
-	public bool autoRead;
+    public bool autoRead;
     [Tooltip("Array index 0 correspond to 1 #'s size and so on.")]
-	public int[] markdownHashSize;
+    public int[] markdownHashSize;
     [Tooltip("Array index 0 correspond to 1 #'s size and so on.")]
-	public Color[] markdownHashColor;
+    public Color[] markdownHashColor;
 
-	private StringReader stringReader;
-	private StringBuilder stringBuider;
+    private StringReader stringReader;
+    private StringBuilder stringBuider;
 
-	public void Update()
-	{
-		if(autoRead)
-		{
-			ReadText();
-		}
-	}
+    public void Update()
+    {
+        if (autoRead)
+        {
+            ReadText();
+        }
+    }
 
     [ContextMenu("Read Text")]
-	public void ReadText() {
-        if(textAsset != null)
-		{
-            if(enableMarkdown)
-			{
+    public void ReadText()
+    {
+        if (textAsset != null)
+        {
+            if (enableMarkdown)
+            {
                 stringReader = new StringReader(textAsset.text);
                 stringBuider = new StringBuilder();
                 while (true)
@@ -56,19 +58,19 @@ public class TextAssetToText : MonoBehaviour {
                 }
                 text.text = stringBuider.ToString();
             }
-			else
-			{
-				text.text = textAsset.text;
-			}
-		}
-	}
+            else
+            {
+                text.text = textAsset.text;
+            }
+        }
+    }
 
-	private string ConvertMDHash(string input)
-	{
-		int hashCount = 0;
-		string original = input;
-        while(true)
-		{
+    private string ConvertMDHash(string input)
+    {
+        int hashCount = 0;
+        string original = input;
+        while (true)
+        {
             if (input.IndexOf('#') == 0)
             {
                 hashCount++;
@@ -79,18 +81,18 @@ public class TextAssetToText : MonoBehaviour {
                 break;
             }
         }
-		if(hashCount > 0 && markdownHashSize.Length >= hashCount && markdownHashColor.Length >= hashCount)
-		{
-			return string.Format("<color={1}><size={0}>{2}</size></color>",markdownHashSize[hashCount-1],HexConverter(markdownHashColor[hashCount-1]), input);
-		}
-		else
-		{
-			return original;
-		}
-	}
+        if (hashCount > 0 && markdownHashSize.Length >= hashCount && markdownHashColor.Length >= hashCount)
+        {
+            return string.Format("<color={1}><size={0}>{2}</size></color>", markdownHashSize[hashCount - 1], HexConverter(markdownHashColor[hashCount - 1]), input);
+        }
+        else
+        {
+            return original;
+        }
+    }
 
     private static string HexConverter(Color c)
     {
-        return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", (int)(c.r*255), (int)(c.g*255), (int)(c.b*255), (int)(c.a*255));
+        return string.Format("#{0:X2}{1:X2}{2:X2}{3:X2}", (int)(c.r * 255), (int)(c.g * 255), (int)(c.b * 255), (int)(c.a * 255));
     }
 }
