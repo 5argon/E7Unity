@@ -69,20 +69,23 @@ public class Mercy {
 		{
 			foreach (MonoBehaviour script in go.GetComponents<MonoBehaviour>())
 			{
-				MonoScript ms = MonoScript.FromMonoBehaviour(script);
-				System.Type type = ms.GetClass();
-				PropertyInfo[] propertyInfo = type.GetProperties();
-				foreach(PropertyInfo pi in propertyInfo)
+                if(script != null)
 				{
-					object[] attributes = pi.GetCustomAttributes(true);
-					for(int i = 0; i < attributes.Length; i++)
-					{
-						if(attributes[i] is MercyAttribute)
-						{
-							gcps.Add(new GameObjectComponentProperty(type,pi));
-						}
-					}
-				}
+                    MonoScript ms = MonoScript.FromMonoBehaviour(script);
+                    System.Type type = ms.GetClass();
+                    PropertyInfo[] propertyInfo = type.GetProperties();
+                    foreach (PropertyInfo pi in propertyInfo)
+                    {
+                        object[] attributes = pi.GetCustomAttributes(true);
+                        for (int i = 0; i < attributes.Length; i++)
+                        {
+                            if (attributes[i] is MercyAttribute)
+                            {
+                                gcps.Add(new GameObjectComponentProperty(type, pi));
+                            }
+                        }
+                    }
+                }
 			}
 		}
 
@@ -91,114 +94,119 @@ public class Mercy {
 		{
 			foreach (MonoBehaviour script in go.GetComponents<MonoBehaviour>())
 			{
-				MonoScript ms = MonoScript.FromMonoBehaviour(script);
-				System.Type type = ms.GetClass();
-				foreach(object attribute in  type.GetCustomAttributes(true))
+				if(script != null)
 				{
-					if(attribute is MercyEntryAttribute)
-					{
-						//Begin checking this class
-						FieldInfo[] fieldInfo = type.GetFields();
-						HashSet<FieldInfo> fieldDeclared = new HashSet<FieldInfo>();
-						Dictionary<string,System.Type> stringToComponentType = new Dictionary<string,System.Type>();
-						foreach(FieldInfo fi in fieldInfo)
-						{
-							//Debug.Log("Add " + fi.Name + " "    +  fi.FieldType);
-							stringToComponentType.Add(fi.Name, fi.FieldType);
-						}
 
-						//Is the class with [Mercy] declared in this file?
-						HashSet<System.Type> typeDeclared = new HashSet<System.Type>();
-						HashSet<System.Type> typeNotDeclared = new HashSet<System.Type>();
-						foreach(GameObjectComponentProperty gcp in gcps)
-						{
-							bool found = false;
-							foreach(FieldInfo fi in fieldInfo)
-							{
-								if(gcp.CheckField(fi.FieldType))
-								{
-									found = true;
-									fieldDeclared.Add(fi);
-								}
-							}
-							if(found)
-							{
-								typeDeclared.Add(gcp.ComponentType);
-							}
-							else
-							{
-								typeNotDeclared.Add(gcp.ComponentType);
-							}
-						}
+                    MonoScript ms = MonoScript.FromMonoBehaviour(script);
+                    System.Type type = ms.GetClass();
+                    foreach (object attribute in type.GetCustomAttributes(true))
+                    {
+                        if (attribute is MercyEntryAttribute)
+                        {
+                            //Begin checking this class
+                            FieldInfo[] fieldInfo = type.GetFields();
+                            HashSet<FieldInfo> fieldDeclared = new HashSet<FieldInfo>();
+                            Dictionary<string, System.Type> stringToComponentType = new Dictionary<string, System.Type>();
+                            foreach (FieldInfo fi in fieldInfo)
+                            {
+                                //Debug.Log("Add " + fi.Name + " "    +  fi.FieldType);
+                                stringToComponentType.Add(fi.Name, fi.FieldType);
+                            }
 
-						/*
-						foreach(System.Type t in typeDeclared)
-						{
-						//Debug.Log("You did well. (" + t.Name + ")");
-					}
-					*/
-					foreach(System.Type t in typeNotDeclared)
-					{
-						Debug.LogError("Mercy : You forgot to declare (" + t.Name + ") in [MercyEntry]!");
-					}
+                            //Is the class with [Mercy] declared in this file?
+                            HashSet<System.Type> typeDeclared = new HashSet<System.Type>();
+                            HashSet<System.Type> typeNotDeclared = new HashSet<System.Type>();
+                            foreach (GameObjectComponentProperty gcp in gcps)
+                            {
+                                bool found = false;
+                                foreach (FieldInfo fi in fieldInfo)
+                                {
+                                    if (gcp.CheckField(fi.FieldType))
+                                    {
+                                        found = true;
+                                        fieldDeclared.Add(fi);
+                                    }
+                                }
+                                if (found)
+                                {
+                                    typeDeclared.Add(gcp.ComponentType);
+                                }
+                                else
+                                {
+                                    typeNotDeclared.Add(gcp.ComponentType);
+                                }
+                            }
 
-					Regex regex = new Regex("({)(.*)(})", RegexOptions.Singleline);
-					Regex regexInner = new Regex("{(.*?)}", RegexOptions.Singleline);
-					foreach (Match match in regex.Matches(ms.text))
-					{
-						foreach (Match match2 in regexInner.Matches(match.Groups[2].Value))
-						{
-							using (StringReader reader = new StringReader(match2.Value))
-							{
-								string line = string.Empty;
-								do
-								{
-									line = reader.ReadLine();
-									if (line != null)
-									{
-										if(line.Contains("="))
-										{
-											string leftSide = line.Split('=')[0];
-											string[] dotSplit = leftSide.Split('.');
-											if(dotSplit.Length == 2)
-											{
-												string leftDot = dotSplit[0].Trim();
-												string rightDot = dotSplit[1].Trim();
-												//Check assignment!
+                            /*
+                            foreach(System.Type t in typeDeclared)
+                            {
+                            //Debug.Log("You did well. (" + t.Name + ")");
+                        }
+                        */
+                            foreach (System.Type t in typeNotDeclared)
+                            {
+                                Debug.LogError("Mercy : You forgot to declare (" + t.Name + ") in [MercyEntry]!");
+                            }
 
-												foreach(GameObjectComponentProperty gcp in gcps)
-												{
-													//Debug.Log("LD " + leftDot + " RD " + rightDot);
-													if(stringToComponentType.ContainsKey(leftDot))
-													{
-														gcp.MarkOkIfMatch(stringToComponentType[leftDot],rightDot);
-													}
-												}
-											}
-										}
-									}
+                            Regex regex = new Regex("({)(.*)(})", RegexOptions.Singleline);
+                            Regex regexInner = new Regex("{(.*?)}", RegexOptions.Singleline);
+                            foreach (Match match in regex.Matches(ms.text))
+                            {
+                                foreach (Match match2 in regexInner.Matches(match.Groups[2].Value))
+                                {
+                                    using (StringReader reader = new StringReader(match2.Value))
+                                    {
+                                        string line = string.Empty;
+                                        do
+                                        {
+                                            line = reader.ReadLine();
+                                            if (line != null)
+                                            {
+                                                if (line.Contains("="))
+                                                {
+                                                    string leftSide = line.Split('=')[0];
+                                                    string[] dotSplit = leftSide.Split('.');
+                                                    if (dotSplit.Length == 2)
+                                                    {
+                                                        string leftDot = dotSplit[0].Trim();
+                                                        string rightDot = dotSplit[1].Trim();
+                                                        //Check assignment!
 
-								} while (line != null);
-							}
-						}
-					}
-					//Now check if any is not ok..
-					foreach(GameObjectComponentProperty gcp in gcps)
-					{
-						//Debug.Log("LD " + leftDot + " RD " + rightDot);
-						if(gcp.IsOk)
-						{
-							//Debug.Log("Good! You injected " + gcp.ToString() + " !");
-						}
-						else
-						{
-							Debug.LogError("Mercy : You forgot to inject (" + gcp.ToString() + ") in [MercyEntry]!");
-						}
-					}
+                                                        foreach (GameObjectComponentProperty gcp in gcps)
+                                                        {
+                                                            //Debug.Log("LD " + leftDot + " RD " + rightDot);
+                                                            if (stringToComponentType.ContainsKey(leftDot))
+                                                            {
+                                                                gcp.MarkOkIfMatch(stringToComponentType[leftDot], rightDot);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        } while (line != null);
+                                    }
+                                }
+                            }
+                            //Now check if any is not ok..
+                            foreach (GameObjectComponentProperty gcp in gcps)
+                            {
+                                //Debug.Log("LD " + leftDot + " RD " + rightDot);
+                                if (gcp.IsOk)
+                                {
+                                    //Debug.Log("Good! You injected " + gcp.ToString() + " !");
+                                }
+                                else
+                                {
+                                    Debug.LogError("Mercy : You forgot to inject (" + gcp.ToString() + ") in [MercyEntry]!");
+                                }
+                            }
 
 
-				}
-			}
+                        }
+                    }
+
+                }
 		}
 	}
 

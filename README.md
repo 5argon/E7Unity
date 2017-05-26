@@ -28,9 +28,27 @@ If you are doing dependency injection in Unity you will notice that you could no
 
 ## Others
 
-UIDisabler is pretty cool. You can paste it to any Game Object and you can collect UIs in it. Then with one function call they can be all disbled! I use this on every scene. In situation like what will happen if you press "Back"? Of course the scene will transition to previous scene. In that transition time, if player mash the screen something bad might happen so I can just disable all the buttons in the scene with this.
+### UIDisabler
+Pretty cool. You can paste it to any Game Object and you can collect UIs in it. Then with one function call they can be all disbled! I use this on every scene. In situation like what will happen if you press "Back"? Of course the scene will transition to previous scene. In that transition time, if player mash the screen something bad might happen so I can just disable all the buttons in the scene with this.
 
-VerticalAdjustOnHorizontal is cool for UI. On iPad the screen is taller, you often wants to move things down. It's pretty tricky to do if you have the reference on width. With this one you can have width reference but things can move vertically! But only once on Awake..
+### VerticalAdjustOnHorizontal
+Great for UI. On iPad the screen is taller, you often wants to move things down. It's pretty tricky to do if you have the reference on width. With this one you can have width reference but things can move vertically! But only once on Awake..
+
+### LetterSpacing
+
+This script is not mine. (Read the comments) but is insane for typographic freaks like me. You can adjust character spacing on regular Text uGUI element! Feels good!
+
+### IntToStringLookup
+
+Useless!
+
+### RectCam
+
+Force the camera to render a certain aspect ratio. Like if you want to render iPhone aspect while on iPad. The empty area will not be drawn, which will be black or the previous content.
+
+### VersionNumber
+
+Use it on your title screen or something...
 
 ## PlayerData
 
