@@ -60,9 +60,14 @@ DynaList is a tricky class that can do dictionary-like task, but it is serializa
 
 CrossSceneConnector, this is insane. I am really proud of this girl. I can't work multi-scene without her.
 
-## SimfileSFXSystem (Will be separated to a free Asset Store product later)
+## SimpleSFXSystem (Will be separated to a free Asset Store product later)
 
-This is big! It is responsible to all SFXs you can hear in Duel Otters and Mel Cadence. Basically, I want to play sounds by script WITHOUT any magic strings. It's painful to write script for each SFXs, so this script can turn your entire SFX folder into a playable static methods in just a few seconds. Revolutionary! But you have to learn its system a bit.
+This is big! It is responsible to all SFXs you can hear in Duel Otters and Mel Cadence. Basically, I want to play sounds by script with static method WITHOUT any magic strings. (e.g. SFX.PlayClick(), SFX.PlayWrong())
 
+It's painful to write script for each SFXs by hand, so this script can turn your entire SFX folder into a playable static methods in just a few seconds. Revolutionary! But you have to learn its system a bit.
 
-
+TODO :
+- Generate partial class instead.
+- Make it so you don't have to paste the script.
+- Make it so you don't have to connect audio files.
+- Add a function to play sound with string argument (as file name).
