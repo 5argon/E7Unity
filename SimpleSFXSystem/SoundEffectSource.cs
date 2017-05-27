@@ -282,6 +282,7 @@ public abstract class SoundEffectSource<T> : MonoBehaviour where T : MonoBehavio
                     GameObject obj = (GameObject)Resources.Load(SimpleSFXSystemSettings.sourcePrefabFolder + typeof(T).Name);
                     instance = (GameObject.Instantiate(obj) as GameObject).GetComponent<T>();
                     instance.name = typeof(T).Name;
+                    DontDestroyOnLoad(instance);
                 }
                 SoundEffectSource<T> cast = instance as SoundEffectSource<T>;
                 cast.source = instance.gameObject.GetComponent<AudioSource>();
