@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class UIDisabler : MonoBehaviour {
 
 	public Selectable[] uis;
+	public bool alsoDisableAnimator;
 
 	public void Disable()
 	{
@@ -30,7 +31,10 @@ public class UIDisabler : MonoBehaviour {
 		Animator a = s.GetComponent<Animator>();
 		if(a != null)
 		{
-			a.enabled = to;
+			if(alsoDisableAnimator)
+			{
+				a.enabled = to;
+			}
 		}
 
         //it is very likely that "Text" is for the empty area click trick
