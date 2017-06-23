@@ -7,6 +7,8 @@ it is a List so you can serialize it along with your binary save file.
 
 Moreover, if you Get with an undefined key it will automatically create
 a new entry. So you have forward compatibility.
+
+In Duel Otters, when I add new games the save will correctly registers a new game's data. In Mel Cadence, same goes for new songs.
 */
 
 [System.Serializable]

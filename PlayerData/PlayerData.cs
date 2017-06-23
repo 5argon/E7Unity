@@ -37,6 +37,14 @@ public partial class PlayerData {
     //private static readonly byte[] iv = Encoding.ASCII.GetBytes("EightChr");
 
     private static PlayerData local;
+
+    //Something you might want to know
+
+    //it fetches only once and cache it. Even if you modify your save and save it, this local is the one that you fetches earilier.
+
+    //But of course if you have modify your local before saving, your local must also be current. So there's no need to call the expensive .Load everytime you want your data.
+
+    //But of course there is a LocalReload in case if you want to revert to the binary file, or just have replaced the save via backup.
     public static PlayerData Local
     {
         get
@@ -126,6 +134,7 @@ public partial class PlayerData {
     {
         this.displayName = displayName;
         this.email = email;
+        //in here, please make your own user ID generation methods. Currently it is very stupid.
         this.userId = E7PlayerDataUtility.GenerateUserId();
         Save();
     }
