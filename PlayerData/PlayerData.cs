@@ -32,10 +32,16 @@ So change it to something else like server query if you care about security.
 [System.Serializable]
 public partial class PlayerData {
 
+//implement this on your partial class
     //public static readonly string playerDataFileName  = "SaveFile.sav";
     //private static readonly byte[] key = Encoding.ASCII.GetBytes("EightChr");
     //private static readonly byte[] iv = Encoding.ASCII.GetBytes("EightChr");
 
+//implement this on your partial class
+    //private readonly ulong shortenAlgorithmX;
+    //private readonly ulong shortenAlgorithmM;
+
+    public static readonly int MaxDisplayNameLength = 10; 
     private static PlayerData local;
 
     //Something you might want to know
@@ -59,25 +65,33 @@ public partial class PlayerData {
     }
 
     private string displayName;
-    private string userId;
+    private string playerId; //GUID string
+    private int playerIdHash;
+    private string shortPlayerId; //Short form of that GUID string
     private string email;
 
-    public string FormattedUserId
+/// <summary>
+/// Converts GUID to more readable name using a simple algorithm.
+/// Modify it depending on your game's format.
+/// Such case is unlikely, but the real GUID should be kept just for that.
+/// </summary>
+/// <returns></returns>
+    public string FormattedShortPlayerId
     {
         get 
         { 
-            if(userId == null)
+            if(playerId == null)
             {
                 return "???-???-???";
             }
             else
             {
                 return
-                userId.Substring(0,3) +
+                shortPlayerId.Substring(0,3) +
                 "-" +
-                userId.Substring(3,3) +
+                shortPlayerId.Substring(3,3) +
                 "-" +
-                userId.Substring(6,3)
+                shortPlayerId.Substring(6,3)
                 ; 
             }
         }
@@ -98,7 +112,7 @@ public partial class PlayerData {
         }
         set
         {
-            if(value.Length > 0 && value.Length <= 10)
+            if(value.Length > 0 && value.Length <= MaxDisplayNameLength)
             {
                 displayName = value;
                 Save();
@@ -108,7 +122,7 @@ public partial class PlayerData {
 
     public bool IsInitialized()
     {
-        if( displayName == null || userId == null)
+        if( displayName == null || playerId == null)
         {
             return false;
         }
@@ -130,12 +144,28 @@ public partial class PlayerData {
         }
     }
 
-    public void Initialize(string displayName, string email)
+    public void ConnectOnline(string email)
     {
-        this.displayName = displayName;
         this.email = email;
-        //in here, please make your own user ID generation methods. Currently it is very stupid.
-        this.userId = E7PlayerDataUtility.GenerateUserId();
+    }
+
+/// <summary>
+/// Does not destroy your save file
+/// </summary>
+    public void Initialize()
+    {
+        this.displayName = "Player" + UnityEngine.Random.Range(0,9999).ToString("0000");
+        bool isShortUserIdGood = false;
+        while(isShortUserIdGood == false)
+        {
+            //GUID based user ID generation
+            Guid guid = Guid.NewGuid();
+            this.playerId = guid.ToString();
+            this.playerIdHash = guid.GetHashCode();
+            this.shortPlayerId = PlayerDataUtility.ShortenGUID(guid,shortenAlgorithmX,shortenAlgorithmM);
+            isShortUserIdGood = PlayerDataUtility.IsShortUserIdGood(FormattedShortPlayerId);
+        }
+        Debug.Log("Initialized with Name : " + displayName + " ID : " + playerId + " SID : " + FormattedShortPlayerId);
         Save();
     }
 
