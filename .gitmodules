@@ -1,0 +1,3 @@
+[submodule "ProtobufUnity"]
+	path = ProtobufUnity
+	url = https://github.com/5argon/protobuf-unity

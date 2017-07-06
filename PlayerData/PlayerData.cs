@@ -7,7 +7,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Security.Cryptography;
 
 /* 
-A class to make a save file system! The whole class will be binary serialized.
+A class to make a save file system! The whole class will be binary serialized by Google Protobuf + additional encryption and compression
+
+How to create your own data for your game is to write your own .proto file.
+
+This comes with a base .proto file too. Generated class will be "partial", so it will merge nicely with your game's. (As long as you also name the class PlayerData)
+
 Basics are PlayerData.Local.Save and PlayerData.Load
 Local means it will load the file in your device.
 
@@ -69,6 +74,13 @@ public partial class PlayerData {
     private int playerIdHash;
     private string shortPlayerId; //Short form of that GUID string
     private string email;
+
+    //For variables that you want to keep but not use, silence the warning.
+    private int Silencer{
+        get{
+            return playerIdHash;
+        }
+    }
 
 /// <summary>
 /// Converts GUID to more readable name using a simple algorithm.

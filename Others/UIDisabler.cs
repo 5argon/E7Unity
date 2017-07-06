@@ -39,6 +39,7 @@ public class UIDisabler : MonoBehaviour {
 
         //it is very likely that "Text" is for the empty area click trick
 		Text t = s.GetComponent<Text>();
+		//Button b = s.GetComponent<Button>();
 		if( t != null)
 		{
 			t.enabled = to;
