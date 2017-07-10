@@ -5,7 +5,7 @@ using System;
 
 public class CachedData<T> {
 
-    public T data;
+    private T data;
     private bool dirty;
 
     public CachedData()

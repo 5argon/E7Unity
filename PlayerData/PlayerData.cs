@@ -17,13 +17,12 @@ Basics are PlayerData.Local.Save and PlayerData.Load
 Local means it will load the file in your device.
 
 It's a partial not inheritance, because I want the custom data you want
-to include serialized together with basic data in this class.
+to include serialized together with basic data in this class by protobuf.
 You can edit them if they are useless to you.
 
 Include your game-specific things in the other side of the partial.
 
-This class will not compile if you see the 3 commented lines below!
-You should move that to your partial then define those.
+You should move commented varialbes to your partial then define those.
 
 Note that if a hacker gain access of your key and iv they probably can
 hack your save file. And as you see below, they are plain text in your code.
@@ -33,8 +32,6 @@ So change it to something else like server query if you care about security.
 
 */
 
-
-[System.Serializable]
 public partial class PlayerData {
 
 //implement this on your partial class
@@ -55,7 +52,7 @@ public partial class PlayerData {
 
     //But of course if you have modify your local before saving, your local must also be current. So there's no need to call the expensive .Load everytime you want your data.
 
-    //But of course there is a LocalReload in case if you want to revert to the binary file, or just have replaced the save via backup.
+    //There is a LocalReload in case if you want to revert to the binary file, or just have replaced the save via backup.
     public static PlayerData Local
     {
         get
@@ -69,18 +66,15 @@ public partial class PlayerData {
         }
     }
 
+// These guys are in protobuf
+/* 
     private string displayName;
     private string playerId; //GUID string
     private int playerIdHash;
     private string shortPlayerId; //Short form of that GUID string
     private string email;
+*/
 
-    //For variables that you want to keep but not use, silence the warning.
-    private int Silencer{
-        get{
-            return playerIdHash;
-        }
-    }
 
 /// <summary>
 /// Converts GUID to more readable name using a simple algorithm.
@@ -92,41 +86,41 @@ public partial class PlayerData {
     {
         get 
         { 
-            if(playerId == null)
+            if(PlayerId == null)
             {
                 return "???-???-???";
             }
             else
             {
                 return
-                shortPlayerId.Substring(0,3) +
+                ShortPlayerId.Substring(0,3) +
                 "-" +
-                shortPlayerId.Substring(3,3) +
+                ShortPlayerId.Substring(3,3) +
                 "-" +
-                shortPlayerId.Substring(6,3)
+                ShortPlayerId.Substring(6,3)
                 ; 
             }
         }
     }
 
-    public string DisplayName
+    public string DisplayNameString
     {
         get 
         { 
-            if(displayName == null)
+            if(DisplayName == null || DisplayName == "")
             {
                 return "???";
             }
             else
             {
-                return displayName; 
+                return DisplayName; 
             }
         }
         set
         {
             if(value.Length > 0 && value.Length <= MaxDisplayNameLength)
             {
-                displayName = value;
+                DisplayName = value;
                 Save();
             }
         }
@@ -134,7 +128,7 @@ public partial class PlayerData {
 
     public bool IsInitialized()
     {
-        if( displayName == null || playerId == null)
+        if( DisplayName == null || PlayerId == null)
         {
             return false;
         }
@@ -146,7 +140,7 @@ public partial class PlayerData {
 
     public bool IsAttachedOnline()
     {
-        if(email == null)
+        if(Email == null)
         {
             return false;
         }
@@ -158,7 +152,7 @@ public partial class PlayerData {
 
     public void ConnectOnline(string email)
     {
-        this.email = email;
+        this.Email = email;
     }
 
 /// <summary>
@@ -166,32 +160,43 @@ public partial class PlayerData {
 /// </summary>
     public void Initialize()
     {
-        this.displayName = "Player" + UnityEngine.Random.Range(0,9999).ToString("0000");
+        this.DisplayName = "Player" + UnityEngine.Random.Range(0,9999).ToString("0000");
         bool isShortUserIdGood = false;
         while(isShortUserIdGood == false)
         {
             //GUID based user ID generation
             Guid guid = Guid.NewGuid();
-            this.playerId = guid.ToString();
-            this.playerIdHash = guid.GetHashCode();
-            this.shortPlayerId = PlayerDataUtility.ShortenGUID(guid,shortenAlgorithmX,shortenAlgorithmM);
+            this.PlayerId = guid.ToString();
+            this.PlayerIdHash = guid.GetHashCode();
+            this.ShortPlayerId = PlayerDataUtility.ShortenGUID(guid,shortenAlgorithmX,shortenAlgorithmM);
             isShortUserIdGood = PlayerDataUtility.IsShortUserIdGood(FormattedShortPlayerId);
         }
-        Debug.Log("Initialized with Name : " + displayName + " ID : " + playerId + " SID : " + FormattedShortPlayerId);
+        Initialize2();
+        Debug.Log("Initialized with Name : " + DisplayName + " ID : " + PlayerId + " SID : " + FormattedShortPlayerId);
         Save();
     }
 
+//Move this to your partial and write something
+/* 
+    private void Initialize2()
+    {
+
+    }
+*/
+
     public void Save()
     {
+        //Debug.Log("Saved : " + Application.persistentDataPath);
         FileStream file = File.Create(Application.persistentDataPath + "/" + playerDataFileName);
         DESCryptoServiceProvider des = new DESCryptoServiceProvider();
-        using(var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
+        using (var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
         {
-            BinaryFormatter bf = new BinaryFormatter();
-            bf.Serialize(cryptoStream, PlayerData.Local);
+            using (Google.Protobuf.CodedOutputStream cos = new Google.Protobuf.CodedOutputStream(cryptoStream))
+            {
+                local.WriteTo(cos);
+            }
         }
         file.Close();
-        //PlayerData.Local.DebugDump();
     }
 
     public static void LocalReload()
@@ -201,25 +206,25 @@ public partial class PlayerData {
 
     private static PlayerData Load()
     {
-        //Debug.Log(Application.persistentDataPath);
-        Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
-
-        if(File.Exists(Application.persistentDataPath + "/" + playerDataFileName))
+        //Debug.Log("Loaded : " + Application.persistentDataPath);
+        if (File.Exists(Application.persistentDataPath + "/" + playerDataFileName))
         {
             FileStream file = File.Open(Application.persistentDataPath + "/" + playerDataFileName, FileMode.Open);
             DESCryptoServiceProvider des = new DESCryptoServiceProvider();
             PlayerData loadedData = new PlayerData();
-            using(var cryptoStream = new CryptoStream(file, des.CreateDecryptor(key, iv), CryptoStreamMode.Read))
+            using (var cryptoStream = new CryptoStream(file, des.CreateDecryptor(key, iv), CryptoStreamMode.Read))
             {
-                BinaryFormatter bf = new BinaryFormatter();
-                loadedData = (PlayerData)bf.Deserialize(cryptoStream);
+                using (Google.Protobuf.CodedInputStream cos = new Google.Protobuf.CodedInputStream(cryptoStream))
+                {
+                    loadedData = PlayerData.Parser.ParseFrom(cos);
+                }
             }
             file.Close();
             return loadedData;
         }
         else
         {
-            return new PlayerData(); 
+            return new PlayerData();
         }
     }
 

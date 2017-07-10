@@ -1,39 +1,48 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.TestTools;
 
-public abstract class E7InteBase : MonoBehaviour {
+//This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
+public abstract class E7InteBase {
 
-    private void Start()
-    {
-        CleanTest();
-        StartCoroutine(InteRoutine());
-    }
-
-    protected void CleanTest()
-    {
-        //clean up all other scenes.
-        Scene integrationScene = SceneManager.GetActiveScene();
-        Scene[] scenes = new Scene[SceneManager.sceneCount];
-        for(int i = 0; i < scenes.Length; i++)
+    /* 
+        private void Start()
         {
-            scenes[i] = SceneManager.GetSceneAt(i);
+            CleanTest();
+            StartCoroutine(InteRoutine());
         }
-        foreach(Scene s in scenes)
+        */
+
+    /* 
+        protected void CleanTest()
         {
-            if(s != integrationScene)
+            //clean up all other scenes.
+            Scene integrationScene = SceneManager.GetActiveScene();
+            Scene[] scenes = new Scene[SceneManager.sceneCount];
+            for(int i = 0; i < scenes.Length; i++)
             {
-                AsyncOperation async = SceneManager.UnloadSceneAsync(s);
-                while(!async.isDone)
+                scenes[i] = SceneManager.GetSceneAt(i);
+            }
+            foreach(Scene s in scenes)
+            {
+                if(s != integrationScene)
                 {
+                    AsyncOperation async = SceneManager.UnloadSceneAsync(s);
+                    while(!async.isDone)
+                    {
+                    }
                 }
             }
+            Resources.UnloadUnusedAssets();
+
         }
-        Resources.UnloadUnusedAssets();
+    */
 
-    }
+    //Each test already a routine
+    //protected abstract IEnumerator InteRoutine();
 
-    protected abstract IEnumerator InteRoutine();
+    //public abstract bool IsTestFinished { get; }
 
     //Helper methods to save your pain
     protected WaitForSeconds Wait(float seconds)
