@@ -34,16 +34,19 @@ So change it to something else like server query if you care about security.
 
 public partial class PlayerData {
 
-//implement this on your partial class
+    //implement this on your partial class
+
     //public static readonly string playerDataFileName  = "SaveFile.sav";
     //private static readonly byte[] key = Encoding.ASCII.GetBytes("EightChr");
     //private static readonly byte[] iv = Encoding.ASCII.GetBytes("EightChr");
 
-//implement this on your partial class
+    //implement this on your partial class
+
     //private readonly ulong shortenAlgorithmX;
     //private readonly ulong shortenAlgorithmM;
 
     public static readonly int MaxDisplayNameLength = 10; 
+    public static readonly string backupSuffix = ".backup";
     private static PlayerData local;
 
     //Something you might want to know
@@ -186,8 +189,23 @@ public partial class PlayerData {
 
     public void Save()
     {
+        SaveAs(playerDataFileName);
+    }
+
+    public void Backup()
+    {
+        SaveAs(playerDataFileName + backupSuffix);
+    }
+
+    public void RestoreBackup()
+    {
+        PlayerDataUtility.ApplySaveFile(Application.persistentDataPath, playerDataFileName + backupSuffix);
+    }
+
+    private void SaveAs(string name)
+    {
         //Debug.Log("Saved : " + Application.persistentDataPath);
-        FileStream file = File.Create(Application.persistentDataPath + "/" + playerDataFileName);
+        FileStream file = File.Create(Application.persistentDataPath + "/" + name);
         DESCryptoServiceProvider des = new DESCryptoServiceProvider();
         using (var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
         {
@@ -228,11 +246,14 @@ public partial class PlayerData {
         }
     }
 
-    //SUPER DESTRUCTIVE OPERATION please be careful!
-    public static void DebugReset()
+    /// <summary>
+    /// SUPER DESTRUCTIVE OPERATION please be careful!
+    /// </summary>
+    public static void Reset()
     {
         local = new PlayerData();
         local.Save();
     }
+
 
 }

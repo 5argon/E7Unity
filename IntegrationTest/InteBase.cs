@@ -4,53 +4,31 @@ using System.Collections;
 using UnityEngine.TestTools;
 
 //This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
-public abstract class E7InteBase {
+public abstract class InteBase {
 
-    /* 
-        private void Start()
-        {
-            CleanTest();
-            StartCoroutine(InteRoutine());
-        }
-        */
+    /// <summary>
+    /// Do this before doing a scene load.
+    /// </summary>
+    protected void ProtectTestRunner()
+    {
+        GameObject g = GameObject.Find("Code-based tests runner");
+        GameObject.DontDestroyOnLoad(g);
+    }
 
-    /* 
-        protected void CleanTest()
-        {
-            //clean up all other scenes.
-            Scene integrationScene = SceneManager.GetActiveScene();
-            Scene[] scenes = new Scene[SceneManager.sceneCount];
-            for(int i = 0; i < scenes.Length; i++)
-            {
-                scenes[i] = SceneManager.GetSceneAt(i);
-            }
-            foreach(Scene s in scenes)
-            {
-                if(s != integrationScene)
-                {
-                    AsyncOperation async = SceneManager.UnloadSceneAsync(s);
-                    while(!async.isDone)
-                    {
-                    }
-                }
-            }
-            Resources.UnloadUnusedAssets();
-
-        }
-    */
-
-    //Each test already a routine
-    //protected abstract IEnumerator InteRoutine();
-
-    //public abstract bool IsTestFinished { get; }
-
-    //Helper methods to save your pain
+    /// <summary>
+    /// Helper methods to save your pain
+    /// </summary>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
     protected WaitForSeconds Wait(float seconds)
     {
         return new WaitForSeconds(seconds);
     }
 
-    //Unfortunately could not return T upon found, but useful for waiting something to become active
+    /// <summary>
+    /// Unfortunately could not return T upon found, but useful for waiting something to become active
+    /// </summary>
+    /// <returns></returns>
     protected IEnumerator WaitUntilFound<T>() where T : MonoBehaviour
     {
         T t = null;
@@ -61,8 +39,11 @@ public abstract class E7InteBase {
         }
     }
 
-    //REMEMBER!! must be active..
-    //And remember that if there are multiples it returns the first one
+    /// <summary>
+    /// REMEMBER!! must be active..
+    /// And remember that if there are multiples it returns the first one
+    /// </summary>
+    /// <returns></returns>
     protected T Find<T>() where T : MonoBehaviour
     {
         return Object.FindObjectOfType(typeof(T)) as T;
@@ -81,7 +62,11 @@ public abstract class E7InteBase {
         }
     }
 
-    //Useful in case there are many T in the scene, usually from separate sub-scene
+    /// <summary>
+    /// Useful in case there are many T in the scene, usually from separate sub-scene
+    /// </summary>
+    /// <param name="sceneName"></param>
+    /// <returns></returns>
     protected T FindOnSceneRoot<T>(string sceneName = "") where T : MonoBehaviour
     {
         Scene scene;
@@ -112,7 +97,10 @@ public abstract class E7InteBase {
         return null;
     }
 
-    //REMEMBER!! must be active..
+    /// <summary>
+    /// REMEMBER!! must be active..
+    /// </summary>
+    /// <returns></returns>
     protected GameObject FindGameObject<T>() where T : MonoBehaviour
     {
         return (Object.FindObjectOfType(typeof(T)) as T).gameObject;
@@ -131,7 +119,11 @@ public abstract class E7InteBase {
         }
     }
 
-    //Time to utilize hacky way of using string...
+    /// <summary>
+    /// Time to utilize hacky way of using string...
+    /// </summary>
+    /// <param name="gameObjectName"></param>
+    /// <returns></returns>
     public Vector2 CenterOfRectNamed(string gameObjectName)
     {
         Vector3[] corners = new Vector3[4];
