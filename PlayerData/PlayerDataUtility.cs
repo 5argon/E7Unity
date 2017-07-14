@@ -130,23 +130,34 @@ public class PlayerDataUtility {
         return result;
     }
 
+    public static void ApplySaveFileFromProject(string path, string name)
+    {
+        ApplySaveFile(Application.dataPath+ path, name);
+    }
+
+    public static void ApplySaveFileFromPersistent(string path, string name)
+    {
+        ApplySaveFile(Application.persistentDataPath + path, name);
+    }
+
 /// <summary>
 /// This is for selectively load any save file of any name that you have. Useful for debugging or unit testing.
 /// </summary>
-    public static void ApplySaveFile(string saveFilesPath, string saveFileName)
+    private static void ApplySaveFile(string saveFilesPath, string saveFileName)
     {
-        string[] fileEntries = Directory.GetFiles(Application.dataPath + "/" + saveFilesPath);
+        string[] fileEntries = Directory.GetFiles(saveFilesPath);
         foreach (string filePath in fileEntries)
         {
+            Debug.Log(filePath);
             if(Path.GetExtension(filePath) == ".meta")
             {
                 continue;
             }
 
-            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            string fileName = Path.GetFileName(filePath);
             if(fileName == saveFileName)
             {
-                Debug.Log("Applying save : " + filePath);
+                //Debug.Log("Applying save : " + filePath);
                 File.Copy(filePath, Application.persistentDataPath + "/" + PlayerData.playerDataFileName,true);
                 PlayerData.LocalReload(); //reload the copied save
                 return;

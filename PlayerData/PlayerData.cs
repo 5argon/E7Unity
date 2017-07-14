@@ -199,7 +199,7 @@ public partial class PlayerData {
 
     public void RestoreBackup()
     {
-        PlayerDataUtility.ApplySaveFile(Application.persistentDataPath, playerDataFileName + backupSuffix);
+        PlayerDataUtility.ApplySaveFileFromPersistent("", playerDataFileName + backupSuffix);
     }
 
     private void SaveAs(string name)
