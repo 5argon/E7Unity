@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿//Sirawat Pitaksarit / 5argon - Exceed7 Experiments
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -7,7 +8,7 @@ using UnityEditor;
 
 /// <summary>
 /// Instantiate UI prefab and stretch the rect to the current rect transform
-/// Use the toggle when working on the game and turn it off when we are applying outer prefab to avoid nested prefab problem.
+/// Use the toggle when working on the game and turn it off when we are applying outer prefab to circumvent the nested prefab problem.
 /// </summary>
 [RequireComponent(typeof(RectTransform))]
 [ExecuteInEditMode]
@@ -18,11 +19,37 @@ public class UIPrefabInstantiator : MonoBehaviour {
 	public ButtonBool removePrefab;
 	[Space]
 	public GameObject prefab;
+	[Space]
+    /// <summary>
+    /// Normally the script will clear all children and wait for you to do the instantiation.
+    /// Since the goal is to sync to prefab, reinstantiating is the way to refresh it run-time.
+    /// </summary>
+    public bool preserveChildrenOnAwake;
+    /// <summary>
+    /// Normally it will instantiate 1 game object for you. Check to prevent this.
+    /// </summary>
+    public bool preventAutoInstantiation;
+
 	private GameObject instantiatedPrefab;
+
+    public void Awake()
+    {
+        if (Application.isPlaying)
+        {
+            if(!preserveChildrenOnAwake)
+            {
+                DestroyAll();
+            }
+            if(!preventAutoInstantiation)
+            {
+                Instantiate();
+            }
+        }
+    }
 
     public void Update()
     {
-        if (Application.isEditor)
+        if (!Application.isPlaying)
         {
             if (togglePrefab.Pressed)
             {
@@ -61,12 +88,19 @@ public class UIPrefabInstantiator : MonoBehaviour {
         }
     }
 
-	public T GetComponentOfInstantiated<T>()
-	{
-		return instantiatedPrefab.GetComponent<T>();
+    public T GetComponentOfInstantiated<T>() where T : MonoBehaviour 
+    {
+        if (IsInstantiated)
+        {
+            return instantiatedPrefab.GetComponent<T>();
+        }
+        else
+        {
+            return null;
+        }
 	}
 
-	public T Instantiate<T>()
+	public T Instantiate<T>() where T : MonoBehaviour
 	{
 		Instantiate();
 		return GetComponentOfInstantiated<T>();
@@ -75,7 +109,7 @@ public class UIPrefabInstantiator : MonoBehaviour {
     [ContextMenu("Instantiate")]
     public void Instantiate()
     {
-        if (Application.isEditor)
+        if (!Application.isPlaying)
         {
 #if UNITY_EDITOR
             instantiatedPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
@@ -103,6 +137,23 @@ public class UIPrefabInstantiator : MonoBehaviour {
 			DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
 			instantiatedPrefab = null;
 		}
+	}
+
+	[ContextMenu("Destroy All")]
+	public void DestroyAll()
+	{
+		while(gameObject.transform.childCount > 0)
+		{
+            if(!Application.isPlaying)
+            {
+                DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
+            }
+            else
+            {
+                DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
+            }
+		}
+        instantiatedPrefab = null;
 	}
 
 }

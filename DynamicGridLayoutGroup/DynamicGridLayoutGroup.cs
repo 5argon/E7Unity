@@ -40,9 +40,20 @@ public class DynamicGridLayoutGroup : MonoBehaviour
 	{
         parent = gameObject.GetComponent<RectTransform>();
         grid = gameObject.GetComponent<GridLayoutGroup>();
+		OnRectTransformDimensionsChange();
 	}
 
-    void Update()
+#if UNITY_EDITOR
+	void Update()
+	{
+		if(Application.isEditor)
+		{
+			OnRectTransformDimensionsChange();
+		}
+	}
+#endif
+
+    void OnRectTransformDimensionsChange()
     {
 		if(parent == null)
 		{
