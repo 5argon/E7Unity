@@ -1,0 +1,3 @@
+# Mercy
+
+If you are doing dependency injection in Unity you will notice that you could not "new" the MonoBehaviour, thus you cannot inject things on constructor. You can't use inspector drag-and-drop either if they are not MonoBehaviour. The last safest choice that isn't setting to a public variable is to assign them to {set; private get;} accessor during some entry point script. But would you forget to do that because compiler, Unity, and no one can check it for you if you leave any accessor null? Let Mercy help you! She will come to save you if you did forget! Using a very lame script parsing technology. (You can't have any conditional in your entry point script, or she will explode)

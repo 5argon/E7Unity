@@ -20,6 +20,7 @@ public class UIPrefabInstantiator : MonoBehaviour {
 	[Space]
 	public GameObject prefab;
 	[Space]
+    public Vector2 instantiateSize;
     /// <summary>
     /// Normally the script will clear all children and wait for you to do the instantiation.
     /// Since the goal is to sync to prefab, reinstantiating is the way to refresh it run-time.
@@ -30,19 +31,38 @@ public class UIPrefabInstantiator : MonoBehaviour {
     /// </summary>
     public bool preventAutoInstantiation;
 
+    /// <summary>
+    /// In case that you preserve childrens, this will be the first child.
+    /// </summary>
 	private GameObject instantiatedPrefab;
+
+    private bool awoken;
 
     public void Awake()
     {
-        if (Application.isPlaying)
+        AwakeAction();
+    }
+
+/// <summary>
+/// Force the Awake, and don't run Awake again.
+/// Useful when you can't wait for Awake. (Maybe it is still inactive but you want to instantiate.)
+/// </summary>
+    public void AwakeAction()
+    {
+        if(!awoken)
         {
-            if(!preserveChildrenOnAwake)
+            if (Application.isPlaying)
             {
-                DestroyAll();
-            }
-            if(!preventAutoInstantiation)
-            {
-                Instantiate();
+                if (!preserveChildrenOnAwake)
+                {
+                    DestroyAll();
+                }
+                if (!preventAutoInstantiation)
+                {
+                    //Debug.LogWarning("UIPrefab Start : " + gameObject.name);
+                    Instantiate();
+                }
+                awoken = true;
             }
         }
     }
@@ -73,12 +93,22 @@ public class UIPrefabInstantiator : MonoBehaviour {
         }
     }
 
-    private bool IsInstantiated
+    public bool IsInstantiated
     {
         get
         {
-            if (gameObject.transform.childCount > 0 && instantiatedPrefab != null)
+            if (gameObject.transform.childCount > 0 )
             {
+                if(Application.isPlaying && preventAutoInstantiation == false && awoken == false)
+                {
+                    //There IS a child even if not yet Awake
+                    //It means not instantiated yet
+                    return false;
+                }
+                if(instantiatedPrefab == null)
+                {
+                    instantiatedPrefab = gameObject.transform.GetChild(0).gameObject;
+                }
                 return true;
             }
             else
@@ -92,6 +122,7 @@ public class UIPrefabInstantiator : MonoBehaviour {
     {
         if (IsInstantiated)
         {
+            //Debug.Log("Instantiated " + instantiatedPrefab);
             return instantiatedPrefab.GetComponent<T>();
         }
         else
@@ -122,17 +153,23 @@ public class UIPrefabInstantiator : MonoBehaviour {
         instantiatedPrefab.transform.SetParent(gameObject.transform);
         instantiatedPrefab.transform.localScale = Vector3.one;
 		RectTransform rect = instantiatedPrefab.GetComponent<RectTransform>();
-        rect.position = Vector3.zero;
-		rect.anchorMin = Vector2.zero;
-		rect.anchorMax = Vector2.one;
-		rect.offsetMax = Vector2.zero;
-		rect.offsetMin = Vector2.zero;
+        rect.localPosition = Vector3.zero;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMax = Vector2.zero;
+        rect.offsetMin = Vector2.zero;
+
+
+        if(instantiateSize != Vector2.zero)
+        {
+            rect.sizeDelta = instantiateSize;
+        }
 	}
 
 	[ContextMenu("Destroy")]
 	public void Destroy()
 	{
-		if(IsInstantiated || gameObject.transform.childCount > 0)
+		if(IsInstantiated)
 		{
 			DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
 			instantiatedPrefab = null;

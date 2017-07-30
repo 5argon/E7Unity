@@ -11,7 +11,6 @@ public class VersionNumber : MonoBehaviour {
         {
             versionNumber.text = "Version " + Application.version;
         }
-	
 	}
 	
 }
