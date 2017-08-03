@@ -47,6 +47,7 @@ public partial class PlayerData {
 
     public static readonly int MaxDisplayNameLength = 10; 
     public static readonly string backupSuffix = ".backup";
+    public static readonly string defaultNamePrefix = "Player";
     private static PlayerData local;
 
     //Something you might want to know
@@ -129,41 +130,52 @@ public partial class PlayerData {
         }
     }
 
-    public bool IsInitialized()
+    public bool IsInitialized
     {
-        if( DisplayName == null || PlayerId == null)
+        get
         {
-            return false;
-        }
-        else
-        {
-            return true;
+            if (DisplayName == null || DisplayName == "" || PlayerId == null || PlayerId == "")
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
-    public bool IsAttachedOnline()
+    public bool IsAttachedOnline
     {
-        if(Email == null)
+        get
         {
-            return false;
-        }
-        else
-        {
-            return true;
+            if (Email == null || Email == "" || FirebaseUid == null || FirebaseUid == "")
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
-    public void ConnectOnline(string email)
+    /// <summary>
+    /// The only way to set e-mail is by this.
+    /// </summary>
+    public void ConnectOnline(string email, string firebaseUid)
     {
         this.Email = email;
+        this.FirebaseUid = firebaseUid;
     }
 
-/// <summary>
-/// Does not destroy your save file
-/// </summary>
+    /// <summary>
+    /// Does not destroy your save file
+    /// </summary>
     public void Initialize()
     {
-        this.DisplayName = "Player" + UnityEngine.Random.Range(0,9999).ToString("0000");
+        this.StartPlaying = DateTime.UtcNow.ToString("s");
+        this.DisplayName = defaultNamePrefix + UnityEngine.Random.Range(0,9999).ToString("0000");
         bool isShortUserIdGood = false;
         while(isShortUserIdGood == false)
         {
@@ -189,6 +201,7 @@ public partial class PlayerData {
 
     public void Save()
     {
+        LastUpdated = DateTime.UtcNow.ToString("s");
         SaveAs(playerDataFileName);
     }
 
@@ -224,25 +237,65 @@ public partial class PlayerData {
 
     private static PlayerData Load()
     {
-        //Debug.Log("Loaded : " + Application.persistentDataPath);
         if (File.Exists(Application.persistentDataPath + "/" + playerDataFileName))
         {
-            FileStream file = File.Open(Application.persistentDataPath + "/" + playerDataFileName, FileMode.Open);
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
-            PlayerData loadedData = new PlayerData();
-            using (var cryptoStream = new CryptoStream(file, des.CreateDecryptor(key, iv), CryptoStreamMode.Read))
-            {
-                using (Google.Protobuf.CodedInputStream cos = new Google.Protobuf.CodedInputStream(cryptoStream))
-                {
-                    loadedData = PlayerData.Parser.ParseFrom(cos);
-                }
-            }
-            file.Close();
-            return loadedData;
+            FileStream fileStream = File.Open(Application.persistentDataPath + "/" + playerDataFileName, FileMode.Open);
+            PlayerData loaded = PlayerDataFromStream(fileStream);
+            fileStream.Close();
+            return loaded;
         }
         else
         {
             return new PlayerData();
+        }
+    }
+
+    private static PlayerData PlayerDataFromStream(Stream stream)
+    {
+        DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+        PlayerData loadedData = new PlayerData();
+        using (var cryptoStream = new CryptoStream(stream, des.CreateDecryptor(key, iv), CryptoStreamMode.Read))
+        {
+            using (Google.Protobuf.CodedInputStream cos = new Google.Protobuf.CodedInputStream(cryptoStream))
+            {
+                loadedData = PlayerData.Parser.ParseFrom(cos);
+                return loadedData;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Currently it is not merge but a complete replace.. move it to your partial and make something cool!
+    /// </summary>
+    public static void MergeSave(PlayerData toMergeWith)
+    {
+        local = toMergeWith;
+        PlayerData.Local.Save(); //you might not want auto-save on merge.
+    }
+
+    /// <summary>
+    /// For example getting a save restore as a JSON.
+    /// </summary>
+    public static PlayerData PlayerDataFromBase64(string base64String)
+    {
+        byte[] byteData = Convert.FromBase64String(base64String);
+        MemoryStream memStream = new MemoryStream(byteData);
+        return PlayerDataFromStream(memStream);
+    }
+
+    /// <summary>
+    /// If you want to put the entire save in JSON this is useful
+    /// </summary>
+    public static string GeneratePlayerDataBase64()
+    {
+        PlayerData.Local.Save();
+        if (File.Exists(Application.persistentDataPath + "/" + playerDataFileName))
+        {
+            return Convert.ToBase64String(File.ReadAllBytes(Application.persistentDataPath + "/" + playerDataFileName));
+        }
+        else
+        {
+            throw new Exception("Save file does not exist!");
         }
     }
 

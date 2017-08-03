@@ -148,7 +148,7 @@ public class PlayerDataUtility {
         string[] fileEntries = Directory.GetFiles(saveFilesPath);
         foreach (string filePath in fileEntries)
         {
-            Debug.Log(filePath);
+            //Debug.Log(filePath);
             if(Path.GetExtension(filePath) == ".meta")
             {
                 continue;
@@ -158,7 +158,10 @@ public class PlayerDataUtility {
             if(fileName == saveFileName)
             {
                 //Debug.Log("Applying save : " + filePath);
+
+                //It's just a copy-replace (old ones not removed)
                 File.Copy(filePath, Application.persistentDataPath + "/" + PlayerData.playerDataFileName,true);
+
                 PlayerData.LocalReload(); //reload the copied save
                 return;
             }

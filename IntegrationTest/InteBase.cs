@@ -2,6 +2,7 @@
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.TestTools;
+using NUnit.Framework;
 
 //This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
 public abstract class InteBase {
@@ -159,5 +160,6 @@ public abstract class InteBase {
         Scene modeSelect = SceneManager.GetSceneByName(sceneName);
         return modeSelect.IsValid();
     }
+
 
 }
