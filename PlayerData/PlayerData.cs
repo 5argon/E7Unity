@@ -145,29 +145,6 @@ public partial class PlayerData {
         }
     }
 
-    public bool IsAttachedOnline
-    {
-        get
-        {
-            if (Email == null || Email == "" || FirebaseUid == null || FirebaseUid == "")
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
-        }
-    }
-
-    /// <summary>
-    /// The only way to set e-mail is by this.
-    /// </summary>
-    public void ConnectOnline(string email, string firebaseUid)
-    {
-        this.Email = email;
-        this.FirebaseUid = firebaseUid;
-    }
 
     /// <summary>
     /// Does not destroy your save file
