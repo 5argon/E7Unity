@@ -18,6 +18,7 @@ using Firebase.Unity.Editor;
 /// <returns></returns>
 public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITSELF>, new()
 {
+    private static readonly string sudo = "sudo";
     /// <summary>
     /// Format : "gs://my-custom-bucket"
     /// </summary>
@@ -127,7 +128,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             {
 #if UNITY_EDITOR
                 FirebaseApp.DefaultInstance.SetEditorDatabaseUrl(Instance.DatabaseUrl);
-                database = FirebaseDatabase.DefaultInstance;
+                return FirebaseDatabase.GetInstance(FirebaseApp.DefaultInstance);
 #else
                 database = FirebaseDatabase.GetInstance(Instance.DatabaseUrl);
 #endif
@@ -149,9 +150,52 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
+#if UNITY_EDITOR
+    private static FirebaseApp sudoFirebaseApp;
+    private static FirebaseApp SudoFirebaseApp
+    {
+        get
+        {
+            if (sudoFirebaseApp == null)
+            {
+                FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, sudo);
+                sudoFirebaseApp = FirebaseApp.GetInstance(sudo);
+                sudoFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
+                sudoFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
+                sudoFirebaseApp.SetEditorP12Password("notasecret");
+            }
+            return sudoFirebaseApp;
+        }
+    }
+
+    private static FirebaseDatabase sudoDatabase;
+    public static FirebaseDatabase SudoDatabase 
+    { 
+        get 
+        {
+            if(sudoDatabase == null)
+            {
+                SudoFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
+                sudoDatabase = FirebaseDatabase.GetInstance(SudoFirebaseApp);
+            }
+            return sudoDatabase;
+        }
+    }
+
+    protected static void EditorLogin(string uid)
+    {
+        FirebaseApp.DefaultInstance.SetEditorP12FileName(Instance.P12FileName);
+        FirebaseApp.DefaultInstance.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
+        FirebaseApp.DefaultInstance.SetEditorP12Password("notasecret");
+        FirebaseApp.DefaultInstance.SetEditorAuthUserId(uid);
+
+        Debug.LogFormat("EDITOR login {0}", uid);
+    }
+#endif
+
     public static void LogCurrentUser()
     {
-        if(IsLoggedIn)
+        if (IsLoggedIn)
         {
             Debug.Log(string.Format("UID : {0} Email : {1}", UserID, UserEmail));
         }
