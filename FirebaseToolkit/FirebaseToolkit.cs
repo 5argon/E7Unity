@@ -18,7 +18,8 @@ using Firebase.Unity.Editor;
 /// <returns></returns>
 public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITSELF>, new()
 {
-    private static readonly string sudo = "sudo";
+    private static readonly string defaultInstanceName = "mydefault";
+    private static readonly string sudoInstanceName = "sudo";
     /// <summary>
     /// Format : "gs://my-custom-bucket"
     /// </summary>
@@ -54,6 +55,23 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
+    /// <summary>
+    /// The reason why I don't use FirebaseApp.DefaultInstance is that I want to be able to re-instantiate my "default" in the test.
+    /// </summary>
+    private static FirebaseApp defaultFirebaseApp;
+    protected static FirebaseApp DefaultFirebaseApp
+    {
+        get
+        {
+            if (defaultFirebaseApp == null)
+            {
+                FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, defaultInstanceName);
+                defaultFirebaseApp = FirebaseApp.GetInstance(defaultInstanceName);
+            }
+            return defaultFirebaseApp;
+        }
+    }
+
     private static FirebaseAuth auth;
     protected static FirebaseAuth Auth 
     { 
@@ -67,14 +85,14 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
-    protected static bool IsLoggedIn
+    public static bool IsLoggedIn
     {
         get{
 #if UNITY_EDITOR
             if(
-                FirebaseApp.DefaultInstance.GetEditorServiceAccountEmail() != "" &&
-                FirebaseApp.DefaultInstance.GetEditorAuthUserId() != "" &&
-                FirebaseApp.DefaultInstance.GetEditorAuthUserId() != null)
+                DefaultFirebaseApp.GetEditorServiceAccountEmail() != "" &&
+                DefaultFirebaseApp.GetEditorAuthUserId() != "" &&
+                DefaultFirebaseApp.GetEditorAuthUserId() != null)
             {
                 return true;
             }
@@ -96,7 +114,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
                 throw new Exception("Cannot get E-mail while not logged in");
             }
 #if UNITY_EDITOR
-            return FirebaseApp.DefaultInstance.GetEditorServiceAccountEmail();
+            return DefaultFirebaseApp.GetEditorServiceAccountEmail();
 #else
             return Auth.CurrentUser.Email;
 #endif
@@ -112,7 +130,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
                 throw new Exception("Cannot get ID while not logged in");
             }
 #if UNITY_EDITOR
-            return FirebaseApp.DefaultInstance.GetEditorAuthUserId();
+            return DefaultFirebaseApp.GetEditorAuthUserId();
 #else
             return Auth.CurrentUser.UserId;
 #endif
@@ -127,8 +145,8 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             if(database == null)
             {
 #if UNITY_EDITOR
-                FirebaseApp.DefaultInstance.SetEditorDatabaseUrl(Instance.DatabaseUrl);
-                return FirebaseDatabase.GetInstance(FirebaseApp.DefaultInstance);
+                DefaultFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
+                return FirebaseDatabase.GetInstance(DefaultFirebaseApp);
 #else
                 database = FirebaseDatabase.GetInstance(Instance.DatabaseUrl);
 #endif
@@ -158,8 +176,8 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (sudoFirebaseApp == null)
             {
-                FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, sudo);
-                sudoFirebaseApp = FirebaseApp.GetInstance(sudo);
+                FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, sudoInstanceName);
+                sudoFirebaseApp = FirebaseApp.GetInstance(sudoInstanceName);
                 sudoFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
                 sudoFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
                 sudoFirebaseApp.SetEditorP12Password("notasecret");
@@ -182,12 +200,13 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
-    protected static void EditorLogin(string uid)
+    protected static void EditorLogin(string username, string password,string uid)
     {
-        FirebaseApp.DefaultInstance.SetEditorP12FileName(Instance.P12FileName);
-        FirebaseApp.DefaultInstance.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
-        FirebaseApp.DefaultInstance.SetEditorP12Password("notasecret");
-        FirebaseApp.DefaultInstance.SetEditorAuthUserId(uid);
+
+        DefaultFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
+        DefaultFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
+        DefaultFirebaseApp.SetEditorP12Password("notasecret");
+        DefaultFirebaseApp.SetEditorAuthUserId(uid);
 
         Debug.LogFormat("EDITOR login {0}", uid);
     }
