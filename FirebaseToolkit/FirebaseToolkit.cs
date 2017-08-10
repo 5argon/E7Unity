@@ -10,6 +10,7 @@ using System.IO;
 using UnityEngine;
 #if UNITY_EDITOR
 using Firebase.Unity.Editor;
+using UnityEditor;
 #endif
 
 /// <summary>
@@ -168,7 +169,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (storage == null)
             {
-                storage = FirebaseStorage.GetInstance(CurrentFirebaseApp);
+                storage = FirebaseStorage.GetInstance(CurrentFirebaseApp,Instance.BucketName);
             }
             return storage;
         }
@@ -285,89 +286,37 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     /// <summary>
     /// You cannot store files in Firebase root. Folder argument is a must.
     /// </summary>
-    public static void UploadFromPersistent(string localFileName, string folder, string destinationFileName, Action<Task<StorageMetadata>> onSuccess = null, Action<Task<StorageMetadata>> onFailure = null)
+    protected static Task UploadFromPersistent(string localFileName, string firebaseFolder, string firebaseFileName)
     {
-        StorageReference uploadReference = Storage.RootReference.Child(folder).Child(destinationFileName);
+        StorageReference uploadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
 
         FileStream stream = new FileStream(Application.persistentDataPath + Path.DirectorySeparatorChar + localFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        uploadReference.PutStreamAsync(stream).ContinueWith((Task<StorageMetadata> task) =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                if (onFailure == null)
-                {
-                    DefaultFailure("Upload " + localFileName, task);
-                }
-                else
-                {
-                    onFailure.Invoke(task);
-                }
-            }
-            else
-            {
-                if (onSuccess == null)
-                {
-                    DefaultUploadSuccess(task);
-                }
-                else
-                {
-                    onSuccess.Invoke(task);
-                }
-            }
-            //Cannot use "using" since it is based on callback. The stream will already be disposed by then.
-            stream.Dispose();
-        });
-
+        return uploadReference.PutStreamAsync(stream).ContinueWith(uploadTask => { stream.Close(); });
     }
 
-    private static void DefaultFailure(string fileName, Task task)
+#if UNITY_EDITOR
+    protected static Task UploadFromAssetFolder(string pathFromAssetsFolder, string firebaseFolder, string firebaseFileName)
     {
-        Debug.LogError("Firebase Failure : " + fileName);
-        Debug.LogError(task.Exception.ToString());
-    }
+        StorageReference uploadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
 
-    private static void DefaultUploadSuccess(Task<StorageMetadata> task)
+        FileStream stream = new FileStream(Application.dataPath + Path.DirectorySeparatorChar + pathFromAssetsFolder, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return uploadReference.PutStreamAsync(stream).ContinueWith(uploadTask => { stream.Close(); });
+    }
+#endif
+
+    protected static Task DownloadToPersistent(string folder, string firebaseFileName, string fileNameToSave)
     {
-        Debug.Log("Firebase Upload Success : " + task.Result.Name);
+        StorageReference downloadReference = Storage.RootReference.Child(folder).Child(firebaseFileName);
+        return downloadReference.GetFileAsync(Application.persistentDataPath + Path.DirectorySeparatorChar + fileNameToSave);
     }
 
-    private static void DefaultDownloadSuccess(string fileName, Task task)
+#if UNITY_EDITOR
+    protected static Task DownloadToAssetFolder(string folder, string firebaseFileName, string fileNameToSaveFromAssetFolder)
     {
-        Debug.Log("Firebase Download Success : " + fileName);
+        StorageReference downloadReference = Storage.RootReference.Child(folder).Child(firebaseFileName);
+        return downloadReference.GetFileAsync(Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder).ContinueWith(downloadTask => AssetDatabase.Refresh());
     }
-
-    public static void DownloadToPersistent(string folder, string storageFileName, string saveFileName, Action<Task> onSuccess = null, Action<Task> onFailure = null)
-    {
-        StorageReference downloadReference = Storage.RootReference.Child(folder).Child(storageFileName);
-        downloadReference.GetFileAsync(Application.persistentDataPath + Path.DirectorySeparatorChar + saveFileName).ContinueWith(
-(Task task) =>
-        {
-            if (task.IsFaulted || task.IsCanceled)
-            {
-                if (onFailure == null)
-                {
-                    DefaultFailure("Download " + downloadReference.Path, task);
-                }
-                else
-                {
-                    onFailure.Invoke(task);
-                }
-            }
-            else
-            {
-                if (onSuccess == null)
-                {
-                    DefaultDownloadSuccess("Download " + downloadReference.Path, task);
-                }
-                else
-                {
-                    onSuccess.Invoke(task);
-
-                }
-            }
-        }
-        );
-    }
+#endif
 }
 
 public static class TaskExtension
