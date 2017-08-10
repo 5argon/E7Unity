@@ -245,11 +245,11 @@ public partial class PlayerData {
     /// <summary>
     /// Currently it is not merge but a complete replace.. move it to your partial and make something cool!
     /// </summary>
-    public static void MergeSave(PlayerData toMergeWith)
-    {
-        local = toMergeWith;
-        PlayerData.Local.Save(); //you might not want auto-save on merge.
-    }
+    // public static void MergeSave(PlayerData toMergeWith)
+    // {
+    //     local = toMergeWith;
+    //     PlayerData.Local.Save(); //you might not want auto-save on merge.
+    // }
 
     /// <summary>
     /// For example getting a save restore as a JSON.

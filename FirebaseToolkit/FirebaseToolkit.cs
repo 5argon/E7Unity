@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR
 using Firebase.Unity.Editor;
 #endif
 
@@ -19,7 +19,6 @@ using Firebase.Unity.Editor;
 /// <returns></returns>
 public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITSELF>, new()
 {
-    private static readonly string defaultInstanceName = "default";
 
     /// <summary>
     /// Format : "gs://my-custom-bucket"
@@ -68,10 +67,15 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     }
 
 #if UNITY_EDITOR
+    private static readonly string defaultInstanceName = "default";
     private static string currentInstanceName = defaultInstanceName;
     private static List<string> createdInstanceList = new List<string>() { defaultInstanceName };
     private static void SwitchInstance(string toName)
     {
+        if(currentInstanceName == defaultInstanceName && toName == defaultInstanceName)
+        {
+            return;
+        }
         if (createdInstanceList.Contains(toName) == false)
         {
             Debug.Log("Created new FirebaseApp instance named " + toName);
@@ -145,7 +149,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 #if UNITY_EDITOR
                 if (IsLoggedIn == false)
                 {
-                    throw new System.Exception("No! You must login before using the database in editor!");
+                    throw new LoginException("No! You must login before using the database in editor!");
                 }
                 CurrentFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
                 database = FirebaseDatabase.GetInstance(CurrentFirebaseApp);
