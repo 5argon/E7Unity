@@ -145,13 +145,16 @@ public partial class PlayerData {
         }
     }
 
-
-
     /// <summary>
     /// Does not destroy your save file
     /// </summary>
     public void Initialize()
     {
+        if(IsInitialized)
+        {
+            //If you want this to work again you have to call Reset()
+            throw new Exception("Already initialized");
+        }
         this.StartPlaying = DateTime.UtcNow.ToString("s");
         this.DisplayName = defaultNamePrefix + UnityEngine.Random.Range(0,9999).ToString("0000");
         bool isShortUserIdGood = false;
