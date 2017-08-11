@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.TestTools;
@@ -185,3 +186,5 @@ public class UnityMobilePlatformAttribute : UnityPlatformAttribute
         this.include = new RuntimePlatform[]{RuntimePlatform.Android, RuntimePlatform.IPhonePlayer};
     }
 }
+
+#endif

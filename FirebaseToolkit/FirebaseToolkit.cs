@@ -288,35 +288,57 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     /// </summary>
     protected static Task UploadFromPersistent(string localFileName, string firebaseFolder, string firebaseFileName)
     {
-        StorageReference uploadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
-
-        FileStream stream = new FileStream(Application.persistentDataPath + Path.DirectorySeparatorChar + localFileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return uploadReference.PutStreamAsync(stream).ContinueWith(uploadTask => { stream.Close(); });
+        return UploadCommon(Application.persistentDataPath + Path.DirectorySeparatorChar + localFileName, firebaseFolder,firebaseFileName);
     }
 
 #if UNITY_EDITOR
     protected static Task UploadFromAssetFolder(string pathFromAssetsFolder, string firebaseFolder, string firebaseFileName)
     {
-        StorageReference uploadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
-
-        FileStream stream = new FileStream(Application.dataPath + Path.DirectorySeparatorChar + pathFromAssetsFolder, FileMode.Open, FileAccess.Read, FileShare.Read);
-        return uploadReference.PutStreamAsync(stream).ContinueWith(uploadTask => { stream.Close(); });
+        return UploadCommon(Application.dataPath + Path.DirectorySeparatorChar + pathFromAssetsFolder, firebaseFolder,firebaseFileName);
     }
 #endif
 
-    protected static Task DownloadToPersistent(string folder, string firebaseFileName, string fileNameToSave)
+#if UNITY_STANDALONE
+    protected static Task UploadFromAppLocation(string pathFromAppLocation, string firebaseFolder, string firebaseFileName)
     {
-        StorageReference downloadReference = Storage.RootReference.Child(folder).Child(firebaseFileName);
-        return downloadReference.GetFileAsync(Application.persistentDataPath + Path.DirectorySeparatorChar + fileNameToSave);
+        return UploadCommon(Path.GetFullPath(".") + Path.DirectorySeparatorChar + pathFromAppLocation, firebaseFolder, firebaseFileName);
+    }
+#endif
+
+    private static Task UploadCommon(string uploadFromPath, string firebaseFolder, string firebaseFileName)
+    {
+        StorageReference uploadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
+
+        FileStream stream = new FileStream(uploadFromPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return uploadReference.PutStreamAsync(stream).ContinueWith(uploadTask => { stream.Close(); });
+    }
+
+    protected static Task DownloadToPersistent(string firebaseFolder, string firebaseFileName, string fileNameToSave)
+    {
+        return DownloadToAssetFolder(firebaseFolder, firebaseFileName, Application.persistentDataPath + Path.DirectorySeparatorChar + fileNameToSave);
     }
 
 #if UNITY_EDITOR
-    protected static Task DownloadToAssetFolder(string folder, string firebaseFileName, string fileNameToSaveFromAssetFolder)
+    protected static Task DownloadToAssetFolder(string firebaseFolder, string firebaseFileName, string fileNameToSaveFromAssetFolder)
     {
-        StorageReference downloadReference = Storage.RootReference.Child(folder).Child(firebaseFileName);
-        return downloadReference.GetFileAsync(Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder).ContinueWith(downloadTask => AssetDatabase.Refresh());
+        return DownloadCommon(firebaseFolder, firebaseFileName,Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder).ContinueWith(downloadTask => AssetDatabase.Refresh());
     }
 #endif
+
+#if UNITY_STANDALONE
+    protected static Task DownloadToAppLocation(string firebaseFolder, string firebaseFileName, string fileNameToSaveFromAppLocation)
+    {
+        return DownloadCommon(firebaseFolder, firebaseFileName, Path.GetFullPath(".")+ Path.DirectorySeparatorChar + fileNameToSaveFromAppLocation);
+    }
+#endif
+
+private static Task DownloadCommon(string firebaseFolder, string firebaseFileName, string downloadFromPath)
+{
+        StorageReference downloadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
+        return downloadReference.GetFileAsync(downloadFromPath);
+
+}
+
 }
 
 public static class TaskExtension
