@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 using System.IO;
 using UnityEngine;
 #if UNITY_EDITOR
-using Firebase.Unity.Editor;
 using UnityEditor;
+#endif
+#if UNITY_EDITOR || UNITY_STANDALONE
+using Firebase.Unity.Editor;
 #endif
 
 /// <summary>
@@ -27,14 +29,13 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     /// </summary>
     protected abstract string BucketName { get; }
 
-
-//I will really make sure all of these does not leak out of your computer..!
-#if UNITY_EDITOR
     /// <summary>
     /// Format : "https://yourgame.firebaseio.com/"
     /// DatabaseUrl can't be read off the config file in editor. You must provide the string for editor use.
     /// </summary>
     protected abstract string DatabaseUrl { get; }
+
+#if UNITY_EDITOR || UNITY_STANDALONE
 
     /// <summary>
     /// Format : "askfjsdafkj.p12"
@@ -67,7 +68,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
     private static readonly string defaultInstanceName = "default";
     private static string currentInstanceName = defaultInstanceName;
     private static List<string> createdInstanceList = new List<string>() { defaultInstanceName };
@@ -79,7 +80,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
         if (createdInstanceList.Contains(toName) == false)
         {
-            Debug.Log("Created new FirebaseApp instance named " + toName);
+            //Debug.Log("Created new FirebaseApp instance named " + toName);
             FirebaseApp.Create(DefaultFirebaseOption, toName);
             createdInstanceList.Add(toName);
         }
@@ -108,7 +109,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (currentFirebaseApp == null)
             {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
                 currentFirebaseApp = FirebaseApp.GetInstance(currentInstanceName);
 #else
                 currentFirebaseApp = FirebaseApp.DefaultInstance;
@@ -147,17 +148,18 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (database == null)
             {
-#if UNITY_EDITOR
                 if (IsLoggedIn == false)
                 {
                     throw new LoginException("No! You must login before using the database in editor!");
                 }
+#if UNITY_EDITOR || UNITY_STANDALONE
                 CurrentFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
                 database = FirebaseDatabase.GetInstance(CurrentFirebaseApp);
 #else
-                database = FirebaseDatabase.GetInstance(CurrentFirebaseApp);
+                database = FirebaseDatabase.GetInstance(CurrentFirebaseApp,Instance.DatabaseUrl);
 #endif
             }
+
             return database;
         }
     }
@@ -175,7 +177,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
     /// <summary>
     /// Call this from your Login in Editor instead of Auth. Maybe use #if UNITY_EDITOR to help.
     /// </summary>
@@ -198,7 +200,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 
     public static void Logout()
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
         SwitchInstance(defaultInstanceName);
 #else
         Auth.SignOut();
@@ -214,7 +216,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             PlayerId : {2}
             FormattedPlayerId : {3}";
 
-            #if UNITY_EDITOR
+            #if UNITY_EDITOR || UNITY_STANDALONE
             return string.Format(info,
             CurrentFirebaseApp.GetEditorAuthUserId(),
             currentInstanceName,
@@ -235,7 +237,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     {
         get
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             if (currentInstanceName != defaultInstanceName)
             {
                 return true;
@@ -259,7 +261,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             {
                 throw new Exception("Cannot get E-mail while not logged in");
             }
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             return CurrentFirebaseApp.Name; //The instance name is an e-mail
 #else
             return Auth.CurrentUser.Email;
@@ -275,7 +277,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             {
                 throw new Exception("Cannot get ID while not logged in");
             }
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             return CurrentFirebaseApp.GetEditorAuthUserId();
 #else
             return Auth.CurrentUser.UserId;
@@ -315,13 +317,15 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 
     protected static Task DownloadToPersistent(string firebaseFolder, string firebaseFileName, string fileNameToSave)
     {
-        return DownloadToAssetFolder(firebaseFolder, firebaseFileName, Application.persistentDataPath + Path.DirectorySeparatorChar + fileNameToSave);
+        return DownloadCommon(firebaseFolder, firebaseFileName, Application.persistentDataPath + Path.DirectorySeparatorChar + fileNameToSave);
     }
 
 #if UNITY_EDITOR
     protected static Task DownloadToAssetFolder(string firebaseFolder, string firebaseFileName, string fileNameToSaveFromAssetFolder)
     {
-        return DownloadCommon(firebaseFolder, firebaseFileName,Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder).ContinueWith(downloadTask => AssetDatabase.Refresh());
+        Task t = DownloadCommon(firebaseFolder, firebaseFileName,Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder);
+        t.ContinueWith(downloadTask => AssetDatabase.Refresh());
+        return t;
     }
 #endif
 
