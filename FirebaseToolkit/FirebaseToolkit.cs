@@ -71,6 +71,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 #if UNITY_EDITOR || UNITY_STANDALONE
     private static readonly string defaultInstanceName = "default";
     private static string currentInstanceName = defaultInstanceName;
+    protected static string CurrentInstanceName { get { return currentInstanceName; } }
     private static List<string> createdInstanceList = new List<string>() { defaultInstanceName };
     private static void SwitchInstance(string toName)
     {
@@ -150,7 +151,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             {
                 if (IsLoggedIn == false)
                 {
-                    throw new LoginException("No! You must login before using the database in editor!");
+                    throw new Exception("No! You must login before using the database in editor!");
                 }
 #if UNITY_EDITOR || UNITY_STANDALONE
                 CurrentFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
@@ -205,31 +206,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 #else
         Auth.SignOut();
 #endif
-    }
-
-    public static string LoginInformation
-    {
-        get{
-            string info = 
-            @"UserId : {0}
-            E-mail : {1}
-            PlayerId : {2}
-            FormattedPlayerId : {3}";
-
-            #if UNITY_EDITOR || UNITY_STANDALONE
-            return string.Format(info,
-            CurrentFirebaseApp.GetEditorAuthUserId(),
-            currentInstanceName,
-            PlayerData.Local.PlayerId,
-            PlayerData.Local.FormattedShortPlayerId);
-            #else
-            return string.Format(info,
-            Auth.CurrentUser.Email,
-            Auth.CurrentUser.UserId,
-            PlayerData.Local.PlayerId,
-            PlayerData.Local.FormattedShortPlayerId);
-            #endif
-        }
     }
 
 
@@ -324,7 +300,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     protected static Task DownloadToAssetFolder(string firebaseFolder, string firebaseFileName, string fileNameToSaveFromAssetFolder)
     {
         Task t = DownloadCommon(firebaseFolder, firebaseFileName,Application.dataPath + Path.DirectorySeparatorChar + fileNameToSaveFromAssetFolder);
-        t.ContinueWith(downloadTask => AssetDatabase.Refresh());
         return t;
     }
 #endif
@@ -336,10 +311,10 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     }
 #endif
 
-private static Task DownloadCommon(string firebaseFolder, string firebaseFileName, string downloadFromPath)
+private static Task DownloadCommon(string firebaseFolder, string firebaseFileName, string destination)
 {
         StorageReference downloadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
-        return downloadReference.GetFileAsync(downloadFromPath);
+        return downloadReference.GetFileAsync(destination);
 
 }
 

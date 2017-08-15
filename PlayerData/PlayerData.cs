@@ -182,6 +182,7 @@ public partial class PlayerData {
 
     public void Save()
     {
+		Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes");
         LastUpdated = DateTime.UtcNow.ToString("s");
         SaveAs(playerDataFileName);
     }
@@ -198,6 +199,7 @@ public partial class PlayerData {
 
     private void SaveAs(string name)
     {
+		Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
         //Debug.Log("Saved : " + Application.persistentDataPath);
         FileStream file = File.Create(Application.persistentDataPath + "/" + name);
         DESCryptoServiceProvider des = new DESCryptoServiceProvider();
@@ -233,6 +235,7 @@ public partial class PlayerData {
 
     private static PlayerData PlayerDataFromStream(Stream stream)
     {
+		Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
         DESCryptoServiceProvider des = new DESCryptoServiceProvider();
         PlayerData loadedData = new PlayerData();
         using (var cryptoStream = new CryptoStream(stream, des.CreateDecryptor(key, iv), CryptoStreamMode.Read))
