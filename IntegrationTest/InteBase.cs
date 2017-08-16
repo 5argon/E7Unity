@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.TestTools;
 using NUnit.Framework;
+using System;
+using System.Threading.Tasks;
 
 //This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
 public abstract class InteBase {
@@ -36,7 +38,7 @@ public abstract class InteBase {
         T t = null;
         while(t == null)
         {
-            t = (T)Object.FindObjectOfType(typeof(T));
+            t = (T)UnityEngine.Object.FindObjectOfType(typeof(T));
             yield return new WaitForSeconds(0.1f);
         }
     }
@@ -48,7 +50,7 @@ public abstract class InteBase {
     /// <returns></returns>
     protected T Find<T>() where T : MonoBehaviour
     {
-        return Object.FindObjectOfType(typeof(T)) as T;
+        return UnityEngine.Object.FindObjectOfType(typeof(T)) as T;
     }
 
     //Get specific object name's component
@@ -105,7 +107,7 @@ public abstract class InteBase {
     /// <returns></returns>
     protected GameObject FindGameObject<T>() where T : MonoBehaviour
     {
-        return (Object.FindObjectOfType(typeof(T)) as T).gameObject;
+        return (UnityEngine.Object.FindObjectOfType(typeof(T)) as T).gameObject;
     }
 
     protected bool CheckGameObject(string name)
@@ -162,6 +164,15 @@ public abstract class InteBase {
         return modeSelect.IsValid();
     }
 
+    protected IEnumerator TestTask(Func<Task> asyncLambda)
+    {
+        Task t = Task.Run(asyncLambda);
+        while(t.IsCompleted == false)
+        {
+            yield return null;
+        }
+        Assert.That(t.IsFaulted, Is.Not.True, t.Exception?.ToString());
+    }
 
 }
 
@@ -186,5 +197,6 @@ public class UnityMobilePlatformAttribute : UnityPlatformAttribute
         this.include = new RuntimePlatform[]{RuntimePlatform.Android, RuntimePlatform.IPhonePlayer};
     }
 }
+
 
 #endif

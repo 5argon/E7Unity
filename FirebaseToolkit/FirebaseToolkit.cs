@@ -311,12 +311,11 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     }
 #endif
 
-private static Task DownloadCommon(string firebaseFolder, string firebaseFileName, string destination)
-{
+    private static Task DownloadCommon(string firebaseFolder, string firebaseFileName, string destination)
+    {
         StorageReference downloadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
         return downloadReference.GetFileAsync(destination);
-
-}
+    }
 
 }
 
@@ -330,10 +329,6 @@ public static class TaskExtension
         while (task.IsCompleted == false)
         {
             yield return null;
-        }
-        if(task.IsFaulted)
-        {
-            throw task.Exception;
         }
     }
 }
