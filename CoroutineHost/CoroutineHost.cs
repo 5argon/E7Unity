@@ -8,12 +8,14 @@ using System;
 using System.Threading.Tasks;
 #endif
 
-public class CoroutineHost : MonoBehaviour
+public class CoroutineHost
 {
-    private static CoroutineHost crossThreadHost;
-    private static CoroutineHost CrossThreadHost{
-        get{
-            if(crossThreadHost == null)
+    protected static CoroutineHostInstance crossThreadHost;
+    protected static CoroutineHostInstance CrossThreadHost
+    {
+        get
+        {
+            if (crossThreadHost == null)
             {
                 crossThreadHost = InstantiateCoroutineHost(); //error when on non-main thread. Call PrepareCrossthread beforehand.
             }
@@ -21,12 +23,12 @@ public class CoroutineHost : MonoBehaviour
         }
     }
 
-    private static CoroutineHost InstantiateCoroutineHost()
+    private static CoroutineHostInstance InstantiateCoroutineHost()
     {
         GameObject coroutineHost = new GameObject("Coroutine Host");
-        CoroutineHost coroutineHostComponent = coroutineHost.AddComponent<CoroutineHost>();
-        GameObject.DontDestroyOnLoad(crossThreadHost); 
-        return coroutineHostComponent;
+        CoroutineHostInstance chi = coroutineHost.AddComponent<CoroutineHostInstance>();
+        GameObject.DontDestroyOnLoad(coroutineHost);
+        return chi;
     }
 
     /// <summary>
@@ -38,27 +40,25 @@ public class CoroutineHost : MonoBehaviour
     }
 
     /// <summary>
-    /// The point of this is for starting an action on the moment we are changing scene. On the next scene, the one frame wait will Awake everything
-    /// and grants you access for things in that scene you might need.
+    /// You can run some lambdas immediately on the main thread. It will becomes a one-line coroutine internally.
     /// </summary>
-    /// <param name="action">Using lambda recommended</param>
-
+    /// <param name="delay">If you use null, it will results in a 1 frame wait</param>
+    /// <returns></returns>
 #if COROUTINEHOST_TASKS
-    public static Task StartDelayedActionOneFrame(Action action)
+    public static Task Host(Action action, WaitForSeconds delay)
 #else
-    public static void StartDelayedActionOneFrame(Action action)
-#endif 
+    public static void Host(Action action,WaitForSeconds delay)
+#endif
     {
-        IEnumerator ienum = DelayedOneFrameRoutine(action);
 #if COROUTINEHOST_TASKS
-        return Host(ienum);
+        return Host(ConvertActionToCoroutine(action, delay));
 #else
-        Host(ienum);
+        return Host(ConvertActionToCoroutine(action,delay));
 #endif
     }
 
     /// <summary>
-    /// If you have some lambdas you want to be run on the main thread then use this one.
+    /// You can run some lambdas immediately on the main thread. It will becomes a one-line coroutine internally.
     /// </summary>
 #if COROUTINEHOST_TASKS
     public static Task Host(Action action)
@@ -79,6 +79,12 @@ public class CoroutineHost : MonoBehaviour
         yield break;
     }
 
+    private static IEnumerator ConvertActionToCoroutine(Action action, WaitForSeconds delay)
+    {
+        yield return delay;
+        action.Invoke();
+    }
+
     /// <summary>
     /// Think of this as just StartCoroutine() that is able to use from outside of MonoBehaviour or static methods.
     /// </summary>
@@ -89,80 +95,123 @@ public class CoroutineHost : MonoBehaviour
 #endif
     {
 #if COROUTINEHOST_TASKS
+        return CrossThreadHost.QueueCoroutine(YieldConvert(coroutine));
+#else
+        CrossThreadHost.QueueCoroutine(YieldConvert(coroutine));
+#endif
+    }
+
+    // I am not sure if this costs 1 more frame for all lambdas or not?
+    private static IEnumerator<object> YieldConvert(IEnumerator coroutine)
+    {
+        yield return coroutine;
+    }
+
+    /// <summary>
+    /// You can run lambdas WITH return value on the main thread and get that return value via Task.
+    /// You still need to cast object to the type by yourself, since T cannot go down the way to MonoBehaviour where the value is returned.
+    /// T is just a small compiler check so that your lambda really returns the value you want.
+    /// </summary>
+#if COROUTINEHOST_TASKS
+    public static Task<object> Host<T>(Func<T> func)
+#else
+    public static void Host<T>(Func<T> func)
+#endif
+    {
+#if COROUTINEHOST_TASKS
+        return Host(ConvertFuncToCoroutine<T>(func));
+#else
+        return Host(ConvertFuncToCoroutine<T>(func));
+#endif
+    }
+
+    private static IEnumerator<object> ConvertFuncToCoroutine<T>(Func<T> func)
+    {
+        yield return func.Invoke();
+    }
+
+    /// <summary>
+    /// A method used internally but you might be able to have return value from a coroutine.. 
+    /// Don't know if it works or not but for now I leave it public.
+    /// But in that case you cannot yield return WaitForSeconds since it is expecting a normal IEnumerator.
+    /// </summary>
+#if COROUTINEHOST_TASKS
+    public static Task<object> Host(IEnumerator<object> coroutine)
+#else
+    public static void Host(IEnumerator<object> coroutine)
+#endif
+    {
+#if COROUTINEHOST_TASKS
         return CrossThreadHost.QueueCoroutine(coroutine);
 #else
         CrossThreadHost.QueueCoroutine(coroutine);
 #endif
     }
 
-    private static IEnumerator DelayedOneFrameRoutine(Action delayedAction)
+    public class CoroutineHostInstance : MonoBehaviour
     {
-        yield return null;
-        delayedAction.Invoke();
-    }
-
-    // ---- Non-static  ----
-
-    private Queue<IEnumerator> coroutineQueue;
+        private Queue<IEnumerator<object>> coroutineQueue;
 #if COROUTINEHOST_TASKS
-    private Dictionary<IEnumerator, TaskCompletionSource<object>> taskCompletionSources;
-    private List<IEnumerator> rememberRemoval;
+        private Dictionary<IEnumerator<object>, TaskCompletionSource<object>> taskCompletionSources;
+        private List<IEnumerator<object>> rememberRemoval;
 #endif
-    public void Awake()
-    {
-        coroutineQueue = new Queue<IEnumerator>();
-#if COROUTINEHOST_TASKS
-        taskCompletionSources = new Dictionary<IEnumerator, TaskCompletionSource<object>>();
-        rememberRemoval = new List<IEnumerator>();
-#endif
-    }
 
 #if COROUTINEHOST_TASKS
-    private Task QueueCoroutine(IEnumerator coroutine)
+        public Task<object> QueueCoroutine(IEnumerator<object> coroutine)
 #else
-    private void QueueCoroutine(IEnumerator coroutine)
+    private void QueueCoroutine(IEnumerator<object> coroutine)
 #endif
-    {
-        lock (coroutineQueue)
         {
-            coroutineQueue.Enqueue(coroutine);
+            lock (coroutineQueue)
+            {
+                coroutineQueue.Enqueue(coroutine);
 #if COROUTINEHOST_TASKS
-            TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
-            taskCompletionSources.Add(coroutine,tcs);
-            return tcs.Task;
+                TaskCompletionSource<object> tcs = new TaskCompletionSource<object>();
+                taskCompletionSources.Add(coroutine, tcs);
+                return tcs.Task;
+#endif
+            }
+        }
+
+        public void Awake()
+        {
+            coroutineQueue = new Queue<IEnumerator<object>>();
+#if COROUTINEHOST_TASKS
+            taskCompletionSources = new Dictionary<IEnumerator<object>, TaskCompletionSource<object>>();
+            rememberRemoval = new List<IEnumerator<object>>();
+#endif
+        }
+
+        private void Update()
+        {
+            lock (coroutineQueue)
+            {
+                while (coroutineQueue.Count > 0)
+                {
+                    StartCoroutine(coroutineQueue.Dequeue());
+                }
+            }
+#if COROUTINEHOST_TASKS
+            foreach (KeyValuePair<IEnumerator<object>, TaskCompletionSource<object>> kvp in taskCompletionSources)
+            {
+                if (kvp.Key != null && kvp.Key.MoveNext() == false)
+                {
+                    kvp.Value.SetResult(kvp.Key.Current);
+                    rememberRemoval.Add(kvp.Key);
+                }
+            }
+            if (rememberRemoval.Count > 0)
+            {
+                foreach (IEnumerator<object> ie in rememberRemoval)
+                {
+                    taskCompletionSources.Remove(ie);
+                    //Debug.Log("Removing...");
+                }
+                rememberRemoval.Clear();
+            }
 #endif
         }
     }
 
-    private void Update()
-    {
-
-        lock (coroutineQueue)
-        {
-            while (coroutineQueue.Count > 0)
-            {
-                StartCoroutine(coroutineQueue.Dequeue());
-            }
-        }
-#if COROUTINEHOST_TASKS
-        foreach (KeyValuePair<IEnumerator, TaskCompletionSource<object>> kvp in taskCompletionSources)
-        {
-            if (kvp.Key != null && kvp.Key.MoveNext() == false)
-            {
-                kvp.Value.SetResult(null);
-                rememberRemoval.Add(kvp.Key);
-            }
-        }
-        if (rememberRemoval.Count > 0)
-        {
-            foreach (IEnumerator ie in rememberRemoval)
-            {
-                taskCompletionSources.Remove(ie);
-                Debug.Log("Removing...");
-            }
-            rememberRemoval.Clear();
-        }
-#endif
-    }
 
 }

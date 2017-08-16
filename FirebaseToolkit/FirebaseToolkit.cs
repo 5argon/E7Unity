@@ -73,13 +73,16 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     private static string currentInstanceName = defaultInstanceName;
     protected static string CurrentInstanceName { get { return currentInstanceName; } }
     private static List<string> createdInstanceList = new List<string>() { defaultInstanceName };
-    private static void SwitchInstance(string toName)
+
+    /// <returns>false means the instance is already created.</returns>
+    private static bool SwitchInstance(string toName)
     {
+        bool isAlreadyCreated = createdInstanceList.Contains(toName);
         if(currentInstanceName == defaultInstanceName && toName == defaultInstanceName)
         {
-            return;
+            return false;
         }
-        if (createdInstanceList.Contains(toName) == false)
+        if (!isAlreadyCreated)
         {
             //Debug.Log("Created new FirebaseApp instance named " + toName);
             FirebaseApp.Create(DefaultFirebaseOption, toName);
@@ -97,9 +100,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         currentFirebaseApp = null;
         database = null;
         storage = null;
-// #if !UNITY_EDITOR
-//         auth = null;
-// #endif
+        return !isAlreadyCreated;
     }
 #endif
 
@@ -188,12 +189,15 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         //since you cannot take it out once you made the first DB call.
 
         //In the real game we would need only one instance.
-        SwitchInstance(username); //Every CurrentFirebaseApp will change!
+        bool switchCreatesNewInstance = SwitchInstance(username); //Every CurrentFirebaseApp will change!
 
-        CurrentFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
-        CurrentFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
-        CurrentFirebaseApp.SetEditorP12Password("notasecret");
-        CurrentFirebaseApp.SetEditorAuthUserId(uid);
+        if (switchCreatesNewInstance)
+        {
+            CurrentFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
+            CurrentFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
+            CurrentFirebaseApp.SetEditorP12Password("notasecret");
+            CurrentFirebaseApp.SetEditorAuthUserId(uid);
+        }
 
         Debug.LogFormat("EDITOR login as {0}", uid);
     }

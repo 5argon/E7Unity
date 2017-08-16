@@ -4,7 +4,29 @@ This class can automatically instantiate a `MonoBehaviour` to host a coroutine w
 
 *If you don't have an access to `Task` please **comment out the preprocessor at the first line**.
 
-## Usage
+## Methods
+
+Just `CoroutineHost.Host`! But it has several overloads.
+
+```csharp
+    //IEnumerator
+    CoroutineHost.Host(CoroutineFunctionThatReturnsIEnumerator());
+
+    //Action
+    CoroutineHost.Host(AnyMethodWithoutArgument);
+    CoroutineHost.Host(()=>AnyMethod(555));
+    CoroutineHost.Host(()=>{ AnyMethod(555); MoreMethod(555);});
+    CoroutineHost.Host(()=>DelayBeforeThis(), new WaitForSeconds(3));
+
+    //Func
+    CoroutineHost.Host<int>(()=> { return MethodReturnsInt(); });
+    int returnValue = await CoroutineHost.Host<int>(()=> { return MethodReturnsInt(); });
+```
+
+
+## Simple Usages
+
+### Starting a coroutine
 
 ```csharp
 public static void SomeInconvenientPlace()
@@ -19,7 +41,9 @@ IEnumerator MyRoutine()
 }
 ```
 
-## Advanced usage with .NET 4.6 / `System.Threading.Tasks`
+## Advanced Usages
+
+### Call cross-thread with .NET 4.6 / `System.Threading.Tasks`
 
 ```csharp
 public void MyMethod()
@@ -37,7 +61,35 @@ IEnumerator MyRoutine()
 }
 ```
 
-## Advanced usage with C# 5's `async/await`
+### Starting a lambda function on the main thread
+
+```csharp
+    Task.Run(()=>{
+        //We are in non-main thread now
+
+        //Application.persistentDataPath does not work on non-main thread so we have the main thread host it.
+        //This lambda will becomes a coroutine inside.
+        CoroutineHost.Host(() => Debug.Log(Application.persistentDataPath));
+    });
+```
+
+
+### Order the main thread to execute lambda with a return value getting it back when the main thread finishes executing the function
+
+```csharp
+    Task.Run(()=>{
+        //We are in a non-main thread now
+
+        //This Host<T> signifies lambda with return value, but unfortunately does not affects return type. It is still an "object".
+        //But it can make sure that your lambda return T or compile will error.
+        Task<object> t = CoroutineHost.Host<string>(() => { return Application.persistentDataPath; });
+
+        //So you will need to cast it again. (It's Unity's fault for not allowing generic with MonoBehaviour where the return value was sent back.)
+        t.ContinueWith( t => Debug.Log((string)t.Result);
+    });
+```
+
+### Usage with C# 5's `async/await`
 
 ```csharp
 public async Task MyAsyncMethodOnMainThread()
@@ -60,6 +112,18 @@ IEnumerator MyHeavyRoutine()
         yield return null;
     }
 }
+```
+
+### `async/await` makes the return value lambda simpler
+
+```csharp
+    Task.Run(async ()=>{
+        //We are in non-main thread now
+
+        //await automatically turns Task<object> into object
+        string result = (string) await CoroutineHost.Host<string>(() => { return Application.persistentDataPath; });
+        Debug.Log(result);
+    });
 ```
 
 ## Explanations
