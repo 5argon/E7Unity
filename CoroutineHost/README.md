@@ -140,6 +140,15 @@ If you want to use it from non-main thread, call `CoroutineHost.PrepareCrossThre
 
 Also in that case you might have `System.Threading.Tasks`, the return of `.Host` is of type `Task`. You can use `.ContinueWith` or others as you like. If you also have `async`/`await` available (.NET 4.6, C# 5+) you can `await CoroutineHost.Host(...)` to wait for your main thread from your child thread.
 
+## Thread Ninja?
+If you know about [Thread Ninja](https://www.assetstore.unity3d.com/en/#!/content/15717), a plugin in the asset store since Unity 3.4 that can start a coroutine on new thread + utility to switch back to main thread on the fly mid-coroutine. You might want to know how this compares to it.
+
+- Both tools are not of the same purpose but can achieve similar results.
+- CoroutineHost cannot start a task in the new thread. You must be already in a child thread and use CoroutineHost to issue task on the main thread, then you can use `await` to wait for the command. Thread Ninja use procedural style programming and internal that supports .NET 3.5 (that is, using Threading but not Tasks) so that both of your main thread work and your child thread work seems to be magically in the same coroutine separated by a line of `Ninja.` call.
+- To use CoroutineHost like Thread Ninja, start a task with standard Task Parallel Library call like Task.Run(). In Thread Ninja, you start a new thread with a coroutine. With TPL, you can start a new thread with any code because it is a part of standard C#. This has an advantage of allowing more natural programming, does not require you to encapsulate your work in a function that returns `IEnumerator`.
+- I don't know about the performace of TPL in .NET 4.6 vs. bare bone `Threading` in .NET 3.5. But [according to Microsoft](https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming), they said TPL uses `ThreadPool` eventually but is backed by efficient load balancing algorithms. So, I think using TPL + CoroutineHost for "ninja jump" to the main thread seems like a great idea.
+- However if you can't use .NET 4.6 then Thread Ninja is definitely the way to go. The power of TPL + CoroutineHost is unlocked by `Task` and `async`/`await`.
+
 ## Possible improvements
 
 Because we can get `Task` from `.Host` it should be possible to send a cancellation token to `StopCoroutine` in the host. I don't need to stop my routine at the moment, so this feature is still just an idea.
