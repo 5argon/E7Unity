@@ -36,7 +36,7 @@ public abstract class InteBase {
     protected IEnumerator WaitUntilFound<T>() where T : MonoBehaviour
     {
         T t = null;
-        while(t == null)
+        while (t == null)
         {
             t = (T)UnityEngine.Object.FindObjectOfType(typeof(T));
             yield return new WaitForSeconds(0.1f);
@@ -57,11 +57,12 @@ public abstract class InteBase {
     protected T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
     {
         GameObject go = GameObject.Find(gameObjectName);
-        if(go != null)
+        if (go != null)
         {
             return go.GetComponent<T>();
         }
-        else{
+        else
+        {
             return null;
         }
     }
@@ -74,7 +75,7 @@ public abstract class InteBase {
     protected T FindOnSceneRoot<T>(string sceneName = "") where T : MonoBehaviour
     {
         Scene scene;
-        if(sceneName == "")
+        if (sceneName == "")
         {
             scene = SceneManager.GetActiveScene();
         }
@@ -82,13 +83,13 @@ public abstract class InteBase {
         {
             scene = SceneManager.GetSceneByName(sceneName);
         }
-        if(scene.IsValid() == true)
+        if (scene.IsValid() == true)
         {
             GameObject[] gos = scene.GetRootGameObjects();
-            foreach(GameObject go in gos)
+            foreach (GameObject go in gos)
             {
                 T component = go.GetComponent<T>();
-                if(component != null)
+                if (component != null)
                 {
                     return component;
                 }
@@ -113,7 +114,7 @@ public abstract class InteBase {
     protected bool CheckGameObject(string name)
     {
         GameObject go = GameObject.Find(name);
-        if(go == null)
+        if (go == null)
         {
             return false;
         }
@@ -132,10 +133,10 @@ public abstract class InteBase {
     {
         Vector3[] corners = new Vector3[4];
         GameObject go = GameObject.Find(gameObjectName);
-        if(go != null)
+        if (go != null)
         {
             go.GetComponent<RectTransform>().GetWorldCorners(corners);
-            return Vector3.Lerp(Vector3.Lerp(corners[0],corners[1],0.5f) , Vector3.Lerp(corners[2],corners[3],0.5f) , 0.5f);
+            return Vector3.Lerp(Vector3.Lerp(corners[0], corners[1], 0.5f), Vector3.Lerp(corners[2], corners[3], 0.5f), 0.5f);
         }
         else
         {
@@ -147,7 +148,7 @@ public abstract class InteBase {
     public Vector2 CenterOfSpriteName(string gameObjectName)
     {
         GameObject go = GameObject.Find(gameObjectName);
-        if(go != null)
+        if (go != null)
         {
             return go.GetComponent<SpriteRenderer>().transform.position;
         }
@@ -164,39 +165,28 @@ public abstract class InteBase {
         return modeSelect.IsValid();
     }
 
-    protected IEnumerator TestTask(Func<Task> asyncLambda)
+    /// <summary>
+    /// Test with this attribute runs only in Unity editor
+    /// </summary>
+    public class UnityEditorPlatformAttribute : UnityPlatformAttribute
     {
-        Task t = Task.Run(asyncLambda);
-        while(t.IsCompleted == false)
+        public UnityEditorPlatformAttribute()
         {
-            yield return null;
+            this.include = new RuntimePlatform[] { RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.LinuxEditor };
         }
-        Assert.That(t.IsFaulted, Is.Not.True, t.Exception?.ToString());
     }
 
-}
-
-/// <summary>
-/// Test with this attribute runs only in Unity editor
-/// </summary>
-public class UnityEditorPlatformAttribute : UnityPlatformAttribute
-{
-    public UnityEditorPlatformAttribute()
+    /// <summary>
+    /// Test with this attribute runs only on the real mobile device
+    /// </summary>
+    public class UnityMobilePlatformAttribute : UnityPlatformAttribute
     {
-        this.include = new RuntimePlatform[]{RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.LinuxEditor};
+        public UnityMobilePlatformAttribute()
+        {
+            this.include = new RuntimePlatform[] { RuntimePlatform.Android, RuntimePlatform.IPhonePlayer };
+        }
     }
-}
 
-/// <summary>
-/// Test with this attribute runs only on the real mobile device
-/// </summary>
-public class UnityMobilePlatformAttribute : UnityPlatformAttribute
-{
-    public UnityMobilePlatformAttribute()
-    {
-        this.include = new RuntimePlatform[]{RuntimePlatform.Android, RuntimePlatform.IPhonePlayer};
-    }
 }
-
 
 #endif

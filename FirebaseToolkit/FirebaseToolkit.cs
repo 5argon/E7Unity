@@ -91,6 +91,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 
         if (currentInstanceName == toName)
         {
+            //This helps you code your UI better so it should not lead to double login
             throw new Exception("We should not have switch to the same instance! Stupid! (" + currentInstanceName + "->" + toName + ")");
         }
 
