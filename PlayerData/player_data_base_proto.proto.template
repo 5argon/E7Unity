@@ -14,4 +14,6 @@ message PlayerDataProto {
     int32 player_id_hash = 3;
     string short_player_id = 4;
     string email = 5;
+    string start_playing = 6;
+    string last_updated = 7;
 }

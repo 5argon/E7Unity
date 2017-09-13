@@ -25,7 +25,7 @@ public class SoundEffectDrawer : PropertyDrawer
 		if(GUI.Button(rectOnTheRightSide,"►"))
 		{
 			//SoundEffectPlayer.Instance.PlaySoundEffect(property.objectReferenceValue as SoundEffect);
-			HitSoundPlayer.PlayAudioInEditor(property.FindPropertyRelative("audioClip").objectReferenceValue as AudioClip);
+			SoundEffectPlayer.PlayAudioInEditor(property.FindPropertyRelative("audioClip").objectReferenceValue as AudioClip);
 		}
 	}
 }

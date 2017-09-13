@@ -19,7 +19,7 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     public bool mainSide;
     protected T otherSide;
 
-    private static string ConnectorTagName = Preferences.ConnectorTagName;
+    private static string ConnectorTagName = "Connector";
 
     protected virtual void Awake()
     {
