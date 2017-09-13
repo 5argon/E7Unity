@@ -1,4 +1,4 @@
-# UIPrefabInstantiator
+# PrefabInstantiator
 
 ![screenshot](ss.png)
 
@@ -14,13 +14,15 @@ One approach is to remove that prefab and instantiate the prefab via code  by co
 2. You often accidentally Apply the outer ones, rendering the inner one disconnected.
 3. Instantiating prefab via code means you have an additional ceremony of putting it in the right parent, size, scale, etc.
 
-UIPrefabInstantiator grants you :
+PrefabInstantiator grants you :
 
 1. In development, you can add and remove prefabs easily via buttons.
 2. Feel free to bake (apply) the prefab because in run time this will destroy all child and reinstantiate for you. (which will be fresh from the actual prefab.)
 3. Coded for Unity UI, the instantiated prefab `RectTransform` will fill the parent which this component is attached automatically. (You cannot use this without `RectTransform`)
 4. In the script you can keep the reference to the instantiator, then ask it about the actual object (e.g. `GetComponentOfInstantiated<T>`)
 5. You can also manually instantiate the game objects. Useful for `LayoutGroup` where you want to create multiple of that prefabs in the code. `Instantiate<T>` also conveniently return the component you want on that instantiated prefab. Check `preventAutoInstantiation` if you want to do this.
+
+NEW! Now works with non-UI stuff. But you have to check UI checkbox if you want to use it with UI.
 
 ## Requirement
 

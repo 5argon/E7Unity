@@ -10,9 +10,8 @@ using UnityEditor;
 /// Instantiate UI prefab and stretch the rect to the current rect transform
 /// Use the toggle when working on the game and turn it off when we are applying outer prefab to circumvent the nested prefab problem.
 /// </summary>
-[RequireComponent(typeof(RectTransform))]
 [ExecuteInEditMode]
-public class UIPrefabInstantiator : MonoBehaviour {
+public class PrefabInstantiator : MonoBehaviour {
 
 	public ButtonBool togglePrefab;
 	public ButtonBool addPrefab;
@@ -32,9 +31,16 @@ public class UIPrefabInstantiator : MonoBehaviour {
     public bool preventAutoInstantiation;
 
     /// <summary>
+    /// Correctly fits RectTransform to the parent.
+    /// </summary>
+    public bool uiPrefab;
+
+    /// <summary>
     /// In case that you preserve childrens, this will be the first child.
     /// </summary>
 	private GameObject instantiatedPrefab;
+
+    public GameObject FirstInstantiated => IsInstantiated ? instantiatedPrefab : null;
 
     private bool awoken;
 
@@ -118,7 +124,7 @@ public class UIPrefabInstantiator : MonoBehaviour {
         }
     }
 
-    public T GetComponentOfInstantiated<T>() where T : MonoBehaviour 
+    public T GetComponentOfInstantiated<T>() where T : Component 
     {
         if (IsInstantiated)
         {
@@ -150,20 +156,31 @@ public class UIPrefabInstantiator : MonoBehaviour {
         {
             instantiatedPrefab = Instantiate(prefab);
         }
-        instantiatedPrefab.transform.SetParent(gameObject.transform);
-        instantiatedPrefab.transform.localScale = Vector3.one;
-		RectTransform rect = instantiatedPrefab.GetComponent<RectTransform>();
-        rect.localPosition = Vector3.zero;
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMax = Vector2.zero;
-        rect.offsetMin = Vector2.zero;
 
-
-        if(instantiateSize != Vector2.zero)
+        if (uiPrefab)
         {
-            rect.sizeDelta = instantiateSize;
+            RectTransform rect = instantiatedPrefab.GetComponent<RectTransform>();
+            if(rect != null)
+            {
+                rect.localPosition = Vector3.zero;
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMax = Vector2.zero;
+                rect.offsetMin = Vector2.zero;
+            }
         }
+        else
+        {
+            instantiatedPrefab.transform.SetParent(gameObject.transform);
+            instantiatedPrefab.transform.localScale = Vector3.one;
+            instantiatedPrefab.transform.localPosition = Vector3.zero;
+            instantiatedPrefab.transform.localRotation = Quaternion.identity;
+        }
+
+         if(instantiateSize != Vector2.zero)
+         {
+             instantiatedPrefab.transform.localScale = instantiateSize;
+         }
 	}
 
 	[ContextMenu("Destroy")]
