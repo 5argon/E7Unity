@@ -61,10 +61,26 @@ public partial class PlayerData {
     {
         get
         {
-            if(local == null)
+            try
             {
-                //Load from binary
-                local = PlayerData.Load();
+                if(local == null)
+                {
+                    //Load from binary
+                    local = PlayerData.Load();
+                }
+            }
+            catch(CryptographicException)
+            {
+                Debug.LogWarning("Possible old save data or corrupt save data found, trying to migrate.");
+                try
+                {
+                    local = Migration();
+                    local.Save(); //after the migration it should overwrite the old save immediately.
+                }
+                catch(CryptographicException)
+                {
+                    local = new PlayerData(); //you get an empty save if migration also throws crypto
+                }
             }
             return local;
         }
@@ -90,7 +106,7 @@ public partial class PlayerData {
     {
         get 
         { 
-            if(PlayerId == null)
+            if(string.IsNullOrEmpty(PlayerId))
             {
                 return "???-???-???";
             }
@@ -200,7 +216,7 @@ public partial class PlayerData {
     private void SaveAs(string name)
     {
 		Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
-        //Debug.Log("Saved : " + Application.persistentDataPath);
+        Debug.Log("Saved : " + Application.persistentDataPath);
         FileStream file = File.Create(Application.persistentDataPath + "/" + name);
         DESCryptoServiceProvider des = new DESCryptoServiceProvider();
         using (var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
@@ -255,6 +271,14 @@ public partial class PlayerData {
     // {
     //     local = toMergeWith;
     //     PlayerData.Local.Save(); //you might not want auto-save on merge.
+    // }
+
+    /// <summary>
+    /// Currently it is not merge but a complete replace.. move it to your partial and make something cool!
+    /// </summary>
+    // public static PlayerData Migration()
+    // {
+    //     return new PlayerData();
     // }
 
     /// <summary>
