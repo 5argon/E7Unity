@@ -69,17 +69,21 @@ public partial class PlayerData {
                     local = PlayerData.Load();
                 }
             }
-            catch(CryptographicException)
+            catch(CryptographicException ce1)
             {
+                Debug.LogError(ce1);
                 Debug.LogWarning("Possible old save data or corrupt save data found, trying to migrate.");
                 try
                 {
                     local = Migration();
                     local.Save(); //after the migration it should overwrite the old save immediately.
+                    Debug.Log("Migration complete");
                 }
-                catch(CryptographicException)
+                catch(CryptographicException ce2)
                 {
+                    Debug.LogError(ce2);
                     local = new PlayerData(); //you get an empty save if migration also throws crypto
+                    Debug.Log("Could not migrate. Creating a new save file.");
                 }
             }
             return local;
@@ -215,18 +219,19 @@ public partial class PlayerData {
 
     private void SaveAs(string name)
     {
-		Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
+        Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
         Debug.Log("Saved : " + Application.persistentDataPath);
-        FileStream file = File.Create(Application.persistentDataPath + "/" + name);
-        DESCryptoServiceProvider des = new DESCryptoServiceProvider();
-        using (var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
+        using (FileStream file = File.Create(Application.persistentDataPath + "/" + name))
         {
-            using (Google.Protobuf.CodedOutputStream cos = new Google.Protobuf.CodedOutputStream(cryptoStream))
+            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            using (var cryptoStream = new CryptoStream(file, des.CreateEncryptor(key, iv), CryptoStreamMode.Write))
             {
-                local.WriteTo(cos);
+                using (Google.Protobuf.CodedOutputStream cos = new Google.Protobuf.CodedOutputStream(cryptoStream))
+                {
+                    local.WriteTo(cos);
+                }
             }
         }
-        file.Close();
     }
 
     public static void LocalReload()
@@ -238,10 +243,11 @@ public partial class PlayerData {
     {
         if (File.Exists(Application.persistentDataPath + "/" + playerDataFileName))
         {
-            FileStream fileStream = File.Open(Application.persistentDataPath + "/" + playerDataFileName, FileMode.Open);
-            PlayerData loaded = PlayerDataFromStream(fileStream);
-            fileStream.Close();
-            return loaded;
+            using(FileStream fileStream = File.Open(Application.persistentDataPath + "/" + playerDataFileName, FileMode.Open))
+            {
+                PlayerData loaded = PlayerDataFromStream(fileStream);
+                return loaded;
+            }
         }
         else
         {
