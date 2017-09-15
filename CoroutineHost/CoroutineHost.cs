@@ -188,6 +188,7 @@ public class CoroutineHost
             {
                 while (coroutineQueue.Count > 0)
                 {
+                    //Debug.Log("CH : StartCoroutine");
                     StartCoroutine(coroutineQueue.Dequeue());
                 }
             }
