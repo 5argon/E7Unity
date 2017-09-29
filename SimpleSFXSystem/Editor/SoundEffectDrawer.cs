@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using UnityEditor;
+using System.Reflection;
 
 [CustomPropertyDrawer (typeof(SoundEffect))]
 public class SoundEffectDrawer : PropertyDrawer 
@@ -25,7 +26,26 @@ public class SoundEffectDrawer : PropertyDrawer
 		if(GUI.Button(rectOnTheRightSide,"►"))
 		{
 			//SoundEffectPlayer.Instance.PlaySoundEffect(property.objectReferenceValue as SoundEffect);
-			SoundEffectPlayer.PlayAudioInEditor(property.FindPropertyRelative("audioClip").objectReferenceValue as AudioClip);
+			PlayAudioInEditor(property.FindPropertyRelative("audioClip").objectReferenceValue as AudioClip);
 		}
 	}
+
+    public static void PlaySoundEffectSetInEditor(SoundEffectSet sfxSet)
+    {
+        AudioClip randomizedClip = sfxSet.Get.audioClip;
+        PlayAudioInEditor(randomizedClip);
+    }
+
+    public static void PlayAudioInEditor(AudioClip clip)
+    {
+        Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
+        System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+
+        //TODO : directly modify the audio clip to be quieter for preview..
+
+        MethodInfo method = audioUtilClass.GetMethod("PlayClip", BindingFlags.Static | BindingFlags.Public, null,
+            new System.Type[] { typeof(AudioClip) }, null);
+
+        method.Invoke(null, new object[] { clip });
+    }
 }

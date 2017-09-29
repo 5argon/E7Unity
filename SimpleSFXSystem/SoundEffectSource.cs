@@ -180,25 +180,6 @@ public abstract class SoundEffectSource<T> : MonoBehaviour where T : MonoBehavio
 
 #if UNITY_EDITOR
 
-    public static void PlaySoundEffectSetInEditor(SoundEffectSet sfxSet)
-    {
-        AudioClip randomizedClip = sfxSet.Get.audioClip;
-        PlayAudioInEditor(randomizedClip);
-    }
-
-    public static void PlayAudioInEditor(AudioClip clip)
-    {
-        Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
-        System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
-
-        //TODO : directly modify the audio clip to be quieter for preview..
-
-        MethodInfo method = audioUtilClass.GetMethod("PlayClip", BindingFlags.Static | BindingFlags.Public, null,
-            new System.Type[] { typeof(AudioClip) }, null);
-
-        method.Invoke(null, new object[] { clip });
-    }
-
 
     [ContextMenu("Generate Code to Clipboard")]
     private void GenerateCode()
