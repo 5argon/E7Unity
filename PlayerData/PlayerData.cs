@@ -220,7 +220,7 @@ public partial class PlayerData {
     private void SaveAs(string name)
     {
         Environment.SetEnvironmentVariable("MONO_REFLECTION_SERIALIZER", "yes"); //So that iOS don't complain about protobuf's JITing 
-        Debug.Log("Saved : " + Application.persistentDataPath);
+        //Debug.Log("Saved : " + Application.persistentDataPath);
         using (FileStream file = File.Create(Application.persistentDataPath + "/" + name))
         {
             DESCryptoServiceProvider des = new DESCryptoServiceProvider();
