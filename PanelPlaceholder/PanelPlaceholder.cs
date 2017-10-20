@@ -14,12 +14,15 @@ public class PanelPlaceholder : MonoBehaviour {
 
 		panel.transform.SetParent(gameObject.transform.parent,true);
         panel.transform.SetSiblingIndex(gameObject.transform.GetSiblingIndex());
-		panel.anchoredPosition = rectTransform.anchoredPosition;
-		panel.localPosition = rectTransform.localPosition;
 		if(overrideScale)
 		{
 			panel.localScale = rectTransform.localScale;
 		}
+		panel.anchorMax = rectTransform.anchorMax;
+		panel.anchorMin = rectTransform.anchorMin;
+		panel.localPosition = rectTransform.localPosition;
+		panel.offsetMin = rectTransform.offsetMin;
+		panel.offsetMax = rectTransform.offsetMax;
 		Destroy(gameObject);
 	}
 
