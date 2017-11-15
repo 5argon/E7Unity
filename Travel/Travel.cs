@@ -37,9 +37,13 @@ public class Travel<T>
 
     public void Add(float position, float timeElapsed, T data)
     {
-        TravelEvent<T> newTimeEvent = new TravelEvent<T>(position, (LastEvent?.Time ?? 0) + timeElapsed, data);
-        LastEvent?.LinkToNext(newTimeEvent);
-        EventList.Add(newTimeEvent);
+        if (EventList.Count != 0 && timeElapsed <= 0)
+        {
+            throw new System.Exception("Time elapsed except the first one must be positive");
+        }
+        TravelEvent<T> travelEvent = new TravelEvent<T>(position, (LastEvent?.Time ?? 0) + timeElapsed, data);
+        LastEvent?.LinkToNext(travelEvent);
+        EventList.Add(travelEvent);
     }
 }
 
