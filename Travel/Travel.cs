@@ -11,20 +11,57 @@ public class Travel<T>
         EventList = new List<TravelEvent<T>>();
     }
 
-    public TravelEvent<T> Find(System.Predicate<TravelEvent<T>> criteria)
-    {
-        return EventList.Find(criteria);
-    }
-
     public TravelEvent<T> FirstEvent => EventList.Count == 0 ? null : EventList[0];
     public TravelEvent<T> LastEvent => EventList.Count == 0 ? null : EventList[EventList.Count - 1];
+
+    private int rememberIndex = 0;
 
     /// <summary>
     /// Get the most recent event before the position on the timeline.
     /// </summary>
     public TravelEvent<T> EventOfPosition(float position)
     {
-        return Find((te) => te.IsPositionInRange(position));
+        //return Find((te) => te.IsPositionInRange(position));
+        int plusIndex = -1;
+        int minusIndex = 0;
+        int useIndex;
+        for (int i = 0; i < EventList.Count; i++)
+        {
+            if ((i % 2 != 0))
+            {
+                if (rememberIndex - (minusIndex + 1) >= 0)
+                {
+                    minusIndex++;
+                    useIndex = rememberIndex - minusIndex;
+                }
+                else
+                {
+                    plusIndex++;
+                    useIndex = rememberIndex + plusIndex;
+                }
+            }
+            else
+            {
+                if(rememberIndex + (plusIndex + 1) < EventList.Count)
+                {
+                    plusIndex++;
+                    useIndex = rememberIndex + plusIndex;
+                }
+                else
+                {
+                    minusIndex++;
+                    useIndex = rememberIndex - minusIndex;
+                }
+            }
+
+            //Debug.Log(i + " " + rememberIndex + " " + minusIndex + " " + plusIndex + "  " + useIndex);
+            if(EventList[useIndex].IsPositionInRange(position))
+            {
+                rememberIndex = useIndex;
+                return EventList[useIndex];
+            }
+        }
+        return null;
     }
 
     /// <summary>
@@ -32,7 +69,14 @@ public class Travel<T>
     /// </summary>
     public TravelEvent<T> EventOfTime(float time)
     {
-        return Find((te) => te.IsTimeInRange(time));
+        for(int i = 0; i < EventList.Count ; i++)
+        {
+            if(EventList[i].IsTimeInRange(time))
+            {
+                return EventList[i];
+            }
+        }
+        return null;
     }
 
     public void Add(float position, float timeElapsed, T data)
