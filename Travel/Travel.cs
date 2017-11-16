@@ -79,6 +79,18 @@ public class Travel<T>
         return null;
     }
 
+    /// <summary>
+    /// Adds if there is no event in the Travel, otherwise does nothing.
+    /// This prevents the travel returning null for all positive time and position
+    /// </summary>
+    public void AddDefault(T data)
+    {
+        if(EventList.Count == 0)
+        {
+            Add(0,0,data);
+        }
+    }
+
     public void Add(float position, float timeElapsed, T data)
     {
         if (EventList.Count != 0 && timeElapsed <= 0)
