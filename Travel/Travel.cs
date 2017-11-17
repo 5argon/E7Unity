@@ -109,10 +109,22 @@ public class Travel<T>
 public class TravelEvent<T>
 {
         public float Position { get; }
+        /// <summary>
+        /// When this is the last event, this is Mathf.Infinity
+        /// </summary>
         public float PositionNext { get; private set; }
+
         public float Time { get; }
+        /// <summary>
+        /// When this is the last event, this is Mathf.Infinity
+        /// </summary>
         public float TimeNext { get; private set;}
+
         public T Data {get;}
+        /// <summary>
+        /// When this is the last event, this is null.
+        /// </summary>
+        public TravelEvent<T> Next {get; private set;}
 
         public TravelEvent(float absolutePosition, float time, T data)
         {
@@ -127,6 +139,7 @@ public class TravelEvent<T>
         {
             this.TimeNext = te.Time;
             this.PositionNext = te.Position;
+            this.Next = te;
             //Debug.Log("Link result : " + this.ToString());
         }
 
@@ -144,7 +157,7 @@ public class TravelEvent<T>
 
         public override string ToString()
         {
-            return string.Format("TE : P {0}-{2} T {1}-{3} {4}", Position, Time, PositionNext, TimeNext, Data.ToString());
+            return string.Format( nameof(T) + " : P {0}-{2} T {1}-{3} {4}", Position, Time, PositionNext, TimeNext, Data.ToString());
         }
 }
 
