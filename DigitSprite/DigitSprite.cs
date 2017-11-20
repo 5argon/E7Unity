@@ -16,27 +16,35 @@ public class DigitSprite : MonoBehaviour {
 	public DigitSpriteEach[] digitSpriteEach;
 
 
-	public void Display(string toDisplay)
-	{
-		for(int i = 0; i < digitSpriteEach.Length; i++)
-		{
-			bool isDisplay = i < toDisplay.Length;
-			digitSpriteEach[i].gameObject.SetActive(isDisplay);
+    public void Display(string toDisplay)
+    {
+        for (int i = 0; i < digitSpriteEach.Length; i++)
+        {
+            bool isDisplay = i < toDisplay.Length;
+            digitSpriteEach[i].gameObject.SetActive(isDisplay);
             if (isDisplay)
             {
-				int parsed = 0;
+                int parsed = 0;
                 if (int.TryParse(toDisplay[i].ToString(), out parsed))
-				{
-					digitSpriteEach[i].spriteRenderer.sprite = digits[parsed];
-				}
-				else
-				{
-					if(toDisplay[i] == '+')
-					{
-						digitSpriteEach[i].spriteRenderer.sprite = plusSign;
-					}
-				}
-			}
+                {
+                    digitSpriteEach[i].Sprite = digits[parsed];
+                }
+                else
+                {
+                    if (toDisplay[i] == '+')
+                    {
+                        digitSpriteEach[i].Sprite = plusSign;
+                    }
+                }
+            }
+        }
+    }
+
+    public void SetColor(Color color)
+	{
+        for (int i = 0; i < digitSpriteEach.Length; i++)
+        {
+			digitSpriteEach[i].Color = color;
 		}
 	}
 
