@@ -12,5 +12,4 @@ public class LegacyAnimatorNode {
 	public AnimationClip AnimationClip => animationClip;
 	public string ClipName => animationClip.name;
 	
-
 }

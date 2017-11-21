@@ -4,13 +4,156 @@ using UnityEngine;
 
 public class LegacyAnimator : MonoBehaviour {
 
-	public Animation animationComponent;
-	public string startStateTrigger;
+	[Tooltip("Sample the first frame of this trigger on Start()")]
+	public string waitTrigger;
+
+	[Tooltip("Immediately trigger this on Start()")]
+	public string autoplayTrigger;
+
 	[Space]
 	public LegacyAnimatorNode[] nodes;
+
 	private Dictionary<string,bool> variableBool;
+	private Animation animationComponent;
+
+	//When chaining, this will accumulates and can be used to automatically disable the component
+	private float cumulativePlayTime;
 
 	private const string waitClipName = "WAIT_CLIP";
+
+    /// <summary>
+    /// Kills all animations and play a new one.
+    /// </summary>
+    public LegacyAnimator SetTrigger(string triggerName)
+    {
+		cumulativePlayTime = animationComponent[triggerName].length;
+		animationComponent.enabled = true;
+		animationComponent.Stop();
+        animationComponent.Play(triggerName);
+
+		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
+		if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
+		{
+			AutoDisable();
+		}
+		else
+		{
+			StopPreviousAutoDisable();
+		}
+
+		return this;
+	}
+
+    /// <summary>
+    /// Chain this with other methods but not the first one.
+    /// </summary>
+    public LegacyAnimator FollowedBy(string triggerName)
+	{
+		cumulativePlayTime += animationComponent[triggerName].length;
+		animationComponent.PlayQueued(triggerName,QueueMode.CompleteOthers);
+
+		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
+		if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
+		{
+			AutoDisable();
+		}
+		else
+		{
+			StopPreviousAutoDisable();
+		}
+
+		return this;
+	}
+
+    /// <summary>
+    /// Kills all animations and wait.
+    /// </summary>
+	public LegacyAnimator Wait(float seconds)
+	{
+		cumulativePlayTime = seconds;
+		SetWaitTime(seconds);
+		animationComponent.enabled = true;
+
+		animationComponent.Stop();
+		animationComponent.Play(waitClipName);
+
+		AutoDisable();
+		return this;
+	}
+
+    /// <summary>
+    /// Chain this with other methods but not the first one.
+    /// </summary>
+    public LegacyAnimator AndWait(float seconds)
+	{
+		cumulativePlayTime += seconds;
+		SetWaitTime(seconds);
+		animationComponent.PlayQueued(waitClipName,QueueMode.CompleteOthers);
+		AutoDisable();
+		return this;
+	}
+
+    /// <summary>
+    /// Useful for preparing/hiding something before play. Usually the first frame is the appropriate visual.
+    /// </summary>
+    public void SampleFirstFrame(string triggerName)
+	{
+		animationComponent.enabled = true;
+		animationComponent.Stop();
+		animationComponent[triggerName].enabled = true;
+		animationComponent[triggerName].weight = 1;
+		animationComponent.Sample();
+		animationComponent[triggerName].enabled = false;
+		animationComponent.enabled = false;
+	}
+
+    /// <summary>
+    /// Triggers the first node
+    /// </summary>
+    public void Trigger()
+    {
+        if (nodes.Length < 1)
+        {
+            throw new System.Exception("Add something to the node..");
+        }
+        SetTrigger(nodes[0].Trigger);
+	}
+
+    /// <summary>
+    /// Triggers the second node
+    /// </summary>
+    public void TriggerSecondary()
+	{
+        if (nodes.Length < 2)
+        {
+            throw new System.Exception("Add two things or more to the node..");
+        }
+        SetTrigger(nodes[1].Trigger);
+	}
+
+    private void AutoDisable()
+    {
+		StopPreviousAutoDisable();
+        autoDisableRoutine = AutoDisableRoutine(cumulativePlayTime);
+        StartCoroutine(autoDisableRoutine);
+    }
+
+    private void StopPreviousAutoDisable()
+    {
+        if (autoDisableRoutine != null)
+        {
+            StopCoroutine(autoDisableRoutine);
+        }
+    }
+
+    private IEnumerator autoDisableRoutine;
+    private IEnumerator AutoDisableRoutine(float inTime)
+    {
+        yield return new WaitForSeconds(inTime);
+        yield return null;
+        animationComponent.enabled = false;
+    }
+
 
     public void Prepare()
     {
@@ -66,6 +209,18 @@ public class LegacyAnimator : MonoBehaviour {
 		Prepare();
 	}
 
+	public void Start()
+	{
+        if (waitTrigger != "")
+		{
+			SampleFirstFrame(waitTrigger);
+		}
+		if(autoplayTrigger != "")
+		{
+			SetTrigger(autoplayTrigger);
+		}
+	}
+
 	public void SetBool(string name, bool val)
 	{
 		if(variableBool.ContainsKey(name))
@@ -101,67 +256,5 @@ public class LegacyAnimator : MonoBehaviour {
 		}
 	}
 
-    /// <summary>
-    /// Triggers the first node
-    /// </summary>
-    public void Trigger()
-    {
-        if (nodes.Length < 1)
-        {
-            throw new System.Exception("Add something to the node..");
-        }
-        SetTrigger(nodes[0].Trigger);
-	}
-
-    /// <summary>
-    /// Triggers the second node
-    /// </summary>
-    public void TriggerSecondary()
-	{
-        if (nodes.Length < 2)
-        {
-            throw new System.Exception("Add two things or more to the node..");
-        }
-        SetTrigger(nodes[1].Trigger);
-	}
-
-
-    /// <summary>
-    /// Kills all animations and play a new one.
-    /// </summary>
-    public LegacyAnimator SetTrigger(string triggerName)
-    {
-        animationComponent.Play(triggerName, PlayMode.StopAll);
-		return this;
-	}
-
-    /// <summary>
-    /// Chain this with other methods but not the first one.
-    /// </summary>
-    public LegacyAnimator FollowedBy(string triggerName)
-	{
-		animationComponent.PlayQueued(triggerName,QueueMode.CompleteOthers);
-		return this;
-	}
-
-    /// <summary>
-    /// Kills all animations and wait.
-    /// </summary>
-	public LegacyAnimator Wait(float seconds)
-	{
-		SetWaitTime(seconds);
-		animationComponent.Play(waitClipName,PlayMode.StopAll);
-		return this;
-	}
-
-    /// <summary>
-    /// Chain this with other methods but not the first one.
-    /// </summary>
-    public LegacyAnimator AndWait(float seconds)
-	{
-		SetWaitTime(seconds);
-		animationComponent.PlayQueued(waitClipName,QueueMode.CompleteOthers);
-		return this;
-	}
 
 }
