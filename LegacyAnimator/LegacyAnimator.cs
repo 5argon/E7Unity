@@ -120,6 +120,7 @@ public class LegacyAnimator : MonoBehaviour {
 
     /// <summary>
     /// Useful for preparing/hiding something before play. Usually the first frame is the appropriate visual.
+	/// Also you can't use FollowedBy after an animation with only the first keyframe. Use this instead to sample one-frame animation instead of SetTrigger.
     /// </summary>
     public void SampleFirstFrame(string triggerName)
 	{
