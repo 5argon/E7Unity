@@ -27,9 +27,9 @@ public class LegacyAnimator : MonoBehaviour {
     /// </summary>
     public LegacyAnimator SetTrigger(string triggerName)
     {
-		cumulativePlayTime = animationComponent[triggerName].length;
 		animationComponent.enabled = true;
 		animationComponent.Stop();
+		cumulativePlayTime = SpeedAdjust(triggerName);
         animationComponent.Play(triggerName);
 
 		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
@@ -50,7 +50,8 @@ public class LegacyAnimator : MonoBehaviour {
     /// </summary>
     public LegacyAnimator FollowedBy(string triggerName)
 	{
-		cumulativePlayTime += animationComponent[triggerName].length;
+		cumulativePlayTime += SpeedAdjust(triggerName);
+
 		animationComponent.PlayQueued(triggerName,QueueMode.CompleteOthers);
 
 		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
@@ -64,6 +65,18 @@ public class LegacyAnimator : MonoBehaviour {
 		}
 
 		return this;
+	}
+
+	private float SpeedAdjust(string triggerName)
+	{
+		float speed = 1 + nodeSearch[triggerName].SpeedAdjust;
+		//Debug.Log($"Speed is {speed}");
+		if(speed < 0)
+		{
+			animationComponent[triggerName].time = animationComponent[triggerName].length;
+		}
+        animationComponent[triggerName].speed = speed;
+		return animationComponent[triggerName].length / Mathf.Abs(speed);
 	}
 
     /// <summary>
