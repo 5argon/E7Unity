@@ -12,6 +12,7 @@ public class LegacyAnimator : MonoBehaviour {
 
 	[Space]
 	public LegacyAnimatorNode[] nodes;
+	public Dictionary<string,LegacyAnimatorNode> nodeSearch;
 
 	private Dictionary<string,bool> variableBool;
 	private Animation animationComponent;
@@ -93,6 +94,17 @@ public class LegacyAnimator : MonoBehaviour {
 		return this;
 	}
 
+	public void Stop()
+	{
+		animationComponent.Stop();
+		AutoDisable();
+	}
+
+	public bool IsPlaying(string triggerName)
+	{
+		return animationComponent[triggerName].enabled;
+	}
+
     /// <summary>
     /// Useful for preparing/hiding something before play. Usually the first frame is the appropriate visual.
     /// </summary>
@@ -163,6 +175,7 @@ public class LegacyAnimator : MonoBehaviour {
             foreach (LegacyAnimatorNode lan in nodes)
             {
                 animationComponent.AddClip(lan.AnimationClip, lan.Trigger);
+				nodeSearch.Add(lan.Trigger,lan);
             }
 
             AnimationClip waitOneSecond = new AnimationClip();
@@ -205,6 +218,7 @@ public class LegacyAnimator : MonoBehaviour {
 
 	public void Awake()
 	{
+		nodeSearch = new Dictionary<string, LegacyAnimatorNode>();
 		variableBool = new Dictionary<string, bool>();
 		Prepare();
 	}

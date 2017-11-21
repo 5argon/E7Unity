@@ -11,7 +11,12 @@ public class DigitSpriteEach : MonoBehaviour
     public SpriteRenderer spriteRenderer;
     public Image image;
 	[Space]
-	public Animator animator;
+	[SerializeField] private Animator animator;
+
+    public virtual void SetTriggerToAnimator(string trigger)
+    {
+        animator.SetTrigger(trigger);
+    }
 
     public Sprite Sprite
     {

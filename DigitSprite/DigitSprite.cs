@@ -13,27 +13,27 @@ public class DigitSprite : MonoBehaviour {
 	public Sprite[] digits;
 	public Sprite plusSign;
 
-	public DigitSpriteEach[] digitSpriteEach;
+	[SerializeField] private DigitSpriteEach[] digitSpriteEach;
+	public DigitSpriteEach[] DigitSpriteEach => digitSpriteEach;
 
-
-    public void Display(string toDisplay)
+    public virtual void Display(string toDisplay)
     {
-        for (int i = 0; i < digitSpriteEach.Length; i++)
+        for (int i = 0; i < DigitSpriteEach.Length; i++)
         {
             bool isDisplay = i < toDisplay.Length;
-            digitSpriteEach[i].gameObject.SetActive(isDisplay);
+            DigitSpriteEach[i].gameObject.SetActive(isDisplay);
             if (isDisplay)
             {
                 int parsed = 0;
                 if (int.TryParse(toDisplay[i].ToString(), out parsed))
                 {
-                    digitSpriteEach[i].Sprite = digits[parsed];
+                    DigitSpriteEach[i].Sprite = digits[parsed];
                 }
                 else
                 {
                     if (toDisplay[i] == '+')
                     {
-                        digitSpriteEach[i].Sprite = plusSign;
+                        DigitSpriteEach[i].Sprite = plusSign;
                     }
                 }
             }
@@ -42,9 +42,9 @@ public class DigitSprite : MonoBehaviour {
 
     public void SetColor(Color color)
 	{
-        for (int i = 0; i < digitSpriteEach.Length; i++)
+        for (int i = 0; i < DigitSpriteEach.Length; i++)
         {
-			digitSpriteEach[i].Color = color;
+			DigitSpriteEach[i].Color = color;
 		}
 	}
 
@@ -53,17 +53,17 @@ public class DigitSprite : MonoBehaviour {
         StartCoroutine(SetTriggerRoutine(trigger, delayEach == 0 ? null : new WaitForSeconds(delayEach), delayBefore == 0 ? null : new WaitForSeconds(delayBefore)));
 	}
 
-	IEnumerator SetTriggerRoutine(string trigger, WaitForSeconds delayEach = null,WaitForSeconds delayBefore = null) 
+	protected virtual IEnumerator SetTriggerRoutine(string trigger, WaitForSeconds delayEach = null,WaitForSeconds delayBefore = null) 
 	{
 		if(delayBefore != null)
 		{
 			yield return delayBefore;
 		}
-		foreach(DigitSpriteEach dse in digitSpriteEach)
+		foreach(DigitSpriteEach dse in DigitSpriteEach)
 		{
 			if(dse.gameObject.activeSelf)
 			{
-				dse.animator.SetTrigger(trigger);
+				dse.SetTriggerToAnimator(trigger);
 				if(delayEach != null)
 				{
 					yield return delayEach;
