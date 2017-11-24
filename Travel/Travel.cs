@@ -91,6 +91,9 @@ public class Travel<T>
         }
     }
 
+    /// <summary>
+    /// TIME IS TIME ELAPSED NOT ANY TIME YOU WANT!!
+    /// </summary>
     public void Add(float position, float timeElapsed, T data)
     {
         if (EventList.Count != 0 && timeElapsed <= 0)
@@ -125,6 +128,7 @@ public class TravelEvent<T>
         /// When this is the last event, this is null.
         /// </summary>
         public TravelEvent<T> Next {get; private set;}
+        public TravelEvent<T> Previous {get; private set;}
 
         public TravelEvent(float absolutePosition, float time, T data)
         {
@@ -140,6 +144,7 @@ public class TravelEvent<T>
             this.TimeNext = te.Time;
             this.PositionNext = te.Position;
             this.Next = te;
+            te.Previous = this;
             //Debug.Log("Link result : " + this.ToString());
         }
 
@@ -157,7 +162,7 @@ public class TravelEvent<T>
 
         public override string ToString()
         {
-            return string.Format( nameof(T) + " : P {0}-{2} T {1}-{3} {4}", Position, Time, PositionNext, TimeNext, Data.ToString());
+            return string.Format($"P {Position}-{PositionNext} T {Time}-{TimeNext} {Data.ToString()}");
         }
 }
 
