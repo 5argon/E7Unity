@@ -1,0 +1,8 @@
+{
+    "name": "Assembly-E7Unity",
+    "references": [
+        "Assembly-I2"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}

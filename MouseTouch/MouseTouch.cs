@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MouseTouch {
 
-    private static Touch previousTouch;
-    private static Touch fakeTouch;
+    private static Touch previousTouch = new Touch();
+    private static Touch fakeTouch = new Touch();
 
     /// <summary>
     /// Consecutive calls needed to make dragging works.
