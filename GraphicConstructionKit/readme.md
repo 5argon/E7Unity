@@ -6,6 +6,6 @@ I have use them a lot for constructing effects for my games and save a lot of gr
 
 Most of them are white, so you can change them to any colors. Use Additive blending for great effects especially on those feathery-looking ones, and those are pretty resistant to enlarging!
 
-Pack them together in one atlas!
+Pack them together in one atlas, or even better duplicate what you can and add them to the same atlas of your scene to optimize the draw call. (For example, I have many copies of "Bubble" because it was used in many scenes.
 
 -5argon
