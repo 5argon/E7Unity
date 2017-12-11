@@ -21,6 +21,7 @@ public class MouseTouch {
         else if(Input.GetMouseButtonUp(0))
         {
             fakeTouch.phase = TouchPhase.Ended;
+            fakeTouch.deltaPosition = fakeTouch.position - previousTouch.position;
         }
         else if (Input.GetMouseButton(0))
         {
