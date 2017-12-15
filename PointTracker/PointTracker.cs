@@ -44,12 +44,12 @@ public class PointTracker {
         bool ret;
         if (registeredStates.TryGetValue(point.Determinant, out ret))
         {
-            Debug.Log($"State of {x} {y} is {ret}");
+            //Debug.Log($"State of {x} {y} is {ret}");
             return ret;
         }
         else
         {
-            Debug.Log($"State of {x} {y} not found");
+            //Debug.Log($"State of {x} {y} not found");
             return false;
         }
     }
@@ -61,7 +61,7 @@ public class PointTracker {
 
 	public void Down(int x, int y)
 	{
-        Debug.Log($"Down {x} {y}");
+        //Debug.Log($"Down {x} {y}");
         IntVector2 pointDown = new IntVector2(x, y);
 		registeredPoints.Add(pointDown.Determinant,pointDown);
         registeredStates.Add(pointDown.Determinant,false);
@@ -73,19 +73,19 @@ public class PointTracker {
 		int det = pointNow.Determinant;
         if(registeredPoints.ContainsKey(det) && registeredStates.ContainsKey(det))
         {
-            Debug.Log($"Set state OK {x} {y} {toState}");
+            //Debug.Log($"Set state OK {x} {y} {toState}");
             registeredStates.Remove(det);
             registeredStates.Add(det, toState);
         }
         else
         {
-            Debug.Log($"Set state fail {x} {y} {toState}");
+            //Debug.Log($"Set state fail {x} {y} {toState}");
         }
     }
 
 	public bool Move(int x, int y, int previousX, int previousY)
     {
-        Debug.Log($"Move {x} {y} {previousX} {previousY}");
+        //Debug.Log($"Move {x} {y} {previousX} {previousY}");
         IntVector2 pointPrevious = new IntVector2(previousX, previousY);
         IntVector2 pointNow = new IntVector2(x, y);
 		int det = pointPrevious.Determinant;
@@ -108,7 +108,7 @@ public class PointTracker {
 
     public bool Up(int x, int y, int previousX, int previousY)
 	{
-        Debug.Log($"Up {x} {y} {previousX} {previousY}");
+        //Debug.Log($"Up {x} {y} {previousX} {previousY}");
         IntVector2 pointPrevious = new IntVector2(previousX, previousY);
         IntVector2 pointUp = new IntVector2(x, y);
 		int detPrevious = pointPrevious.Determinant;
