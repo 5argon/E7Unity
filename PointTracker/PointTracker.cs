@@ -86,6 +86,14 @@ public class PointTracker {
 	public bool Move(int x, int y, int previousX, int previousY)
     {
         //Debug.Log($"Move {x} {y} {previousX} {previousY}");
+        if(x == previousX && y == previousY)
+        {
+            //This weird bug iOS reports happen after an errornous Up.. we interpret this as Down.
+            //Debug.Log($"Error Move!! {x} {y} {previousX} {previousY}");
+            Down(x, y);
+            return true;
+        }
+
         IntVector2 pointPrevious = new IntVector2(previousX, previousY);
         IntVector2 pointNow = new IntVector2(x, y);
 		int det = pointPrevious.Determinant;
@@ -93,10 +101,14 @@ public class PointTracker {
 
         if (registeredPoints.ContainsKey(det) && registeredStates.TryGetValue(det, out state))
         {
+            int detNow = pointNow.Determinant;
 			registeredPoints.Remove(det);
 			registeredStates.Remove(det);
-			registeredPoints.Add(pointNow.Determinant, pointNow);
-			registeredStates.Add(pointNow.Determinant, state); //copy state
+			registeredPoints.Add(detNow, pointNow);
+            if(!registeredStates.ContainsKey(detNow)) //somehow ArgumentException crash happen below!!
+            {
+                registeredStates.Add(detNow, state); //copy state
+            }
             return true;
         }
 		else
