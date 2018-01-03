@@ -18,6 +18,11 @@ public class DigitSpriteEach : MonoBehaviour
         animator.SetTrigger(trigger);
     }
 
+    public virtual void ResetAnimator()
+    {
+        animator.Rebind(); //Causes a lot of lag!
+    }
+
     public Sprite Sprite
     {
         set 

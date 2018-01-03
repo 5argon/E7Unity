@@ -40,6 +40,7 @@ public class DigitSprite : MonoBehaviour {
         }
     }
 
+
     public void SetColor(Color color)
 	{
         for (int i = 0; i < DigitSpriteEach.Length; i++)
@@ -48,9 +49,29 @@ public class DigitSprite : MonoBehaviour {
 		}
 	}
 
+	IEnumerator waitCoroutine;
 	public void SetTrigger(string trigger, float delayEach, float delayBefore)
 	{
-        StartCoroutine(SetTriggerRoutine(trigger, delayEach == 0 ? null : new WaitForSeconds(delayEach), delayBefore == 0 ? null : new WaitForSeconds(delayBefore)));
+        waitCoroutine = SetTriggerRoutine(trigger, delayEach == 0 ? null : new WaitForSeconds(delayEach), delayBefore == 0 ? null : new WaitForSeconds(delayBefore));
+		StartCoroutine(waitCoroutine);
+	}
+
+	/// <summary>
+	/// Potentially causes a lag! Animator.Rebind() is an expensive operation.
+	/// </summary>
+	public void Hide()
+	{
+		if(waitCoroutine != null)
+		{
+			StopCoroutine(waitCoroutine);
+		}
+		foreach(DigitSpriteEach dse in DigitSpriteEach)
+		{
+			if(dse.gameObject.activeSelf)
+			{
+				dse.ResetAnimator();
+			}
+		}
 	}
 
 	protected virtual IEnumerator SetTriggerRoutine(string trigger, WaitForSeconds delayEach = null,WaitForSeconds delayBefore = null) 
