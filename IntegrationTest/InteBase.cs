@@ -43,6 +43,14 @@ public abstract class InteBase {
         }
     }
 
+    protected IEnumerator WaitUntilSceneLoaded(string sceneName)
+    {
+        while (IsSceneLoaded(sceneName) == false)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
     /// <summary>
     /// REMEMBER!! must be active..
     /// And remember that if there are multiples it returns the first one
@@ -161,8 +169,8 @@ public abstract class InteBase {
 
     protected bool IsSceneLoaded(string sceneName)
     {
-        Scene modeSelect = SceneManager.GetSceneByName(sceneName);
-        return modeSelect.IsValid();
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        return scene.IsValid() && scene.isLoaded;
     }
 
     /// <summary>
