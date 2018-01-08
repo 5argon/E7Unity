@@ -73,8 +73,43 @@ public abstract class InteBase {
         }
         return null;
     }
-    
 
+    /// <summary>
+    /// This overload allows you to specify 2 types. It will try to find a child under that type with a given name.
+    /// Useful for drilling down a prefab.
+    /// </summary>
+    protected ChildType Find<ParentType, ChildType>(string childName, string sceneName = "") where ParentType : MonoBehaviour where ChildType : MonoBehaviour
+    {
+        ParentType find;
+        if(sceneName == "")
+        {
+            find = Find<ParentType>();
+        }
+        else
+        {
+            find = Find<ParentType>(sceneName);
+        }
+        return FindChildRecursive(find.gameObject.transform, childName)?.GetComponent<ChildType>();
+    }
+
+    private Transform FindChildRecursive(Transform transform, string childName)
+    {
+        Transform t = transform.Find(childName);
+        if (t != null)
+        {
+            return t;
+        }
+        foreach (Transform child in transform)
+        {
+            Transform t2 = FindChildRecursive(child, childName);
+            if (t2 != null)
+            {
+                return t2;
+            }
+        }
+        return null;
+    }
+    
     //Get specific object name's component
     protected T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
     {
@@ -89,8 +124,9 @@ public abstract class InteBase {
         }
     }
 
+
     /// <summary>
-    /// Useful in case there are many T in the scene, usually from separate sub-scene
+    /// Useful in case there are many T in the scene, usually from a separate sub-scene
     /// </summary>
     /// <param name="sceneName"></param>
     /// <returns></returns>
