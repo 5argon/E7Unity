@@ -58,8 +58,22 @@ public abstract class InteBase {
     /// <returns></returns>
     protected T Find<T>() where T : MonoBehaviour
     {
-        return UnityEngine.Object.FindObjectOfType(typeof(T)) as T;
+        return UnityEngine.Object.FindObjectOfType<T>() as T;
     }
+
+    protected T Find<T>(string sceneName) where T : MonoBehaviour
+    {
+        T[] objs = UnityEngine.Object.FindObjectsOfType<T>() as T[];
+        foreach(T t in objs)
+        {
+            if(t.gameObject.scene.name == sceneName)
+            {
+                return t;
+            }
+        }
+        return null;
+    }
+    
 
     //Get specific object name's component
     protected T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
@@ -193,6 +207,19 @@ public abstract class InteBase {
         {
             this.include = new RuntimePlatform[] { RuntimePlatform.Android, RuntimePlatform.IPhonePlayer };
         }
+    }
+
+    public void ActionBetweenSceneAwakeAndStart(string sceneName, System.Action action)
+    {
+        UnityEngine.Events.UnityAction<Scene,LoadSceneMode> unityAction = (scene,LoadSceneMode) =>
+        {
+            if(scene.name == sceneName)
+            {
+                action();
+            }
+        };
+
+        SceneManager.sceneLoaded += unityAction;
     }
 
 }
