@@ -1,7 +1,9 @@
-﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿//When integration testing using "on device" button DEVELOPMENT_BUILD is automatically on.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.UI;
 using UnityEngine.TestTools;
 using NUnit.Framework;
 using System;
@@ -13,7 +15,7 @@ public abstract class InteBase {
     /// <summary>
     /// Do this before doing a scene load.
     /// </summary>
-    protected void ProtectTestRunner()
+    protected static void ProtectTestRunner()
     {
         GameObject g = GameObject.Find("Code-based tests runner");
         GameObject.DontDestroyOnLoad(g);
@@ -24,7 +26,7 @@ public abstract class InteBase {
     /// </summary>
     /// <param name="seconds"></param>
     /// <returns></returns>
-    protected WaitForSeconds Wait(float seconds)
+    protected static WaitForSeconds Wait(float seconds)
     {
         return new WaitForSeconds(seconds);
     }
@@ -33,7 +35,7 @@ public abstract class InteBase {
     /// Unfortunately could not return T upon found, but useful for waiting something to become active
     /// </summary>
     /// <returns></returns>
-    protected IEnumerator WaitUntilFound<T>() where T : MonoBehaviour
+    protected static IEnumerator WaitUntilFound<T>() where T : MonoBehaviour
     {
         T t = null;
         while (t == null)
@@ -43,7 +45,7 @@ public abstract class InteBase {
         }
     }
 
-    protected IEnumerator WaitUntilSceneLoaded(string sceneName)
+    protected static IEnumerator WaitUntilSceneLoaded(string sceneName)
     {
         while (IsSceneLoaded(sceneName) == false)
         {
@@ -56,12 +58,12 @@ public abstract class InteBase {
     /// And remember that if there are multiples it returns the first one
     /// </summary>
     /// <returns></returns>
-    protected T Find<T>() where T : MonoBehaviour
+    protected static T Find<T>() where T : MonoBehaviour
     {
         return UnityEngine.Object.FindObjectOfType<T>() as T;
     }
 
-    protected T Find<T>(string sceneName) where T : MonoBehaviour
+    protected static T Find<T>(string sceneName) where T : MonoBehaviour
     {
         T[] objs = UnityEngine.Object.FindObjectsOfType<T>() as T[];
         foreach(T t in objs)
@@ -78,7 +80,7 @@ public abstract class InteBase {
     /// This overload allows you to specify 2 types. It will try to find a child under that type with a given name.
     /// Useful for drilling down a prefab.
     /// </summary>
-    protected ChildType Find<ParentType, ChildType>(string childName, string sceneName = "") where ParentType : MonoBehaviour where ChildType : MonoBehaviour
+    protected static ChildType Find<ParentType, ChildType>(string childName, string sceneName = "") where ParentType : MonoBehaviour where ChildType : MonoBehaviour
     {
         ParentType find;
         if(sceneName == "")
@@ -92,7 +94,7 @@ public abstract class InteBase {
         return FindChildRecursive(find.gameObject.transform, childName)?.GetComponent<ChildType>();
     }
 
-    private Transform FindChildRecursive(Transform transform, string childName)
+    private static Transform FindChildRecursive(Transform transform, string childName)
     {
         Transform t = transform.Find(childName);
         if (t != null)
@@ -111,7 +113,7 @@ public abstract class InteBase {
     }
     
     //Get specific object name's component
-    protected T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
+    protected static T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
     {
         GameObject go = GameObject.Find(gameObjectName);
         if (go != null)
@@ -130,7 +132,7 @@ public abstract class InteBase {
     /// </summary>
     /// <param name="sceneName"></param>
     /// <returns></returns>
-    protected T FindOnSceneRoot<T>(string sceneName = "") where T : MonoBehaviour
+    protected static T FindOnSceneRoot<T>(string sceneName = "") where T : MonoBehaviour
     {
         Scene scene;
         if (sceneName == "")
@@ -164,12 +166,12 @@ public abstract class InteBase {
     /// REMEMBER!! must be active..
     /// </summary>
     /// <returns></returns>
-    protected GameObject FindGameObject<T>() where T : MonoBehaviour
+    protected static GameObject FindGameObject<T>() where T : MonoBehaviour
     {
         return (UnityEngine.Object.FindObjectOfType(typeof(T)) as T).gameObject;
     }
 
-    protected bool CheckGameObject(string name)
+    protected static bool CheckGameObject(string name)
     {
         GameObject go = GameObject.Find(name);
         if (go == null)
@@ -187,7 +189,7 @@ public abstract class InteBase {
     /// </summary>
     /// <param name="gameObjectName"></param>
     /// <returns></returns>
-    public Vector2 CenterOfRectNamed(string gameObjectName)
+    public static Vector2 CenterOfRectNamed(string gameObjectName)
     {
         Vector3[] corners = new Vector3[4];
         GameObject go = GameObject.Find(gameObjectName);
@@ -203,7 +205,7 @@ public abstract class InteBase {
         }
     }
 
-    public Vector2 CenterOfSpriteName(string gameObjectName)
+    public static Vector2 CenterOfSpriteName(string gameObjectName)
     {
         GameObject go = GameObject.Find(gameObjectName);
         if (go != null)
@@ -217,7 +219,7 @@ public abstract class InteBase {
         }
     }
 
-    protected bool IsSceneLoaded(string sceneName)
+    protected static bool IsSceneLoaded(string sceneName)
     {
         Scene scene = SceneManager.GetSceneByName(sceneName);
         return scene.IsValid() && scene.isLoaded;
@@ -259,5 +261,54 @@ public abstract class InteBase {
     }
 
 }
+
+public static class UGUITestExtension 
+{
+    private static bool IsOutOfScreen(this Graphic graphic)
+    {
+        RectTransform rect = graphic.rectTransform;
+        Vector3[] worldCorners = new Vector3[4];
+        rect.GetWorldCorners(worldCorners); //This is already screen space not world! wtf!
+
+        Camera activeCamera = Camera.main;
+        Vector3 bottomLeft = worldCorners[0];
+        Vector3 topLeft = worldCorners[1];
+        //Vector3 topRight = worldCorners[2];
+        Vector3 bottomRight = worldCorners[3];
+
+        if(bottomLeft.x < Screen.width && bottomRight.x > 0 && topLeft.y > 0 && bottomRight.y < Screen.height)
+        {
+            return false; //Rect overlaps, therefore it is not out of screen
+        }
+        else
+        {
+            return true;
+        }
+    }
+    
+    private static bool HasZeroRectSize(this Graphic graphic) => graphic.rectTransform.rect.width == 0 || graphic.rectTransform.rect.height == 0;
+    private static bool HasZeroScale(this Graphic graphic) => graphic.transform.localScale.x == 0 || graphic.transform.localScale.y == 0;
+
+    /// <summary>
+    /// An extension method to check visually can we see the graphic or not.
+    /// It does not check for null Sprite since that will be rendered as a white rectangle.
+    /// It does not check for transparency resulting from parent CanvasGroup.
+    /// For Text, it does not account for empty text or truncated text.
+    /// </summary>
+    public static bool GraphicVisible(this Graphic graphic)
+    {
+        if (graphic.IsOutOfScreen() || graphic.HasZeroRectSize() || graphic.HasZeroScale() || graphic.gameObject.activeInHierarchy == false || graphic.enabled == false || graphic.color.a == 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
+    public static bool IsTextVisible(this Text text) => text.GraphicVisible()  && text.text != "";
+}
+
 
 #endif
