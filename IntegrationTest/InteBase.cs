@@ -297,7 +297,7 @@ public static class UGUITestExtension
     /// </summary>
     public static bool GraphicVisible(this Graphic graphic)
     {
-        if (graphic.IsOutOfScreen() || graphic.HasZeroRectSize() || graphic.HasZeroScale() || graphic.gameObject.activeInHierarchy == false || graphic.enabled == false || graphic.color.a == 0)
+        if (graphic.IsOutOfScreen() || graphic.HasZeroRectSize() || graphic.HasZeroScale() || graphic.gameObject.activeInHierarchy == false || graphic.enabled == false || graphic.color.a == 0 || ComponentInvisible(graphic))
         {
             return false;
         }
@@ -307,7 +307,19 @@ public static class UGUITestExtension
         }
     }
 
-    public static bool IsTextVisible(this Text text) => text.GraphicVisible()  && text.text != "";
+    /// <summary>
+    /// In here we examine all other factors not common in Graphic if it makes the thing invisible or not.
+    /// </summary>
+    private static bool ComponentInvisible(Graphic graphic)
+    {
+        Text t  = graphic.GetComponent<Text>();
+        if(t != null && t.text == "")
+        {
+            return true;
+        }
+
+        return false; //It's visible
+    }
 }
 
 
