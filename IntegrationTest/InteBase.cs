@@ -5,8 +5,10 @@ using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.TestTools;
+using UnityEngine.EventSystems;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 //This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
@@ -191,18 +193,23 @@ public abstract class InteBase {
     /// <returns></returns>
     public static Vector2 CenterOfRectNamed(string gameObjectName)
     {
-        Vector3[] corners = new Vector3[4];
         GameObject go = GameObject.Find(gameObjectName);
         if (go != null)
         {
-            go.GetComponent<RectTransform>().GetWorldCorners(corners);
-            return Vector3.Lerp(Vector3.Lerp(corners[0], corners[1], 0.5f), Vector3.Lerp(corners[2], corners[3], 0.5f), 0.5f);
+            return CenterOfRectTransform(go.GetComponent<RectTransform>());
         }
         else
         {
             Debug.LogError("Can't find " + gameObjectName);
             return Vector2.zero;
         }
+    }
+
+    public static Vector2 CenterOfRectTransform(RectTransform rect)
+    {
+        Vector3[] corners = new Vector3[4];
+        rect.GetWorldCorners(corners);
+        return Vector3.Lerp(Vector3.Lerp(corners[0], corners[1], 0.5f), Vector3.Lerp(corners[2], corners[3], 0.5f), 0.5f);
     }
 
     public static Vector2 CenterOfSpriteName(string gameObjectName)
@@ -216,6 +223,46 @@ public abstract class InteBase {
         {
             Debug.LogError("Can't find " + gameObjectName);
             return Vector2.zero;
+        }
+    }
+
+    /// <summary>
+    /// Currently supports Button's onClick and EventTrigger's OnPointerClick.
+    /// Clicks on the center of provided RectTransform.
+    /// </summary>
+    public static void RaycastClick(RectTransform rect) => RaycastClick(CenterOfRectTransform(rect));
+
+    /// <summary>
+    /// Currently supports Button's onClick and EventTrigger's OnPointerClick.
+    /// </summary>
+    public static void RaycastClick(Vector2 screenPosition)
+    {
+        PointerEventData fakeClick = new PointerEventData(EventSystem.current);
+        fakeClick.position = screenPosition;
+        fakeClick.button = PointerEventData.InputButton.Left;
+
+        //Each active raycaster gets a click.
+        GraphicRaycaster[] allGfxRaycasters = (GraphicRaycaster[])GameObject.FindObjectsOfType(typeof(GraphicRaycaster));
+        foreach (GraphicRaycaster gfxRaycaster in allGfxRaycasters)
+        {
+            List<RaycastResult> results = new List<RaycastResult>();
+            gfxRaycaster.Raycast(fakeClick, results);
+            foreach (RaycastResult rr in results)
+            {
+                Button b = rr.gameObject.GetComponent<Button>();
+                if (b != null)
+                {
+                    b.onClick.Invoke();
+                    break; //So it does not press multiple stacked buttons
+                }
+
+                EventTrigger et = rr.gameObject.GetComponent<EventTrigger>();
+                if (et != null)
+                {
+                    et.OnPointerClick(fakeClick);
+                    break;
+                }
+            }
         }
     }
 
@@ -320,6 +367,10 @@ public static class UGUITestExtension
 
         return false; //It's visible
     }
+
+    private static Vector2 Center(this Graphic graphic) => InteBase.CenterOfRectTransform(graphic.rectTransform);
+    public static void ClickAtCenter(this Graphic graphic) => InteBase.RaycastClick(graphic.Center());
+
 }
 
 
