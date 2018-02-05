@@ -8,10 +8,14 @@ using UnityEngine.TestTools;
 using UnityEngine.EventSystems;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-//This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
+/// <summary>
+/// InteBase by 5argon - Exceed7 Experiments
+/// This is now based on Unity 5.6's test runner. Separate Integration scene no longer required.
+/// </summary>
 public abstract class InteBase {
 
     /// <summary>
@@ -37,7 +41,7 @@ public abstract class InteBase {
     /// Unfortunately could not return T upon found, but useful for waiting something to become active
     /// </summary>
     /// <returns></returns>
-    protected static IEnumerator WaitUntilFound<T>() where T : MonoBehaviour
+    protected static IEnumerator WaitUntilFound<T>() where T : Component 
     {
         T t = null;
         while (t == null)
@@ -60,12 +64,12 @@ public abstract class InteBase {
     /// And remember that if there are multiples it returns the first one
     /// </summary>
     /// <returns></returns>
-    protected static T Find<T>() where T : MonoBehaviour
+    protected static T Find<T>() where T : Component
     {
         return UnityEngine.Object.FindObjectOfType<T>() as T;
     }
 
-    protected static T Find<T>(string sceneName) where T : MonoBehaviour
+    protected static T Find<T>(string sceneName) where T : Component 
     {
         T[] objs = UnityEngine.Object.FindObjectsOfType<T>() as T[];
         foreach(T t in objs)
@@ -76,24 +80,6 @@ public abstract class InteBase {
             }
         }
         return null;
-    }
-
-    /// <summary>
-    /// This overload allows you to specify 2 types. It will try to find a child under that type with a given name.
-    /// Useful for drilling down a prefab.
-    /// </summary>
-    protected static ChildType Find<ParentType, ChildType>(string childName, string sceneName = "") where ParentType : MonoBehaviour where ChildType : MonoBehaviour
-    {
-        ParentType find;
-        if(sceneName == "")
-        {
-            find = Find<ParentType>();
-        }
-        else
-        {
-            find = Find<ParentType>(sceneName);
-        }
-        return FindChildRecursive(find.gameObject.transform, childName)?.GetComponent<ChildType>();
     }
 
     private static Transform FindChildRecursive(Transform transform, string childName)
@@ -114,8 +100,12 @@ public abstract class InteBase {
         return null;
     }
     
-    //Get specific object name's component
-    protected static T FindNamed<T>(string gameObjectName) where T : MonoBehaviour
+    /// <summary>
+    /// Get a component of game object with a specific name.
+    /// </summary>
+    /// <param name="gameObjectName"></param>
+    /// <returns></returns>
+    protected static T FindNamed<T>(string gameObjectName) where T : Component
     {
         GameObject go = GameObject.Find(gameObjectName);
         if (go != null)
@@ -128,13 +118,42 @@ public abstract class InteBase {
         }
     }
 
+    /// <summary>
+    /// Will try to find the parent first regardless of type, then a child under that parent regardless of type, then get component of type T.
+    /// </summary>
+    protected static T FindNamed<T>(string parentName,string childName) where T : Component 
+    {
+        GameObject parent = GameObject.Find(parentName);
+        Transform child = FindChildRecursive(parent.transform, childName);
+        return child.GetComponent<T>();
+    }
+
+    /// <summary>
+    /// This overload allows you to specify 2 types. It will try to find a child under that type with a given name.
+    /// Useful for drilling down a prefab.
+    /// </summary>
+    protected static ChildType FindNamed<ParentType, ChildType>(string childName, string sceneName = "") where ParentType : Component where ChildType : Component 
+    {
+        ParentType find;
+        if(sceneName == "")
+        {
+            find = Find<ParentType>();
+        }
+        else
+        {
+            find = Find<ParentType>(sceneName);
+        }
+        return FindChildRecursive(find.gameObject.transform, childName)?.GetComponent<ChildType>();
+    }
+
+
 
     /// <summary>
     /// Useful in case there are many T in the scene, usually from a separate sub-scene
     /// </summary>
     /// <param name="sceneName"></param>
     /// <returns></returns>
-    protected static T FindOnSceneRoot<T>(string sceneName = "") where T : MonoBehaviour
+    protected static T FindOnSceneRoot<T>(string sceneName = "") where T : Component  
     {
         Scene scene;
         if (sceneName == "")
@@ -165,10 +184,9 @@ public abstract class InteBase {
     }
 
     /// <summary>
-    /// REMEMBER!! must be active..
+    /// The object must be ACTIVE to be found!
     /// </summary>
-    /// <returns></returns>
-    protected static GameObject FindGameObject<T>() where T : MonoBehaviour
+    protected static GameObject FindGameObject<T>() where T : Component 
     {
         return (UnityEngine.Object.FindObjectOfType(typeof(T)) as T).gameObject;
     }
@@ -241,27 +259,36 @@ public abstract class InteBase {
         fakeClick.position = screenPosition;
         fakeClick.button = PointerEventData.InputButton.Left;
 
-        //Each active raycaster gets a click.
         GraphicRaycaster[] allGfxRaycasters = (GraphicRaycaster[])GameObject.FindObjectsOfType(typeof(GraphicRaycaster));
-        foreach (GraphicRaycaster gfxRaycaster in allGfxRaycasters)
+
+        //Raycaster gets checked one by one, from the bottom most in hierarchy.
+        foreach(GraphicRaycaster gfxRaycaster in allGfxRaycasters.Reverse())
         {
+            //Debug.Log("Casting : " + gfxRaycaster.gameObject.name);
+
             List<RaycastResult> results = new List<RaycastResult>();
             gfxRaycaster.Raycast(fakeClick, results);
-            foreach (RaycastResult rr in results)
+
+            foreach(RaycastResult rr in results)
             {
+                //Debug.Log("Hit : " + rr.gameObject.name);
                 Button b = rr.gameObject.GetComponent<Button>();
                 if (b != null)
                 {
                     b.onClick.Invoke();
-                    break; //So it does not press multiple stacked buttons
                 }
 
                 EventTrigger et = rr.gameObject.GetComponent<EventTrigger>();
                 if (et != null)
                 {
                     et.OnPointerClick(fakeClick);
-                    break;
                 }
+            }
+
+            //Test for hit. If only one raycaster hits, all other raycasters will not be casted.
+            if(results.Count > 0)
+            {
+                break; 
             }
         }
     }
@@ -307,10 +334,67 @@ public abstract class InteBase {
         SceneManager.sceneLoaded += unityAction;
     }
 
+    /// <summary>
+    /// The timeframe will be rounded to the nearest power of two audio samples.
+    /// Averages in stereo.
+    /// </summary>
+    public float AverageAmplitude(float inTheLastSeconds)
+    {
+        int samplesNeeded = (int)(AudioSettings.outputSampleRate * inTheLastSeconds);
+        int samplesToUse = 1;
+        while(samplesToUse < samplesNeeded)
+        {
+            samplesToUse *= 2;
+        }
+        float[] samplesL = new float[samplesToUse];
+        float[] samplesR = new float[samplesToUse];
+
+        AudioListener.GetOutputData(samplesL,0);
+        AudioListener.GetOutputData(samplesR,0);
+
+        return (samplesL.Average() + samplesR.Average() / 2f);
+    }
+
+
 }
 
-public static class UGUITestExtension 
+public static class UGUITestExtension
 {
+    /// <summary>
+    /// Searches all layers of Animator of this GameObject does any of them at a specified state name?
+    /// Specify layerIndex to look in only one layer.
+    /// If you just issue a SetTrigger to change state for example, one frame is required to make it take effect.
+    /// </summary>
+    public static bool AnimatorAtState(this Component go, string stateName, int layerIndex = -1)
+    {
+        Animator ani = go.GetComponent<Animator>();
+        return ani.AtState(stateName, layerIndex);
+    }
+
+    /// <summary>
+    /// Searches all layers of Animator is any of them at a specified state name?
+    /// Specify layerIndex to look in only one layer.
+    /// If you just issue a SetTrigger to change state for example, one frame is required to make it take effect.
+    /// </summary>
+    public static bool AtState(this Animator ani, string stateName, int layerIndex = -1)
+    {
+        if (layerIndex == -1)
+        {
+            for (int i = 0; i < ani.layerCount; i++)
+            {
+                if (ani.GetCurrentAnimatorStateInfo(i).IsName(stateName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        else
+        {
+            return ani.GetCurrentAnimatorStateInfo(layerIndex).IsName(stateName);
+        }
+    }
+
     private static bool IsOutOfScreen(this Graphic graphic)
     {
         RectTransform rect = graphic.rectTransform;
