@@ -253,6 +253,7 @@ public abstract class InteBase {
     /// <summary>
     /// Currently supports Button's onClick and EventTrigger's OnPointerClick.
     /// </summary>
+    /// <param name="screenPosition">In pixel.</param>
     public static void RaycastClick(Vector2 screenPosition)
     {
         PointerEventData fakeClick = new PointerEventData(EventSystem.current);
@@ -273,7 +274,7 @@ public abstract class InteBase {
             {
                 //Debug.Log("Hit : " + rr.gameObject.name);
                 Button b = rr.gameObject.GetComponent<Button>();
-                if (b != null)
+                if (b != null && b.interactable)
                 {
                     b.onClick.Invoke();
                 }
