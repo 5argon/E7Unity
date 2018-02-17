@@ -98,7 +98,7 @@ public class Travel<T>
     {
         if (EventList.Count != 0 && timeElapsed <= 0)
         {
-            throw new System.Exception("Time elapsed except the first one must be positive");
+            throw new System.Exception($"Time elapsed except the first one must be positive. position : {position} timeElapsed : {timeElapsed}");
         }
         TravelEvent<T> travelEvent = new TravelEvent<T>(position, (LastEvent?.Time ?? 0) + timeElapsed, data);
         LastEvent?.LinkToNext(travelEvent);

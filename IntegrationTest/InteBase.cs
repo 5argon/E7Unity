@@ -297,6 +297,7 @@ public abstract class InteBase {
     protected static bool IsSceneLoaded(string sceneName)
     {
         Scene scene = SceneManager.GetSceneByName(sceneName);
+        //Valid is the scene is in the hierarchy, but it might be still "(loading)"
         return scene.IsValid() && scene.isLoaded;
     }
 

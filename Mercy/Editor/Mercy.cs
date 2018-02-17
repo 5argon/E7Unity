@@ -149,7 +149,7 @@ public class Mercy {
                             }
 
                             Regex regex = new Regex("({)(.*)(})", RegexOptions.Singleline);
-                            Regex regexInner = new Regex("{(.*?)}", RegexOptions.Singleline);
+                            Regex regexInner = new Regex("Start.*{(.*?)}", RegexOptions.Singleline);
                             foreach (Match match in regex.Matches(ms.text))
                             {
                                 foreach (Match match2 in regexInner.Matches(match.Groups[2].Value))

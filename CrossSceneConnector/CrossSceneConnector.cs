@@ -16,6 +16,9 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
 
     //In short, you cannot use dependency in Awake in your active scene. Move to Start().
 
+    //Also, it is not guaranteed that the being loaded scene will have it's Awake called before the current scene's Start!
+    //Turn Start into IEnumerator and wait for the connector to complete is highly advised.
+
     public bool mainSide;
     protected T otherSide;
 
@@ -23,6 +26,7 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
 
     protected virtual void Awake()
     {
+        //Debug.Log("CSC Awake " + SceneToConnect + " " + mainSide + " Generic: " + typeof(T).Name + " go: " + gameObject.name);
        LoadAndConnect(); 
     }
 
@@ -30,17 +34,22 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //since the new frame will be loaded on the next frame.
     public void LoadAndConnect()
     {
-        exchanged = false;
+        Connected = false;
         //load
         //somehow IsValid acts like what isLoaded should have been...
         if (mainSide && !SceneManager.GetSceneByName(SceneToConnect).IsValid())
         {
+            //Debug.Log("Loading connected " + SceneToConnect);
             SceneManager.LoadScene(SceneToConnect, LoadSceneMode.Additive);
+
+            //Scene s = SceneManager.GetSceneByName(SceneToConnect);
+            //Debug.Log($"{s.name} {s.isLoaded}");
         }
 
         //connect
 
         otherSide = FindOtherSide();
+        //Debug.Log( SceneToConnect + " Find result " + otherSide + " main: "  + mainSide);
         if(otherSide != null) //it will surely be null the first time, since the other side is not loaded yet.
         {
             otherSide.otherSide = otherSide.FindOtherSide();
@@ -48,6 +57,7 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
 
         if(otherSide != null && otherSide.otherSide == this)
         {
+            //Debug.Log(SceneToConnect + " Exchange begin " + mainSide);
             BeginExchanging();
         }
     }
@@ -56,13 +66,17 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //in that case prep the scene with this method call
     public void PrepareForExchangeAgain()
     {
-        exchanged = false;
+        Connected = false;
     }
 
-    private bool exchanged;
+    /// <summary>
+    /// Only for one side, but it is very likely that the other side have already connected too...
+    /// </summary>
+    public bool Connected { get; private set; }
+
     private void BeginExchanging()
     {
-        if(!exchanged)
+        if(!Connected)
         {
             if(mainSide)
             {
@@ -72,7 +86,7 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
             {
                 OtherSideAssignment();
             }
-            exchanged = true;
+            Connected = true;
             otherSide.BeginExchanging();
         }
     }
