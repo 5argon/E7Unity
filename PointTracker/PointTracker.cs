@@ -2,47 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct IntVector2
-{
-    /// <summary>
-    /// The value of x and y should not exceed this value. Increase as needed.
-    /// This is used to create a non-conflicting determinant for IntVector2
-    /// </summary>
-    private const int maxBound = 50000;
-    public int x { get; }
-    public int y { get; }
-
-    public IntVector2(int x, int y)
-    {
-        this.x = x;
-        this.y = y;
-    }
-
-    public int Determinant => (x * maxBound) + y;
-    public Vector2 Vector2 => new Vector2(x, y);
-}
-
 public class PointTracker {
 
-	private Dictionary<int,IntVector2> registeredPoints;
-	private Dictionary<int,bool> registeredStates;
+	private List<Vector2> registeredPoints;
+	private Dictionary<Vector2,bool> registeredStates;
 
 	public PointTracker()
 	{
-		registeredPoints = new Dictionary<int,IntVector2>();
-		registeredStates = new Dictionary<int,bool>();
+		registeredPoints = new List<Vector2>();
+        registeredStates = new Dictionary<Vector2, bool>();
 	}
 
-	public Dictionary<int,IntVector2>.ValueCollection CurrentPoints => registeredPoints.Values;
+    /// <summary>
+    /// All points in this list are currently "down". Not array for performance reason so don't modify the list! Just read it!
+    /// </summary>
+	public List<Vector2> CurrentPoints => registeredPoints;
 
     /// <summary>
     /// You can keep whatever state you want with a bool per point.
     /// </summary>
-    public bool StateOfPoint(int x, int y)
+    public bool StateOfPoint(Vector2 point)
     {
-        IntVector2 point = new IntVector2(x, y);
         bool ret;
-        if (registeredStates.TryGetValue(point.Determinant, out ret))
+        if (registeredStates.TryGetValue(point, out ret))
         {
             //Debug.Log($"State of {x} {y} is {ret}");
             return ret;
@@ -59,55 +41,49 @@ public class PointTracker {
         registeredPoints.Clear();
     }
 
-	public void Down(int x, int y)
+	public void Down(Vector2 pointDown)
 	{
         //Debug.Log($"Down {x} {y}");
-        IntVector2 pointDown = new IntVector2(x, y);
-		registeredPoints.Add(pointDown.Determinant,pointDown);
-        registeredStates.Add(pointDown.Determinant,false);
+		registeredPoints.Add(pointDown);
+        registeredStates.Add(pointDown,false);
 	}
 
-    public void SetState(int x, int y, bool toState)
+    public void SetState(Vector2 pointNow, bool toState)
     {
-        IntVector2 pointNow = new IntVector2(x, y);
-		int det = pointNow.Determinant;
-        if(registeredPoints.ContainsKey(det) && registeredStates.ContainsKey(det))
+        if(registeredPoints.Contains(pointNow) && registeredStates.ContainsKey(pointNow))
         {
             //Debug.Log($"Set state OK {x} {y} {toState}");
-            registeredStates.Remove(det);
-            registeredStates.Add(det, toState);
+            registeredStates.Remove(pointNow);
+            registeredStates.Add(pointNow, toState);
         }
-        else
-        {
+        //else
+        //{
             //Debug.Log($"Set state fail {x} {y} {toState}");
-        }
+        //}
     }
 
-	public bool Move(int x, int y, int previousX, int previousY)
+	public bool Move(Vector2 pointNow, Vector2 pointPrevious)
     {
         //Debug.Log($"Move {x} {y} {previousX} {previousY}");
-        if(x == previousX && y == previousY)
+        if(pointNow == pointPrevious)
         {
             //This weird bug iOS reports happen after an errornous Up.. we interpret this as Down.
+
             //Debug.Log($"Error Move!! {x} {y} {previousX} {previousY}");
-            Down(x, y);
+            Down(pointNow);
             return true;
         }
 
-        IntVector2 pointPrevious = new IntVector2(previousX, previousY);
-        IntVector2 pointNow = new IntVector2(x, y);
-		int det = pointPrevious.Determinant;
         bool state;
 
-        if (registeredPoints.ContainsKey(det) && registeredStates.TryGetValue(det, out state))
+        if (registeredPoints.Contains(pointPrevious) && registeredStates.TryGetValue(pointPrevious, out state))
         {
-            int detNow = pointNow.Determinant;
-			registeredPoints.Remove(det);
-			registeredStates.Remove(det);
-			registeredPoints.Add(detNow, pointNow);
-            if(!registeredStates.ContainsKey(detNow)) //somehow ArgumentException crash happen below!!
+			registeredPoints.Remove(pointPrevious);
+			registeredStates.Remove(pointPrevious);
+			registeredPoints.Add(pointNow);
+            if(!registeredStates.ContainsKey(pointNow)) //somehow ArgumentException crash happen below!!
             {
-                registeredStates.Add(detNow, state); //copy state
+                registeredStates.Add(pointNow, state); //copy state
             }
             return true;
         }
@@ -118,24 +94,20 @@ public class PointTracker {
 		}
     }
 
-    public bool Up(int x, int y, int previousX, int previousY)
+    public bool Up(Vector2 pointUp, Vector2 pointPrevious)
 	{
         //Debug.Log($"Up {x} {y} {previousX} {previousY}");
-        IntVector2 pointPrevious = new IntVector2(previousX, previousY);
-        IntVector2 pointUp = new IntVector2(x, y);
-		int detPrevious = pointPrevious.Determinant;
-		int detCurrent = pointUp.Determinant;
 
-        if (registeredPoints.ContainsKey(detPrevious) && registeredStates.ContainsKey(detPrevious))
+        if (registeredPoints.Contains(pointPrevious) && registeredStates.ContainsKey(pointPrevious))
         {
-			registeredPoints.Remove(detPrevious);
-            registeredStates.Remove(detPrevious);
+			registeredPoints.Remove(pointPrevious);
+            registeredStates.Remove(pointPrevious);
             return true;
         }
-        else if (registeredPoints.ContainsKey(detCurrent) && registeredStates.ContainsKey(detCurrent))
+        else if (registeredPoints.Contains(pointUp) && registeredStates.ContainsKey(pointUp))
         {
-			registeredPoints.Remove(detCurrent);
-            registeredStates.Remove(detCurrent);
+			registeredPoints.Remove(pointUp);
+            registeredStates.Remove(pointUp);
             return true;
         }
 		else
