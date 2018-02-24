@@ -409,6 +409,8 @@ public static class UGUITestExtension
         //Vector3 topRight = worldCorners[2];
         Vector3 bottomRight = worldCorners[3];
 
+        //Debug.Log($"{bottomLeft.x} < {Screen.width} && {bottomRight.x} > 0 && {topLeft.y} > 0 && {bottomRight.y} < {Screen.height}");
+
         if(bottomLeft.x < Screen.width && bottomRight.x > 0 && topLeft.y > 0 && bottomRight.y < Screen.height)
         {
             return false; //Rect overlaps, therefore it is not out of screen
@@ -430,6 +432,8 @@ public static class UGUITestExtension
     /// </summary>
     public static bool GraphicVisible(this Graphic graphic)
     {
+        //Debug.Log($"{graphic.IsOutOfScreen()} || {graphic.HasZeroRectSize()} || {graphic.HasZeroScale()} || {graphic.gameObject.activeInHierarchy == false} || {graphic.enabled == false} || {graphic.color.a == 0} || {ComponentInvisible(graphic)}");
+
         if (graphic.IsOutOfScreen() || graphic.HasZeroRectSize() || graphic.HasZeroScale() || graphic.gameObject.activeInHierarchy == false || graphic.enabled == false || graphic.color.a == 0 || ComponentInvisible(graphic))
         {
             return false;
