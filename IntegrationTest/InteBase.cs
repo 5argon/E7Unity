@@ -223,11 +223,22 @@ public abstract class InteBase {
         }
     }
 
-    public static Vector2 CenterOfRectTransform(RectTransform rect)
+    public static Vector2 CenterOfRectTransform(RectTransform rect) => RelativePositionOfRectTransform(rect, new Vector2(0.5f, 0.5f));
+    // {
+    //     Vector3[] corners = new Vector3[4];
+    //     rect.GetWorldCorners(corners);
+    //     return Vector3.Lerp(Vector3.Lerp(corners[0], corners[1], 0.5f), Vector3.Lerp(corners[2], corners[3], 0.5f), 0.5f);
+    // }
+
+    public static Vector2 RelativePositionOfRectTransform(RectTransform rect, Vector2 relativePosition)
     {
         Vector3[] corners = new Vector3[4];
         rect.GetWorldCorners(corners);
-        return Vector3.Lerp(Vector3.Lerp(corners[0], corners[1], 0.5f), Vector3.Lerp(corners[2], corners[3], 0.5f), 0.5f);
+        // foreach(Vector3 c in corners)
+        // {
+        //     Debug.Log(c);
+        // }
+        return new Vector2(Vector3.Lerp(corners[1], corners[2], relativePosition.x).x, Vector3.Lerp(corners[0], corners[1], relativePosition.y).y);
     }
 
     public static Vector2 CenterOfSpriteName(string gameObjectName)
@@ -252,10 +263,17 @@ public abstract class InteBase {
 
     /// <summary>
     /// Currently supports Button's onClick and EventTrigger's OnPointerClick.
+    /// Clicks on a relative position in the rect.
+    /// </summary>
+    public static void RaycastClick(RectTransform rect, Vector2 relativePositionInRect) => RaycastClick(RelativePositionOfRectTransform(rect, relativePositionInRect));
+
+    /// <summary>
+    /// Currently supports Button's onClick and EventTrigger's OnPointerClick.
     /// </summary>
     /// <param name="screenPosition">In pixel.</param>
     public static void RaycastClick(Vector2 screenPosition)
     {
+        //Debug.Log("Clicking " + screenPosition);
         PointerEventData fakeClick = new PointerEventData(EventSystem.current);
         fakeClick.position = screenPosition;
         fakeClick.button = PointerEventData.InputButton.Left;
