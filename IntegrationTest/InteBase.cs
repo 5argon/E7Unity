@@ -37,6 +37,42 @@ public abstract class InteBase {
         return new WaitForSeconds(seconds);
     }
 
+    protected class TimeOutWaitUntil : CustomYieldInstruction
+    {
+        public float TimeOut { get;}
+        public Func<bool> Pred { get;}
+
+        private float timeElapsed;
+
+        public TimeOutWaitUntil(Func<bool> predicate, float timeOut)
+        {
+            this.Pred = predicate;
+            this.TimeOut = timeOut;
+        }
+
+        public override bool keepWaiting
+        {
+            get
+            {
+                if (Pred.Invoke() == false)
+                {
+                    timeElapsed += Time.deltaTime;
+                    if(timeElapsed > TimeOut)
+                    {
+                        throw new Exception($"Wait until timed out! ({TimeOut} seconds)");
+                    }
+                    return true; //keep coroutine suspended
+                }
+                else
+                {
+                    return false; //predicate is true, stop waiting and move on
+                }
+            }
+        }
+
+    }
+
+
     /// <summary>
     /// Unfortunately could not return T upon found, but useful for waiting something to become active
     /// </summary>
