@@ -30,8 +30,10 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
        LoadAndConnect(); 
     }
 
-    //if you manually call this, you need to wait 1 frame for the connected variables to be available.
-    //since the new frame will be loaded on the next frame.
+    /// <summary>
+    /// If you manually call this, you need to wait 1 frame for the connected variables to be available.
+    /// Since the new scene will be loaded on the next frame.
+    /// </summary>
     public void LoadAndConnect()
     {
         Connected = false;
@@ -66,7 +68,12 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //in that case prep the scene with this method call
     public void PrepareForExchangeAgain()
     {
+        //Debug.Log("Prepare to exchange again! " + SceneToConnect + " " + mainSide);
         Connected = false;
+        if(otherSide != null)
+        {
+            otherSide.Connected = false;
+        }
     }
 
     /// <summary>
