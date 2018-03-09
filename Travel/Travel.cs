@@ -79,23 +79,28 @@ public class Travel<T>
         return null;
     }
 
+    private bool HasEventAtZero { get; set; }
+
     /// <summary>
-    /// Adds if there is no event in the Travel, otherwise does nothing.
+    /// Adds event at position/time zero if there's nothing at zero yet.
     /// This prevents the travel returning null for all positive time and position
     /// </summary>
-    public void AddDefault(T data)
+    public void AddDefaultAtZero(T data)
     {
-        if(EventList.Count == 0)
+        if(!HasEventAtZero)
         {
+            //Debug.Log("Adding default " + data.ToString());
             Add(0,0,data);
         }
     }
+
 
     /// <summary>
     /// TIME IS TIME ELAPSED NOT ANY TIME YOU WANT!!
     /// </summary>
     public void Add(float position, float timeElapsed, T data)
     {
+        //Debug.Log($"Adding {position} {timeElapsed} {data.ToString()}");
         if (EventList.Count != 0 && timeElapsed <= 0)
         {
             throw new System.Exception($"Time elapsed except the first one must be positive. position : {position} timeElapsed : {timeElapsed}");
@@ -103,6 +108,10 @@ public class Travel<T>
         TravelEvent<T> travelEvent = new TravelEvent<T>(position, (LastEvent?.Time ?? 0) + timeElapsed, data);
         LastEvent?.LinkToNext(travelEvent);
         EventList.Add(travelEvent);
+        if(position == 0)
+        {
+            HasEventAtZero = true;
+        }
     }
 }
 
@@ -150,7 +159,7 @@ public class TravelEvent<T>
 
         public bool IsPositionInRange(float position)
         {
-            //Debug.LogFormat("Pos Range is {0} - {1}",AbsolutePosition,AbsolutePositionNext);
+            //Debug.LogFormat("Pos Range is {0} - {1}",Position,PositionNext);
             return (position >= Position) && (position < PositionNext);
         }
 
