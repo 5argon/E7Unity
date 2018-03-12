@@ -160,8 +160,21 @@ public abstract class InteBase {
     protected static T FindNamed<T>(string parentName,string childName) where T : Component 
     {
         GameObject parent = GameObject.Find(parentName);
+        if(parent == null)
+        {
+            throw new ArgumentException($"Parent name {parentName} not found!");
+        }
         Transform child = FindChildRecursive(parent.transform, childName);
-        return child.GetComponent<T>();
+        if(child == null)
+        {
+            throw new ArgumentException($"Child name {childName} not found!");
+        }
+        T component = child.GetComponent<T>();
+        if(component == null)
+        {
+            throw new ArgumentException($"Component of type {typeof(T).Name} does not exist on {parentName} -> {childName}!");
+        }
+        return component;
     }
 
     /// <summary>
