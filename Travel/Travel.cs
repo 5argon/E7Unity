@@ -58,6 +58,7 @@ public class Travel<T>
             if(EventList[useIndex].IsPositionInRange(position))
             {
                 rememberIndex = useIndex;
+                //Debug.Log($"Ok we got {EventList[useIndex]}");
                 return EventList[useIndex];
             }
         }
@@ -159,7 +160,7 @@ public class TravelEvent<T>
 
         public bool IsPositionInRange(float position)
         {
-            //Debug.LogFormat("Pos Range is {0} - {1}",Position,PositionNext);
+            //Debug.Log($"Is in range? {Position} - {position} - {PositionNext}");
             return (position >= Position) && (position < PositionNext);
         }
 
