@@ -26,6 +26,14 @@ public class CachedData<T> : ICacheableData {
     }
 
     /// <summary>
+    /// Assign the data at the same time. Useful if T is a reference type and you don't want it to start as null.
+    /// </summary>
+    public CachedData(T instance) : this()
+    {
+        data = instance;
+    }
+
+    /// <summary>
     /// Data is allowed to get only if it is not dirty, which is achieved by setting something to it.
     /// Data can be set anytime, doing so will remove the dirty status.
     /// </summary>
@@ -45,5 +53,20 @@ public class CachedData<T> : ICacheableData {
             dirty = false; //clean! not dirty!
         }
     }
+
+    /// <summary>
+    /// Use this if you want to do something to the data as an assignment and make it not dirty at the same time.
+    /// Be careful of null reference. And it has no dirty check.
+    /// </summary>
+    /// <returns></returns>
+    public T Assignment
+    {
+        get
+        {
+            dirty = false;
+            return data;
+        }
+    }
+
 
 }
