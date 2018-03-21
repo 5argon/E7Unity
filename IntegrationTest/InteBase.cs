@@ -1,5 +1,5 @@
 ﻿//When integration testing using "on device" button DEVELOPMENT_BUILD is automatically on.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || (DEVELOPMENT_BUILD && !UNITY_STANDALONE)
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
