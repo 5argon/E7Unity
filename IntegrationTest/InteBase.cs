@@ -404,8 +404,7 @@ public abstract class InteBase {
     }
 
     /// <summary>
-    /// The timeframe will be rounded to the nearest power of two audio samples.
-    /// Averages in stereo.
+    /// WIP! Does not work!
     /// </summary>
     public float AverageAmplitude(float inTheLastSeconds)
     {

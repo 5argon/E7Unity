@@ -18,6 +18,7 @@ using Firebase.Unity.Editor;
 /// <summary>
 /// A small toolkit I made for common operations.
 /// Currently it can download-upload from persistent data path. 
+/// REQUIRES : Firebase Unity SDK 4.5.0 It assume Desktop Workflow is usable.
 /// </summary>
 /// <returns></returns>
 public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITSELF>, new()
@@ -327,7 +328,7 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 public static class TaskExtension
 {
     /// <summary>
-    /// Firebase Task might not play well with Unity's Coroutine workflow. You can now yield on the task with this.
+    /// Firebase Task might not play well with Unity's Coroutine workflow. You can now yield on the task with this. Useful in a test.
     /// </summary>
     public static IEnumerator YieldWait(this Task task)
     {
