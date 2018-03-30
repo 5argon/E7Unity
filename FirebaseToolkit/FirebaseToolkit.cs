@@ -18,15 +18,15 @@ using Firebase.Unity.Editor;
 /// <summary>
 /// A small toolkit I made for common operations.
 /// Currently it can download-upload from persistent data path. 
-/// REQUIRES : Firebase Unity SDK 4.5.0 It assume Desktop Workflow is usable.
+/// REQUIRES : Firebase Unity SDK 4.5.0 It assumes Desktop Workflow is usable.
 /// </summary>
 /// <returns></returns>
 public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITSELF>, new()
 {
-
     /// <summary>
     /// Format : "gs://my-custom-bucket"
-    /// For storage you can't set a new default from Firebase. I think setting here is easier than changing the config file manually.
+    /// Bucket name from the config file is the one with (default) in Firebase. You cannot change it in the console.
+    /// This setting can make default bucket becomes something else. Even if you are using your default please put it here.
     /// </summary>
     protected abstract string BucketName { get; }
 
@@ -69,42 +69,28 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         }
     }
 
-#if UNITY_EDITOR || UNITY_STANDALONE
-    private static readonly string defaultInstanceName = "default";
-    private static string currentInstanceName = defaultInstanceName;
-    protected static string CurrentInstanceName { get { return currentInstanceName; } }
-    private static List<string> createdInstanceList = new List<string>() { defaultInstanceName };
 
-    /// <returns>false means the instance is already created.</returns>
-    private static bool SwitchInstance(string toName)
+
+//When doing a PlayMode test and real device PlayMode test, the test use this to check the Firebase configuration variables.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    public static ITSELF TestFirebaseApp => Instance;
+
+    public static int instanceCount = 1;
+
+    public static void TestSetUp()
     {
-        bool isAlreadyCreated = createdInstanceList.Contains(toName);
-        if(currentInstanceName == defaultInstanceName && toName == defaultInstanceName)
-        {
-            return false;
-        }
-        if (!isAlreadyCreated)
-        {
-            //Debug.Log("Created new FirebaseApp instance named " + toName);
-            FirebaseApp.Create(DefaultFirebaseOption, toName);
-            createdInstanceList.Add(toName);
-        }
+        //Apparently currentFirebaseApp.Dispose() crashes Unity, so we are instantiating a new one...
+        instanceCount++;
+        currentFirebaseApp = FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, firebaseToolkitInstanceName + instanceCount.ToString());
 
-        if (currentInstanceName == toName)
-        {
-            //This helps you code your UI better so it should not lead to double login
-            throw new Exception("We should not have switch to the same instance! Stupid! (" + currentInstanceName + "->" + toName + ")");
-        }
-
-        currentInstanceName = toName;
-
-        //Reset cache so all of them gets a new one from the ground up
-        currentFirebaseApp = null;
+        auth = null;
         database = null;
         storage = null;
-        return !isAlreadyCreated;
     }
+
 #endif
+
+    public const string firebaseToolkitInstanceName = "FirebaseToolkit-Instance";
 
     private static FirebaseApp currentFirebaseApp;
     public static FirebaseApp CurrentFirebaseApp
@@ -113,24 +99,12 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (currentFirebaseApp == null)
             {
-#if UNITY_EDITOR || UNITY_STANDALONE
-                currentFirebaseApp = FirebaseApp.GetInstance(currentInstanceName);
-#else
-                currentFirebaseApp = FirebaseApp.DefaultInstance;
-#endif
+                currentFirebaseApp = FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, firebaseToolkitInstanceName);
             }
             return currentFirebaseApp;
         }
     }
 
-    private static AppOptions DefaultFirebaseOption
-    {
-        get { return FirebaseApp.DefaultInstance.Options; }
-    }
-
-    //I prevent the use of Auth in the editor since the state after using it is very unpredictable
-    //See my research : https://gametorrahod.com/unity-firebase-realtime-database-gotchas-4359ff576026
-#if !UNITY_EDITOR
     private static FirebaseAuth auth;
     public static FirebaseAuth Auth 
     { 
@@ -138,12 +112,11 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if(auth == null)
             {
-                auth = FirebaseAuth.DefaultInstance;
+                auth = FirebaseAuth.GetAuth(CurrentFirebaseApp);
             }
             return auth;
         }
     }
-#endif
 
     private static FirebaseDatabase database;
     public static FirebaseDatabase Database
@@ -152,16 +125,11 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         {
             if (database == null)
             {
-                if (IsLoggedIn == false)
+                if (IsSignedIn == false)
                 {
                     throw new Exception("No! You must login before using the database in editor!");
                 }
-#if UNITY_EDITOR || UNITY_STANDALONE
-                CurrentFirebaseApp.SetEditorDatabaseUrl(Instance.DatabaseUrl);
-                database = FirebaseDatabase.GetInstance(CurrentFirebaseApp);
-#else
                 database = FirebaseDatabase.GetInstance(CurrentFirebaseApp,Instance.DatabaseUrl);
-#endif
             }
 
             return database;
@@ -187,83 +155,24 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     /// </summary>
     protected static void EditorLogin(string username, string password, string uid)
     {
-        //In editor... to support freely switching user, each username would need a separate Firebase instance
-        //since you cannot take it out once you made the first DB call.
-
-        //In the real game we would need only one instance.
-        bool switchCreatesNewInstance = SwitchInstance(username); //Every CurrentFirebaseApp will change!
-
-        if (switchCreatesNewInstance)
-        {
-            CurrentFirebaseApp.SetEditorP12FileName(Instance.P12FileName);
-            CurrentFirebaseApp.SetEditorServiceAccountEmail(Instance.ServiceAccountEmail);
-            CurrentFirebaseApp.SetEditorP12Password("notasecret");
-            CurrentFirebaseApp.SetEditorAuthUserId(uid);
-        }
-
-        Debug.LogFormat("EDITOR login as {0}", uid);
     }
 #endif
 
-    public static void Logout()
-    {
-#if UNITY_EDITOR || UNITY_STANDALONE
-        SwitchInstance(defaultInstanceName);
-#else
-        Auth.SignOut();
-#endif
-    }
+    public static bool IsSignedIn => Auth.CurrentUser != null && Auth.CurrentUser.UserId != "";
 
+    public static bool IsSignedInAndVerified => IsSignedIn && Auth.CurrentUser.IsEmailVerified;
 
-    public static bool IsLoggedIn
-    {
-        get
-        {
-#if UNITY_EDITOR || UNITY_STANDALONE
-            if (currentInstanceName != defaultInstanceName)
-            {
-                return true;
-            }
-            else
-            {
-                //We have made sure the default ones can't have login information even in editor.
-                return false;
-            }
-#else
-            return (Auth.CurrentUser != null && Auth.CurrentUser.UserId != "");
-#endif
-        }
-    }
-
-    protected static string UserEmail
-    {
-        get
-        {
-            if (IsLoggedIn == false)
-            {
-                throw new Exception("Cannot get E-mail while not logged in");
-            }
-#if UNITY_EDITOR || UNITY_STANDALONE
-            return CurrentFirebaseApp.Name; //The instance name is an e-mail
-#else
-            return Auth.CurrentUser.Email;
-#endif
-        }
-    }
+    protected static string UserEmail => Auth.CurrentUser.Email;
 
     protected static string UserID
     {
         get
         {
-            if (IsLoggedIn == false)
+            if (IsSignedIn == false)
             {
                 throw new Exception("Cannot get ID while not logged in");
             }
-#if UNITY_EDITOR || UNITY_STANDALONE
-            return CurrentFirebaseApp.GetEditorAuthUserId();
-#else
             return Auth.CurrentUser.UserId;
-#endif
         }
     }
 
@@ -322,7 +231,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
         StorageReference downloadReference = Storage.RootReference.Child(firebaseFolder).Child(firebaseFileName);
         return downloadReference.GetFileAsync(destination);
     }
-
 }
 
 public static class TaskExtension
