@@ -1,3 +1,5 @@
+//#define USE_DEFAULT_INSTANCE
+
 using Firebase;
 using Firebase.Storage;
 using Firebase.Database;
@@ -8,6 +10,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
 using UnityEngine;
+
+using Newtonsoft.Json;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -75,14 +80,13 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
     public static ITSELF TestFirebaseApp => Instance;
 
-    public static int instanceCount = 1;
+    public static int instanceCount = 0;
 
     public static void TestSetUp()
     {
         //Apparently currentFirebaseApp.Dispose() crashes Unity, so we are instantiating a new one...
         instanceCount++;
-        currentFirebaseApp = FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, firebaseToolkitInstanceName + instanceCount.ToString());
-
+        currentFirebaseApp = null; //Forcing null, so the next call we get a new ones.
         auth = null;
         database = null;
         storage = null;
@@ -93,13 +97,18 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     public const string firebaseToolkitInstanceName = "FirebaseToolkit-Instance";
 
     private static FirebaseApp currentFirebaseApp;
-    public static FirebaseApp CurrentFirebaseApp
+    public static FirebaseApp CurrentFirebaseApp 
     {
         get
         {
             if (currentFirebaseApp == null)
             {
-                currentFirebaseApp = FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, firebaseToolkitInstanceName);
+                Debug.Log("Creating a toolkit instance because it is currently null!");
+#if USE_DEFAULT_INSTANCE
+                currentFirebaseApp = FirebaseApp.DefaultInstance;
+#else
+                currentFirebaseApp = FirebaseApp.Create(FirebaseApp.DefaultInstance.Options, firebaseToolkitInstanceName + instanceCount.ToString());
+#endif
             }
             return currentFirebaseApp;
         }
@@ -127,9 +136,10 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             {
                 if (IsSignedIn == false)
                 {
-                    throw new Exception("No! You must login before using the database in editor!");
+                    //throw new Exception("No! You must login before using the database in editor!");
                 }
-                database = FirebaseDatabase.GetInstance(CurrentFirebaseApp,Instance.DatabaseUrl);
+                //Using SetEditorDatabaseUrl here will now cause handshake error if you have an Auth login, but the write went through.
+                database = FirebaseDatabase.GetInstance(CurrentFirebaseApp, Instance.DatabaseUrl);
             }
 
             return database;
@@ -244,5 +254,17 @@ public static class TaskExtension
         {
             yield return null;
         }
+    }
+}
+
+public static class FirebaseExtension
+{
+    /// <summary>
+    /// For jsonObject declare anonymous object like this :
+    /// var toWrite = new { numberOnly = 5555 };
+    /// </summary>
+    public static async Task SetJson(this DatabaseReference dbRef, object jsonObject)
+    {
+        await dbRef.SetRawJsonValueAsync(JsonConvert.SerializeObject(jsonObject));
     }
 }
