@@ -161,7 +161,9 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
     private FirebaseDatabase Database => FirebaseToolkit<FT>.Database;
     private FirebaseStorage Storage => FirebaseToolkit<FT>.Storage;
 
-
+    /// <summary>
+    /// Currently (31/03/2018 - 2017.4.0f1) Firebase logs (not throw) an Error log when doing realtime DB with any Auth login causing tests to fail.
+    /// </summary>
     private void ExpectFirebaseAuthBug() => LogAssert.Expect(LogType.Error, new System.Text.RegularExpressions.Regex("IOException during handshake"));
 
     // ===============================================================================
@@ -308,10 +310,10 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
     [UnityTest]
     public IEnumerator T_WriteTestPublicNotLoggedIn()
     {
-        yield return T_WriteTestPublic_Task().YieldWaitTest();
+        yield return T_WriteTestPublicCommon_Task().YieldWaitTest();
     }
 
-    private async Task T_WriteTestPublic_Task()
+    private async Task T_WriteTestPublicCommon_Task()
     {
         var toWrite = new { numberOnly = "not a number!", hi = 555 };
         await TestPublic.SetJson(toWrite);
@@ -323,21 +325,6 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
     }
 
     [UnityTest]
-    public IEnumerator T_RemoveTestPublicNotLoggedIn()
-    {
-        yield return T_RemoveTestPublicNotLoggedIn_Task().YieldWaitTest();
-    }
-
-    private async Task T_RemoveTestPublicNotLoggedIn_Task()
-    {
-        await T_WriteTestPublic_Task();
-        await TestPublic.RemoveValueAsync();
-
-        DataSnapshot data = await TestPublic.GetValueAsync();
-        Assert.That(data.HasChildren, Is.Not.True, "We have removed an entire test public tree.");
-    }
-
-    [UnityTest]
     public IEnumerator T_WriteTestPrivateNotLoggedIn()
     {
         yield return T_WriteTestPrivateNotLoggedIn_Task().YieldWaitTest();
@@ -346,10 +333,10 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
     private async Task T_WriteTestPrivateNotLoggedIn_Task()
     {
         var toWrite = new { numberOnly = 5555 };
-        await TestPrivate.SetJson(toWrite).ShouldThrow<DatabaseException>("Can't write to private without logged in.");
+        await TestPrivate.SetJson(toWrite).ShouldThrow<DatabaseException>("Can't write to private without logging in.");
 
         var toWriteWrongDataType = new { numberOnly = "not a number!"};
-        await TestPrivate.SetJson(toWriteWrongDataType).ShouldThrow<DatabaseException>("Can't write to private without logged in.");
+        await TestPrivate.SetJson(toWriteWrongDataType).ShouldThrow<DatabaseException>("Can't write to private without logging in.");
     }
 
     [UnityTest]
@@ -362,7 +349,7 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
     {
         ExpectFirebaseAuthBug();
         await T_AuthSignIn_Task();
-        await T_WriteTestPublic_Task(); //Logged in or not it should be the same, but that IOException bug we have to take care..
+        await T_WriteTestPublicCommon_Task(); //Logged in or not it should be the same, but that IOException bug we have to take care..
     }
 
     [UnityTest]
@@ -379,10 +366,58 @@ public abstract class InteFirebaseToolkit<FT> : InteBase where FT : FirebaseTool
         var toWrite = new { numberOnly = 5555 };
         await TestPrivate.SetJson(toWrite);
 
-        // var toWriteWrongDataType = new { numberOnly = "not a number!"};
-        // await TestPrivate.SetJson(toWriteWrongDataType);
+        var toWriteWrongDataType = new { numberOnly = "not a number!"};
+        await TestPrivate.SetJson(toWriteWrongDataType).ShouldThrow<DatabaseException>("Wrong data structure!");
     }
 
+    [UnityTest]
+    public IEnumerator T_RemoveTestPublicNotLoggedIn()
+    {
+        yield return T_RemoveTestPublicNotLoggedIn_Task().YieldWaitTest();
+    }
+
+    private async Task T_RemoveTestPublicNotLoggedIn_Task()
+    {
+        await T_WriteTestPublicCommon_Task();
+        await TestPublic.RemoveValueAsync();
+
+        DataSnapshot data = await TestPublic.GetValueAsync();
+        Assert.That(data.HasChildren, Is.Not.True, "We have removed an entire test public tree.");
+    }
+
+    [UnityTest]
+    public IEnumerator T_RemoveTestPublicLoggedIn()
+    {
+        yield return T_RemoveTestPublicLoggedIn_Task().YieldWaitTest();
+    }
+
+    private async Task T_RemoveTestPublicLoggedIn_Task()
+    {
+        ExpectFirebaseAuthBug();
+
+        await T_AuthSignIn_Task(); // <---
+        await T_WriteTestPublicCommon_Task();
+        await TestPublic.RemoveValueAsync();
+
+        DataSnapshot data = await TestPublic.GetValueAsync();
+        Assert.That(data.HasChildren, Is.Not.True, "We have removed an entire test public tree while logged in.");
+    }
+
+    [UnityTest]
+    public IEnumerator T_RemoveTestPrivateNotLoggedIn()
+    {
+        yield return T_RemoveTestPrivateNotLoggedIn_Task().YieldWaitTest();
+    }
+
+    private async Task T_RemoveTestPrivateNotLoggedIn_Task()
+    {
+        await T_WriteTestPrivateLoggedIn_Task();
+        Auth.SignOut();
+        await TestPrivate.RemoveValueAsync().ShouldThrow<DatabaseException>("We cannot remove private test without logging in");
+
+        DataSnapshot data = await TestPrivate.GetValueAsync();
+        Assert.That(data.HasChildren, Is.Not.True, "We have removed an entire test public tree.");
+    }
 
 } 
 

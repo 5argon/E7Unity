@@ -76,11 +76,9 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
 
 
 
-//When doing a PlayMode test and real device PlayMode test, the test use this to check the Firebase configuration variables.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-    public static ITSELF TestFirebaseApp => Instance;
-
     public static int instanceCount = 0;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 
     public static void TestSetUp()
     {
