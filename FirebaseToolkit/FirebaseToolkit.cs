@@ -41,25 +41,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
     /// </summary>
     protected abstract string DatabaseUrl { get; }
 
-#if UNITY_EDITOR || UNITY_STANDALONE
-
-    /// <summary>
-    /// Format : "askfjsdafkj.p12"
-    /// </summary>
-    protected abstract string P12FileName { get; }
-
-    /// <summary>
-    /// Format : "firebase-adminsdk-mpvab@your-game.iam.gserviceaccount.com"
-    /// </summary>
-    protected abstract string ServiceAccountEmail { get; }
-
-    /// <summary>
-    /// In editor you can't use Auth, therefore you can't get UID from Firebase starting from e-mail and password.
-    /// This dict will transform e-mail to UID. It indicates all the possible login you can do from the editor.
-    /// </summary>
-    public abstract Dictionary<string, string> EditorEmailToUID { get; }
-#endif
-
     //All the C# abstract cannot be static so those are useless to the abstract methods.. because of this we have to make a singleton of FirebaseToolkit just for accessing those abstracts. lol
     protected static ITSELF instance;
     protected static ITSELF Instance
@@ -73,8 +54,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             return instance;
         }
     }
-
-
 
     public static int instanceCount = 0;
 
@@ -156,15 +135,6 @@ public abstract class FirebaseToolkit<ITSELF> where ITSELF : FirebaseToolkit<ITS
             return storage;
         }
     }
-
-#if UNITY_EDITOR || UNITY_STANDALONE
-    /// <summary>
-    /// Call this from your Login in Editor instead of Auth. Maybe use #if UNITY_EDITOR to help.
-    /// </summary>
-    protected static void EditorLogin(string username, string password, string uid)
-    {
-    }
-#endif
 
     public static bool IsSignedIn => Auth.CurrentUser != null && Auth.CurrentUser.UserId != "";
 
