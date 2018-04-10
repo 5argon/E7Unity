@@ -23,7 +23,7 @@
 /// 04-10 15:48:12.789  24175    24216                  Unity I  Move 1314 296 1313 296
 /// 04-10 15:48:12.916  24175    24216                  Unity I  Move 998 107 998 108
 /// 
-/// You see the 2nd finger down to coordinate 1309,295? I move that new finger around and then somehow when I try to move the first finger, the previous position supposed to be at X = 997.6622 but it becames 998!
+/// You see the 2nd finger down to coordinate 1309,295? I move that new finger around and then somehow when I try to move the first finger, the previous position supposed to be at X = 997.6622 but it becames 998! It seems that sub-pixel movement was captured but it's storage as a previous position is not reliable (the 997 -> 997.6622 movement)
 /// 
 /// This is the reason I put rounding in this class. So if you feed the class Unity's touch it would work.
 /// 
@@ -57,7 +57,7 @@
 
 
 //Uncomment this to debug native shenanigans that might happen
-#define DEBUG_POINT_TRACKER
+//#define DEBUG_POINT_TRACKER
 
 using System.Collections;
 using System.Collections.Generic;
@@ -92,15 +92,16 @@ public class PointTracker {
     /// </summary>
     public bool StateOfPoint(Vector2 point)
     {
+        point = RoundVector(point);
         bool ret;
         if (registeredStates.TryGetValue(point, out ret))
         {
-            DebugLog($"State of {point.x} {point.y} is {ret}", LogType.Log);
+            //DebugLog($"State of {point.x} {point.y} is {ret}", LogType.Log);
             return ret;
         }
         else
         {
-            DebugLog($"State of {point.x} {point.y} not found", LogType.Log);
+            //DebugLog($"State of {point.x} {point.y} not found", LogType.Log);
             return false;
         }
     }
@@ -112,6 +113,7 @@ public class PointTracker {
 
     public void Down(Vector2 pointDown)
     {
+        pointDown = RoundVector(pointDown);
         DebugLog($"Down {pointDown.x} {pointDown.y}", LogType.Log);
         registeredPoints.Add(pointDown);
         registeredStates.Add(pointDown, false);
@@ -119,6 +121,7 @@ public class PointTracker {
 
     public void SetState(Vector2 pointNow, bool toState)
     {
+        pointNow = RoundVector(pointNow);
         if (registeredPoints.Contains(pointNow) && registeredStates.ContainsKey(pointNow))
         {
             //Debug.Log($"Set state OK {point.x} {point.y} {toState}");
@@ -140,7 +143,12 @@ public class PointTracker {
 
     public bool Move(Vector2 pointNow, Vector2 pointPrevious)
     {
+        pointNow = RoundVector(pointNow);
+        pointPrevious = RoundVector(pointPrevious);
+
         DebugLog($"Move {pointNow.x} {pointNow.y} {pointPrevious.x} {pointPrevious.y}", LogType.Log);
+
+#if UNITY_IOS
         if (pointNow == pointPrevious)
         {
             //This weird bug iOS reports happen after an errornous Up.. we interpret this as Down.
@@ -149,41 +157,15 @@ public class PointTracker {
             Down(pointNow);
             return true;
         }
+#endif
 
         bool state;
 
-        // A weird things in Unity input is point previous get a little floating point, makes it not connecting with the old ones.
-        // We round it and try again if it does not connect
-
-        //Conversely sometimes this pointPrevious got rounded and might not connect with old ones anymore.
-        //We have to round the remembered old ones and see if they connect or not.
-
         bool containsPrevious = registeredPoints.Contains(pointPrevious);
-        bool containsRoundedPrevious = false;
-        bool containsRoundedRegistered = false;
-        Vector2 roundedPrevious = Vector2.negativeInfinity;
 
-        if (!containsPrevious)
+        if (containsPrevious)
         {
-            roundedPrevious = RoundVector(pointPrevious);
-            containsRoundedPrevious = registeredPoints.Contains(roundedPrevious);
-        }
-
-        if (!containsRoundedPrevious)
-        {
-            foreach (Vector2 reg in registeredPoints)
-            {
-                if (RoundVector(reg) == pointPrevious)
-                {
-                    containsRoundedRegistered = true;
-                    break;
-                }
-            }
-        }
-
-        if (containsPrevious || containsRoundedPrevious || containsRoundedRegistered)
-        {
-            Vector2 victim = (containsPrevious || containsRoundedRegistered) ? pointPrevious : roundedPrevious;
+            Vector2 victim = pointPrevious;
             if (registeredStates.TryGetValue(victim, out state))
             {
                 registeredPoints.Remove(victim);
@@ -204,42 +186,23 @@ public class PointTracker {
 
     public bool Up(Vector2 pointUp, Vector2 pointPrevious)
     {
+        pointUp = RoundVector(pointUp);
+        pointPrevious = RoundVector(pointPrevious);
+
         DebugLog($"Up {pointUp.x} {pointUp.y} {pointPrevious.x} {pointPrevious.y}", LogType.Log);
 
         //It has the same problem as Down
         bool containsPrevious = registeredPoints.Contains(pointPrevious);
-        bool containsRoundedPrevious = false;
-        bool containsRoundedRegistered = false;
         bool containsUp = false;
-        Vector2 roundedPrevious = Vector2.negativeInfinity;
-        //We don't check for rounded up yet until we find that it is really happening.
 
         if (!containsPrevious)
-        {
-            roundedPrevious = RoundVector(pointPrevious);
-            containsRoundedPrevious = registeredPoints.Contains(roundedPrevious);
-        }
-
-        if (!containsRoundedPrevious)
         {
             containsUp = registeredPoints.Contains(pointUp);
         }
 
-        if (!containsUp)
+        if (containsPrevious || containsUp )
         {
-            foreach (Vector2 reg in registeredPoints)
-            {
-                if (RoundVector(reg) == pointPrevious)
-                {
-                    containsRoundedRegistered = true;
-                    break;
-                }
-            }
-        }
-
-        if (containsPrevious || containsRoundedPrevious || containsUp || containsRoundedRegistered)
-        {
-            Vector2 victim = (containsPrevious || containsRoundedRegistered) ? pointPrevious : (containsUp ? pointUp : roundedPrevious);
+            Vector2 victim = containsUp ? pointUp : pointPrevious;
             if (registeredStates.ContainsKey(victim))
             {
                 registeredPoints.Remove(victim);
