@@ -109,6 +109,7 @@ public class PointTracker {
     public void Reset()
     {
         registeredPoints.Clear();
+        registeredStates.Clear();
     }
 
     public void Down(Vector2 pointDown)

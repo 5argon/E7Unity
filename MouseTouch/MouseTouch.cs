@@ -10,8 +10,12 @@ public class MouseTouch {
     /// <summary>
     /// Consecutive calls needed to make dragging works.
     /// Check for phase Canceled for when not touching.
+    /// 
+    /// There is a chance that we don't get Up before the next down
+    /// in the case that the previous frame is holding -> we up and down so fast that the next frame is down instead of up.
+    /// Of course this is the behaviour of checking Input.GetMouse
     /// </summary>
-	public static Touch GetTouch()
+	public static ref readonly Touch GetTouch()
 	{
         fakeTouch.position = Input.mousePosition;
         if(Input.GetMouseButtonDown(0))
@@ -43,7 +47,7 @@ public class MouseTouch {
         }
         previousTouch = fakeTouch;
         //Debug.Log("MouseTouch : " + fakeTouch.position + " " + fakeTouch.deltaPosition + " " + fakeTouch.phase);
-        return fakeTouch;
+        return ref fakeTouch;
 	}
 
 }
