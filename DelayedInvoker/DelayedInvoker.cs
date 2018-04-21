@@ -8,6 +8,9 @@ public class DelayedInvoker {
     private Dictionary<int, IEnumerator> ActionIdToCoroutine = new Dictionary<int, IEnumerator>();
     private MonoBehaviour CoroutineHost { get; }
 
+    /// <summary>
+    /// Execution order in the first frame after specified delay time depends on Script Execution Order of this `coroutineHost`.
+    /// </summary>
     public DelayedInvoker(MonoBehaviour coroutineHost)
     {
         this.CoroutineHost = coroutineHost;
