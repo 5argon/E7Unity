@@ -11,7 +11,7 @@ public readonly struct ReadOnlyTouch
     /// <summary>
     /// Convert from Unity Touch.
     /// </summary>
-    public ReadOnlyTouch(Touch t) : this(
+    public ReadOnlyTouch(ref Touch t) : this(
         t.fingerId,
         t.position,
         t.deltaPosition,

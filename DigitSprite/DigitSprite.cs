@@ -40,7 +40,6 @@ public class DigitSprite : MonoBehaviour {
         }
     }
 
-
     public void SetColor(Color color)
 	{
         for (int i = 0; i < DigitSpriteEach.Length; i++)
@@ -49,11 +48,10 @@ public class DigitSprite : MonoBehaviour {
 		}
 	}
 
-	IEnumerator waitCoroutine;
 	public void SetTrigger(string trigger, float delayEach, float delayBefore)
 	{
-        waitCoroutine = SetTriggerRoutine(trigger, delayEach == 0 ? null : new WaitForSeconds(delayEach), delayBefore == 0 ? null : new WaitForSeconds(delayBefore));
-		StartCoroutine(waitCoroutine);
+        IEnumerator routine = SetTriggerRoutine(trigger, delayEach == 0 ? null : new WaitForSeconds(delayEach), delayBefore == 0 ? null : new WaitForSeconds(delayBefore));
+		StartCoroutine(routine);
 	}
 
 	/// <summary>
@@ -61,10 +59,7 @@ public class DigitSprite : MonoBehaviour {
 	/// </summary>
 	public void Hide()
 	{
-		if(waitCoroutine != null)
-		{
-			StopCoroutine(waitCoroutine);
-		}
+		StopAllCoroutines();
 		foreach(DigitSpriteEach dse in DigitSpriteEach)
 		{
 			if(dse.gameObject.activeSelf)
@@ -74,8 +69,8 @@ public class DigitSprite : MonoBehaviour {
 		}
 	}
 
-	protected virtual IEnumerator SetTriggerRoutine(string trigger, WaitForSeconds delayEach = null,WaitForSeconds delayBefore = null) 
-	{
+    protected virtual IEnumerator SetTriggerRoutine(string trigger, WaitForSeconds delayEach = null, WaitForSeconds delayBefore = null)
+    {
 		if(delayBefore != null)
 		{
 			yield return delayBefore;
