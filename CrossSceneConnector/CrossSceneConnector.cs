@@ -19,7 +19,11 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //Also, it is not guaranteed that the being loaded scene will have it's Awake called before the current scene's Start!
     //Turn Start into IEnumerator and wait for the connector to complete is highly advised.
 
-    public bool mainSide;
+    [SerializeField] protected bool mainSide;
+
+    [Tooltip("Prevents Awake script from running.")]
+    [SerializeField] private bool disable;
+
     protected T otherSide;
 
     private static string ConnectorTagName = "Connector";
@@ -27,7 +31,10 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     protected virtual void Awake()
     {
         //Debug.Log("CSC Awake " + SceneToConnect + " " + mainSide + " Generic: " + typeof(T).Name + " go: " + gameObject.name);
-       LoadAndConnect(); 
+        if (!disable)
+        {
+            LoadAndConnect();
+        }
     }
 
     /// <summary>
