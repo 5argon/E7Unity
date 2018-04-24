@@ -19,7 +19,7 @@ public class PrefabInstantiator : MonoBehaviour {
 	[Space]
 	public GameObject prefab;
 	[Space]
-    public Vector2 instantiateSize;
+    public Vector2 instantiateScale = Vector2.one;
     /// <summary>
     /// Normally the script will clear all children and wait for you to do the instantiation.
     /// Since the goal is to sync to prefab, reinstantiating is the way to refresh it run-time.
@@ -66,13 +66,14 @@ public class PrefabInstantiator : MonoBehaviour {
                 if (!preventAutoInstantiation)
                 {
                     //Debug.LogWarning("UIPrefab Start : " + gameObject.name);
-                    Instantiate();
+                    InstantiatePrefab();
                 }
                 awoken = true;
             }
         }
     }
 
+#if UNITY_EDITOR
     public void Update()
     {
         if (!Application.isPlaying)
@@ -85,12 +86,12 @@ public class PrefabInstantiator : MonoBehaviour {
                 }
                 else
                 {
-                    Instantiate();
+                    InstantiatePrefab();
                 }
             }
             else if (addPrefab.Pressed)
             {
-                Instantiate();
+                InstantiatePrefab();
             }
             else if (removePrefab.Pressed)
             {
@@ -98,6 +99,7 @@ public class PrefabInstantiator : MonoBehaviour {
             }
         }
     }
+#endif
 
     public bool IsInstantiated
     {
@@ -137,14 +139,14 @@ public class PrefabInstantiator : MonoBehaviour {
         }
 	}
 
-	public T Instantiate<T>() where T : MonoBehaviour
+	public T InstantiatePrefab<T>() where T : MonoBehaviour
 	{
-		Instantiate();
+		InstantiatePrefab();
 		return GetComponentOfInstantiated<T>();
 	}
 
-    [ContextMenu("Instantiate")]
-    public void Instantiate()
+    [ContextMenu("Instantiate Prefab")]
+    public GameObject InstantiatePrefab()
     {
         if (!Application.isPlaying)
         {
@@ -159,6 +161,7 @@ public class PrefabInstantiator : MonoBehaviour {
 
         if (uiPrefab)
         {
+            instantiatedPrefab.transform.SetParent(gameObject.transform);
             RectTransform rect = instantiatedPrefab.GetComponent<RectTransform>();
             if(rect != null)
             {
@@ -177,10 +180,11 @@ public class PrefabInstantiator : MonoBehaviour {
             instantiatedPrefab.transform.localRotation = Quaternion.identity;
         }
 
-         if(instantiateSize != Vector2.zero)
+         if(instantiateScale != Vector2.zero)
          {
-             instantiatedPrefab.transform.localScale = instantiateSize;
+             instantiatedPrefab.transform.localScale = instantiateScale;
          }
+         return instantiatedPrefab;
 	}
 
 	[ContextMenu("Destroy")]
