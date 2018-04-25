@@ -16,6 +16,7 @@ public class PrefabInstantiator : MonoBehaviour {
 	public ButtonBool togglePrefab;
 	public ButtonBool addPrefab;
 	public ButtonBool removePrefab;
+    public ButtonBool applyFirstChild;
 	[Space]
 	public GameObject prefab;
 	[Space]
@@ -96,6 +97,10 @@ public class PrefabInstantiator : MonoBehaviour {
             else if (removePrefab.Pressed)
             {
                 Destroy();
+            }
+            else if(applyFirstChild.Pressed)
+            {
+                ApplyFirstChild();
             }
         }
     }
@@ -213,5 +218,17 @@ public class PrefabInstantiator : MonoBehaviour {
 		}
         instantiatedPrefab = null;
 	}
+
+#if UNITY_EDITOR
+    public void ApplyFirstChild()
+    {
+        if (gameObject.transform.childCount > 0)
+        {
+            GameObject instance = gameObject.transform.GetChild(0).gameObject;
+            PrefabUtility.ReplacePrefab(instance, PrefabUtility.GetPrefabParent(instance), ReplacePrefabOptions.ConnectToPrefab);
+            Debug.Log("Applied changes!");
+        }
+    }
+#endif
 
 }

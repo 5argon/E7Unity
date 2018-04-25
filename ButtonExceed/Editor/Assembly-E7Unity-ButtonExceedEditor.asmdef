@@ -1,0 +1,12 @@
+{
+    "name": "Assembly-E7Unity-ButtonExceedEditor",
+    "references": [
+        "Assembly-E7Unity"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
