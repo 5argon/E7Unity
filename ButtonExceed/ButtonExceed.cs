@@ -112,7 +112,6 @@ public class ButtonExceed : Button
     /// </summary>
     void TriggerAnimation(string triggername)
     {
-        Debug.Log(triggername);
         if (transition != Transition.Animation || buttonAnimator == null || !buttonAnimator.isActiveAndEnabled || string.IsNullOrEmpty(triggername) || Application.isPlaying == false)
             return;
 
@@ -121,8 +120,17 @@ public class ButtonExceed : Button
 
     protected override void OnDisable()
     {
-        buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+        if (buttonAnimator != null && buttonAnimator.isActiveAndEnabled && !quitting)
+        {
+            buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+        }
         base.OnDisable();
+    }
+
+    bool quitting = false;
+    void OnApplicationQuit()
+    {
+        quitting = true;
     }
 
 }

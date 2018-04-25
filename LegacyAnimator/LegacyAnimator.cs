@@ -27,10 +27,25 @@ public class LegacyAnimator : MonoBehaviour {
     /// </summary>
     public LegacyAnimator SetTrigger(string triggerName)
     {
-		animationComponent.enabled = true;
-		animationComponent.Stop();
-		cumulativePlayTime = SpeedAdjust(triggerName);
-        animationComponent.Play(triggerName);
+		Debug.Log(triggerName + " " + animationComponent[triggerName].layer);
+		Prepare();
+
+		if(animationComponent.enabled == false)
+		{
+			animationComponent.enabled = true;
+			cumulativePlayTime = 0;
+		}
+
+		//If it is layered, the play time needs to accommodate the longest clip.
+		float playTime = SpeedAdjust(triggerName);
+
+		//If already higher, there might be a longer clip running in other layer.
+		if(cumulativePlayTime < playTime)
+		{
+			cumulativePlayTime = playTime;
+		}
+
+        animationComponent.Play(triggerName, PlayMode.StopSameLayer);
 
 		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
 		if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
@@ -123,7 +138,8 @@ public class LegacyAnimator : MonoBehaviour {
 	/// Also you can't use FollowedBy after an animation with only the first keyframe. Use this to sample one-frame animation instead of SetTrigger.
     /// </summary>
     public void SampleFirstFrame(string triggerName)
-	{
+    {
+		Prepare();
 		animationComponent.enabled = true;
 		animationComponent.Stop();
 		animationComponent[triggerName].enabled = true;
@@ -177,31 +193,40 @@ public class LegacyAnimator : MonoBehaviour {
     {
         yield return new WaitForSeconds(inTime);
         yield return null;
+		Debug.Log("Disabled!!");
         animationComponent.enabled = false;
     }
 
-
-    public void Prepare()
+    private bool prepared = false;
+    private void Prepare()
     {
-		Reset();
-        if (nodes != null)
+        if (!prepared)
         {
-            foreach (LegacyAnimatorNode lan in nodes)
+            nodeSearch = new Dictionary<string, LegacyAnimatorNode>();
+            variableBool = new Dictionary<string, bool>();
+            InitializeAnimationComponent();
+            if (nodes != null)
             {
-                animationComponent.AddClip(lan.AnimationClip, lan.Trigger);
-				nodeSearch.Add(lan.Trigger,lan);
-            }
+                foreach (LegacyAnimatorNode lan in nodes)
+                {
+                    animationComponent.AddClip(lan.AnimationClip, lan.Trigger);
+                    animationComponent[lan.Trigger].layer = lan.SecondLayer ? 1 : 0;
+					animationComponent[lan.Trigger].weight = 1;
+                    nodeSearch.Add(lan.Trigger, lan);
+                }
 
-            AnimationClip waitOneSecond = new AnimationClip();
-            waitOneSecond.legacy = true;
-            animationComponent.AddClip(waitOneSecond, waitClipName);
+                AnimationClip waitOneSecond = new AnimationClip();
+                waitOneSecond.legacy = true;
+                animationComponent.AddClip(waitOneSecond, waitClipName);
+            }
         }
+        prepared = true;
     }
 
     [ContextMenu("Match Animation")]
 	public void MatchAnimation()
     {
-		Reset();
+		InitializeAnimationComponent();
         foreach (AnimationState ast in animationComponent)
         {
             //Debug.Log(ast.name + " " + ast.clip.name);
@@ -216,7 +241,7 @@ public class LegacyAnimator : MonoBehaviour {
         }
     }
 
-    public void Reset()
+    private void InitializeAnimationComponent()
 	{
         animationComponent = GetComponent<Animation>();
 		if(animationComponent != null)
@@ -230,17 +255,7 @@ public class LegacyAnimator : MonoBehaviour {
         animationComponent.playAutomatically = false;
 	}
 
-	public void Awake()
-	{
-		nodeSearch = new Dictionary<string, LegacyAnimatorNode>();
-		variableBool = new Dictionary<string, bool>();
-		Prepare();
-	}
-
-	public void OnEnable()
-	{
-		Awake();
-	}
+	public void Awake() => Prepare();
 
 	public void Start()
 	{
