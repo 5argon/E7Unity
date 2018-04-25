@@ -225,7 +225,7 @@ public class PrefabInstantiator : MonoBehaviour {
         if (gameObject.transform.childCount > 0)
         {
             GameObject instance = gameObject.transform.GetChild(0).gameObject;
-            PrefabUtility.ReplacePrefab(instance, PrefabUtility.GetPrefabParent(instance), ReplacePrefabOptions.ConnectToPrefab);
+            PrefabUtility.ReplacePrefab(instance, PrefabUtility.GetCorrespondingObjectFromSource(instance), ReplacePrefabOptions.ConnectToPrefab);
             Debug.Log("Applied changes!");
         }
     }

@@ -10,7 +10,6 @@ public class ButtonExceed : Button
     [Space]
     public LegacyAnimator buttonAnimator;
 
-    [UnityEngine.Serialization.FormerlySerializedAs("down")]
     public UnityEvent downAction;
 
     public Graphic[] additionalTintTargetGraphics = new Graphic[0];
@@ -118,19 +117,19 @@ public class ButtonExceed : Button
         buttonAnimator.SetTrigger(triggername);
     }
 
-    protected override void OnDisable()
+    /// <summary>
+    /// In case the animation got stuck before disabling this should bring it back to normal.
+    /// </summary>
+    protected override void OnEnable()
     {
-        if (buttonAnimator != null && buttonAnimator.isActiveAndEnabled && !quitting)
+        if (buttonAnimator != null && Application.isPlaying)
         {
-            buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+            if (animationTriggersExceed.normalTrigger != "")
+            {
+                buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+            }
         }
-        base.OnDisable();
-    }
-
-    bool quitting = false;
-    void OnApplicationQuit()
-    {
-        quitting = true;
+        base.OnEnable();
     }
 
 }

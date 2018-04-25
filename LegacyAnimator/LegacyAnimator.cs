@@ -27,8 +27,8 @@ public class LegacyAnimator : MonoBehaviour {
     /// </summary>
     public LegacyAnimator SetTrigger(string triggerName)
     {
-		Debug.Log(triggerName + " " + animationComponent[triggerName].layer);
 		Prepare();
+		CheckTrigger(triggerName);
 
 		if(animationComponent.enabled == false)
 		{
@@ -65,6 +65,7 @@ public class LegacyAnimator : MonoBehaviour {
     /// </summary>
     public LegacyAnimator FollowedBy(string triggerName)
 	{
+		CheckTrigger(triggerName);
 		cumulativePlayTime += SpeedAdjust(triggerName);
 
 		animationComponent.PlayQueued(triggerName,QueueMode.CompleteOthers);
@@ -122,6 +123,14 @@ public class LegacyAnimator : MonoBehaviour {
 		return this;
 	}
 
+	private void CheckTrigger(string triggerName)
+	{
+		if(animationComponent[triggerName] == null)
+		{
+			throw new KeyNotFoundException("No trigger named " + triggerName + " in LegacyAnimator of " + gameObject.name);
+		}
+	}
+
 	public void Stop()
 	{
 		animationComponent.Stop();
@@ -130,6 +139,7 @@ public class LegacyAnimator : MonoBehaviour {
 
 	public bool IsPlaying(string triggerName)
 	{
+		CheckTrigger(triggerName);
 		return animationComponent[triggerName].enabled;
 	}
 
@@ -140,6 +150,7 @@ public class LegacyAnimator : MonoBehaviour {
     public void SampleFirstFrame(string triggerName)
     {
 		Prepare();
+		CheckTrigger(triggerName);
 		animationComponent.enabled = true;
 		animationComponent.Stop();
 		animationComponent[triggerName].enabled = true;
@@ -193,7 +204,6 @@ public class LegacyAnimator : MonoBehaviour {
     {
         yield return new WaitForSeconds(inTime);
         yield return null;
-		Debug.Log("Disabled!!");
         animationComponent.enabled = false;
     }
 
@@ -211,7 +221,6 @@ public class LegacyAnimator : MonoBehaviour {
                 {
                     animationComponent.AddClip(lan.AnimationClip, lan.Trigger);
                     animationComponent[lan.Trigger].layer = lan.SecondLayer ? 1 : 0;
-					animationComponent[lan.Trigger].weight = 1;
                     nodeSearch.Add(lan.Trigger, lan);
                 }
 
@@ -255,7 +264,10 @@ public class LegacyAnimator : MonoBehaviour {
         animationComponent.playAutomatically = false;
 	}
 
-	public void Awake() => Prepare();
+	public void Awake()
+	{
+		Prepare();
+	}
 
 	public void Start()
 	{
