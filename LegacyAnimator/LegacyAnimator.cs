@@ -237,6 +237,11 @@ public class LegacyAnimator : MonoBehaviour {
 		Prepare();
 	}
 
+	public void OnEnable()
+	{
+		Awake();
+	}
+
 	public void Start()
 	{
         if (waitTrigger != "")

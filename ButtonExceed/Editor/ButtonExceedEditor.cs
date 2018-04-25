@@ -21,7 +21,7 @@ namespace UnityEditor.UI
         SerializedProperty m_NavigationProperty;
 
         SerializedProperty m_downActionProperty;
-        SerializedProperty m_upActionProperty;
+        SerializedProperty m_clickActionProperty;
         SerializedProperty m_legacyAnimationProperty;
 
         GUIContent m_VisualizeNavigation = new GUIContent("Visualize", "Show navigation flows between selectable UI elements.");
@@ -46,11 +46,11 @@ namespace UnityEditor.UI
             m_TransitionProperty    = serializedObject.FindProperty("m_Transition");
             m_ColorBlockProperty    = serializedObject.FindProperty("colorBlockExceed");
             m_SpriteStateProperty   = serializedObject.FindProperty("m_SpriteState");
-            m_AnimTriggerProperty   = serializedObject.FindProperty("m_AnimationTriggers");
+            m_AnimTriggerProperty   = serializedObject.FindProperty("animationTriggersExceed");
             m_NavigationProperty    = serializedObject.FindProperty("m_Navigation");
 
             m_downActionProperty = serializedObject.FindProperty("downAction");
-            m_upActionProperty = serializedObject.FindProperty("upAction");
+            m_clickActionProperty = serializedObject.FindProperty("m_OnClick");
             m_legacyAnimationProperty = serializedObject.FindProperty("buttonAnimator");
 
             m_AdditionalTintGraphicsProperty = serializedObject.FindProperty("additionalTintTargetGraphics");
@@ -184,7 +184,7 @@ namespace UnityEditor.UI
             --EditorGUI.indentLevel;
 
             EditorGUILayout.PropertyField(m_downActionProperty);
-            EditorGUILayout.PropertyField(m_upActionProperty);
+            EditorGUILayout.PropertyField(m_clickActionProperty);
 
             // EditorGUILayout.Space();
 
@@ -418,6 +418,34 @@ namespace UnityEditor.UI
         public override float GetPropertyHeight(SerializedProperty prop, GUIContent label)
         {
             return 5 * EditorGUIUtility.singleLineHeight + 5 * EditorGUIUtility.standardVerticalSpacing;
+        }
+    }
+
+    [CustomPropertyDrawer(typeof(AnimationTriggersExceed), true)]
+    public class AnimationTriggersExceedDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect rect, SerializedProperty prop, GUIContent label)
+        {
+            Rect drawRect = rect;
+            drawRect.height = EditorGUIUtility.singleLineHeight;
+
+            SerializedProperty normalTrigger = prop.FindPropertyRelative("m_NormalTrigger");
+            // SerializedProperty higlightedTrigger = prop.FindPropertyRelative("m_HighlightedTrigger");
+            SerializedProperty pressedTrigger = prop.FindPropertyRelative("m_PressedTrigger");
+            SerializedProperty disabledTrigger = prop.FindPropertyRelative("m_DisabledTrigger");
+
+            EditorGUI.PropertyField(drawRect, normalTrigger);
+            drawRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            // EditorGUI.PropertyField(drawRect, higlightedTrigger);
+            // drawRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            EditorGUI.PropertyField(drawRect, pressedTrigger);
+            drawRect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            EditorGUI.PropertyField(drawRect, disabledTrigger);
+        }
+
+        public override float GetPropertyHeight(SerializedProperty prop, GUIContent label)
+        {
+            return 3 * EditorGUIUtility.singleLineHeight + 3 * EditorGUIUtility.standardVerticalSpacing;
         }
     }
 }

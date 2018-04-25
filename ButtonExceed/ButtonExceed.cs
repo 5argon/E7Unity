@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
 
-public class ButtonExceed : Selectable, IPointerClickHandler
+public class ButtonExceed : Button 
 {
     [Space]
     public LegacyAnimator buttonAnimator;
@@ -13,11 +13,12 @@ public class ButtonExceed : Selectable, IPointerClickHandler
     [UnityEngine.Serialization.FormerlySerializedAs("down")]
     public UnityEvent downAction;
 
-    [Tooltip("Up is actually invoken on `Click`. To click you must `Up` in the button area.")]
-    [UnityEngine.Serialization.FormerlySerializedAs("up")]
-    public UnityEvent upAction;
     public Graphic[] additionalTintTargetGraphics = new Graphic[0];
     public ColorBlockExceed colorBlockExceed = ColorBlockExceed.defaultColorBlock;
+    public AnimationTriggersExceed animationTriggersExceed = new AnimationTriggersExceed();
+
+    [Tooltip("Button still looks like normal even when disabled.")]
+    public bool noChangeDisable;
 
     public override void OnPointerDown(PointerEventData eventData)
     {
@@ -28,11 +29,6 @@ public class ButtonExceed : Selectable, IPointerClickHandler
     public override void OnPointerUp(PointerEventData eventData)
     {
         base.OnPointerUp(eventData);
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        upAction.Invoke();
     }
 
     protected override void DoStateTransition(SelectionState state, bool instant)
@@ -46,22 +42,31 @@ public class ButtonExceed : Selectable, IPointerClickHandler
             case SelectionState.Normal:
                 tintColor = colorBlockExceed.normalColor;
                 transitionSprite = null;
-                triggerName = animationTriggers.normalTrigger;
+                triggerName = animationTriggersExceed.normalTrigger;
                 break;
             case SelectionState.Pressed:
                 tintColor = colorBlockExceed.pressedColor;
                 transitionSprite = spriteState.pressedSprite;
-                triggerName = animationTriggers.pressedTrigger;
+                triggerName = animationTriggersExceed.pressedTrigger;
                 break;
             case SelectionState.Disabled:
-                tintColor = colorBlockExceed.disabledColor;
-                transitionSprite = spriteState.disabledSprite;
-                triggerName = animationTriggers.disabledTrigger;
+                if (noChangeDisable)
+                {
+                    tintColor = colorBlockExceed.disabledColor;
+                    transitionSprite = spriteState.disabledSprite;
+                    triggerName = animationTriggersExceed.disabledTrigger;
+                }
+                else
+                {
+                    tintColor = colorBlockExceed.normalColor;
+                    transitionSprite = null;
+                    triggerName = animationTriggersExceed.normalTrigger;
+                }
                 break;
-            default:
-                tintColor = Color.black;
+            default: //Highlighted is invisible
+                tintColor = colorBlockExceed.normalColor;
                 transitionSprite = null;
-                triggerName = string.Empty;
+                triggerName = animationTriggersExceed.normalTrigger;
                 break;
         }
 
@@ -107,10 +112,17 @@ public class ButtonExceed : Selectable, IPointerClickHandler
     /// </summary>
     void TriggerAnimation(string triggername)
     {
-        if (transition != Transition.Animation || buttonAnimator == null || !buttonAnimator.isActiveAndEnabled || string.IsNullOrEmpty(triggername))
+        Debug.Log(triggername);
+        if (transition != Transition.Animation || buttonAnimator == null || !buttonAnimator.isActiveAndEnabled || string.IsNullOrEmpty(triggername) || Application.isPlaying == false)
             return;
 
         buttonAnimator.SetTrigger(triggername);
+    }
+
+    protected override void OnDisable()
+    {
+        buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+        base.OnDisable();
     }
 
 }
