@@ -36,12 +36,15 @@ public class PrefabInstantiator : MonoBehaviour {
     /// </summary>
     public bool uiPrefab;
 
-    /// <summary>
-    /// In case that you preserve childrens, this will be the first child.
-    /// </summary>
-	private GameObject instantiatedPrefab;
+	private GameObject latestInstantiatedPrefab;
 
-    public GameObject FirstInstantiated => IsInstantiated ? instantiatedPrefab : null;
+    /// <summary>
+    /// In case that you preserve childrens, when you get this after the scene begin you will get the first child not the latest ones.
+    /// </summary>
+    public GameObject LatestInstantiated => IsInstantiated ? latestInstantiatedPrefab : null;
+    public T LatestInstantiatedType<T>() => LatestInstantiated.GetComponent<T>();
+
+    public int ChildCount => gameObject.transform.childCount;
 
     private bool awoken;
 
@@ -118,9 +121,9 @@ public class PrefabInstantiator : MonoBehaviour {
                     //It means not instantiated yet
                     return false;
                 }
-                if(instantiatedPrefab == null)
+                if(latestInstantiatedPrefab == null)
                 {
-                    instantiatedPrefab = gameObject.transform.GetChild(0).gameObject;
+                    latestInstantiatedPrefab = gameObject.transform.GetChild(0).gameObject;
                 }
                 return true;
             }
@@ -131,12 +134,12 @@ public class PrefabInstantiator : MonoBehaviour {
         }
     }
 
-    public T GetComponentOfInstantiated<T>() where T : Component 
+    private T GetComponentOfInstantiated<T>() where T : Component 
     {
         if (IsInstantiated)
         {
             //Debug.Log("Instantiated " + instantiatedPrefab);
-            return instantiatedPrefab.GetComponent<T>();
+            return latestInstantiatedPrefab.GetComponent<T>();
         }
         else
         {
@@ -156,18 +159,18 @@ public class PrefabInstantiator : MonoBehaviour {
         if (!Application.isPlaying)
         {
 #if UNITY_EDITOR
-            instantiatedPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+            latestInstantiatedPrefab = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 #endif
         }
         else
         {
-            instantiatedPrefab = Instantiate(prefab);
+            latestInstantiatedPrefab = Instantiate(prefab);
         }
 
         if (uiPrefab)
         {
-            instantiatedPrefab.transform.SetParent(gameObject.transform);
-            RectTransform rect = instantiatedPrefab.GetComponent<RectTransform>();
+            latestInstantiatedPrefab.transform.SetParent(gameObject.transform);
+            RectTransform rect = latestInstantiatedPrefab.GetComponent<RectTransform>();
             if(rect != null)
             {
                 rect.localPosition = Vector3.zero;
@@ -179,17 +182,17 @@ public class PrefabInstantiator : MonoBehaviour {
         }
         else
         {
-            instantiatedPrefab.transform.SetParent(gameObject.transform);
-            instantiatedPrefab.transform.localScale = Vector3.one;
-            instantiatedPrefab.transform.localPosition = Vector3.zero;
-            instantiatedPrefab.transform.localRotation = Quaternion.identity;
+            latestInstantiatedPrefab.transform.SetParent(gameObject.transform);
+            latestInstantiatedPrefab.transform.localScale = Vector3.one;
+            latestInstantiatedPrefab.transform.localPosition = Vector3.zero;
+            latestInstantiatedPrefab.transform.localRotation = Quaternion.identity;
         }
 
          if(instantiateScale != Vector2.zero)
          {
-             instantiatedPrefab.transform.localScale = instantiateScale;
+             latestInstantiatedPrefab.transform.localScale = instantiateScale;
          }
-         return instantiatedPrefab;
+         return latestInstantiatedPrefab;
 	}
 
 	[ContextMenu("Destroy")]
@@ -198,7 +201,7 @@ public class PrefabInstantiator : MonoBehaviour {
 		if(IsInstantiated)
 		{
 			DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
-			instantiatedPrefab = null;
+			latestInstantiatedPrefab = null;
 		}
 	}
 
@@ -216,7 +219,7 @@ public class PrefabInstantiator : MonoBehaviour {
                 DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
             }
 		}
-        instantiatedPrefab = null;
+        latestInstantiatedPrefab = null;
 	}
 
 #if UNITY_EDITOR

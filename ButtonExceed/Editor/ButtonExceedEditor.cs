@@ -20,6 +20,9 @@ namespace UnityEditor.UI
         SerializedProperty m_AnimTriggerProperty;
         SerializedProperty m_NavigationProperty;
 
+        SerializedProperty m_ColorBlockPropertyOld;
+        SerializedProperty m_AnimTriggerPropertyOld;
+
         SerializedProperty m_downActionProperty;
         SerializedProperty m_clickActionProperty;
         SerializedProperty m_legacyAnimationProperty;
@@ -49,23 +52,35 @@ namespace UnityEditor.UI
             m_AnimTriggerProperty   = serializedObject.FindProperty("animationTriggersExceed");
             m_NavigationProperty    = serializedObject.FindProperty("m_Navigation");
 
-            m_downActionProperty = serializedObject.FindProperty("downAction");
+            m_ColorBlockPropertyOld = serializedObject.FindProperty("m_Colors");
+            m_AnimTriggerPropertyOld = serializedObject.FindProperty("m_AnimationTriggers");
+
+
+            m_downActionProperty = serializedObject.FindProperty("onDown");
             m_clickActionProperty = serializedObject.FindProperty("m_OnClick");
             m_legacyAnimationProperty = serializedObject.FindProperty("buttonAnimator");
 
             m_AdditionalTintGraphicsProperty = serializedObject.FindProperty("additionalTintTargetGraphics");
 
-            // m_PropertyPathToExcludeForChildClasses = new[]
-            // {
-            //     m_Script.propertyPath,
-            //     m_NavigationProperty.propertyPath,
-            //     m_TransitionProperty.propertyPath,
-            //     m_ColorBlockProperty.propertyPath,
-            //     m_SpriteStateProperty.propertyPath,
-            //     m_AnimTriggerProperty.propertyPath,
-            //     m_InteractableProperty.propertyPath,
-            //     m_TargetGraphicProperty.propertyPath,
-            // };
+            m_PropertyPathToExcludeForChildClasses = new[]
+            {
+                m_Script.propertyPath,
+                m_NavigationProperty.propertyPath,
+                m_TransitionProperty.propertyPath,
+                m_ColorBlockProperty.propertyPath,
+                m_SpriteStateProperty.propertyPath,
+                m_AnimTriggerProperty.propertyPath,
+                m_InteractableProperty.propertyPath,
+                m_TargetGraphicProperty.propertyPath,
+
+                m_downActionProperty.propertyPath,
+                m_legacyAnimationProperty.propertyPath,
+                m_clickActionProperty.propertyPath,
+                m_AdditionalTintGraphicsProperty.propertyPath,
+
+                m_ColorBlockPropertyOld.propertyPath,
+                m_AnimTriggerPropertyOld.propertyPath,
+            };
 
             var trans = GetTransition(m_TransitionProperty);
             m_ShowColorTint.value       = (trans == Selectable.Transition.ColorTint);
@@ -107,6 +122,16 @@ namespace UnityEditor.UI
             serializedObject.Update();
 
             EditorGUILayout.PropertyField(m_InteractableProperty);
+            EditorGUILayout.PropertyField(m_downActionProperty);
+            EditorGUILayout.PropertyField(m_clickActionProperty);
+
+            ChildClassPropertiesGUI();
+
+            EditorGUILayout.Space();
+
+            GUILayout.Box("", new GUILayoutOption[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});
+
+            EditorGUILayout.Space();
 
             var trans = GetTransition(m_TransitionProperty);
 
@@ -183,8 +208,6 @@ namespace UnityEditor.UI
             }
             --EditorGUI.indentLevel;
 
-            EditorGUILayout.PropertyField(m_downActionProperty);
-            EditorGUILayout.PropertyField(m_clickActionProperty);
 
             // EditorGUILayout.Space();
 
@@ -202,7 +225,7 @@ namespace UnityEditor.UI
 
             // We do this here to avoid requiring the user to also write a Editor for their Selectable-derived classes.
             // This way if we are on a derived class we dont draw anything else, otherwise draw the remaining properties.
-            // ChildClassPropertiesGUI();
+
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -210,17 +233,17 @@ namespace UnityEditor.UI
         // Draw the extra SerializedProperties of the child class.
         // We need to make sure that m_PropertyPathToExcludeForChildClasses has all the Selectable properties and in the correct order.
         // TODO: find a nicer way of doing this. (creating a InheritedEditor class that automagically does this)
-        // private void ChildClassPropertiesGUI()
-        // {
-        //     if (IsDerivedSelectableEditor())
-        //         return;
+        private void ChildClassPropertiesGUI()
+        {
+            if (IsDerivedSelectableEditor())
+                return;
 
-        //     DrawPropertiesExcluding(serializedObject, m_PropertyPathToExcludeForChildClasses);
-        // }
+            DrawPropertiesExcluding(serializedObject, m_PropertyPathToExcludeForChildClasses);
+        }
 
         private bool IsDerivedSelectableEditor()
         {
-            return GetType() != typeof(SelectableEditor);
+            return GetType() != typeof(ButtonExceedEditor);
         }
 
         private static Animations.AnimatorController GenerateSelectableAnimatorContoller(AnimationTriggers animationTriggers, Selectable target)

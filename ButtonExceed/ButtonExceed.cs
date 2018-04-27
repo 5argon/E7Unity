@@ -10,7 +10,8 @@ public class ButtonExceed : Button
     [Space]
     public LegacyAnimator buttonAnimator;
 
-    public UnityEvent downAction;
+    [UnityEngine.Serialization.FormerlySerializedAs("downAction")]
+    public UnityEvent onDown;
 
     public Graphic[] additionalTintTargetGraphics = new Graphic[0];
     public ColorBlockExceed colorBlockExceed = ColorBlockExceed.defaultColorBlock;
@@ -21,7 +22,7 @@ public class ButtonExceed : Button
 
     public override void OnPointerDown(PointerEventData eventData)
     {
-        downAction.Invoke();
+        onDown.Invoke();
         base.OnPointerDown(eventData);
     }
 
