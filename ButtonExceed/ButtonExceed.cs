@@ -50,7 +50,7 @@ public class ButtonExceed : Button
                 triggerName = animationTriggersExceed.pressedTrigger;
                 break;
             case SelectionState.Disabled:
-                if (noChangeDisable)
+                if (!noChangeDisable)
                 {
                     tintColor = colorBlockExceed.disabledColor;
                     transitionSprite = spriteState.disabledSprite;
