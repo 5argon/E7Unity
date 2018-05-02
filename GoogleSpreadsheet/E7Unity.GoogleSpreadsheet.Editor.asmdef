@@ -1,0 +1,10 @@
+{
+    "name": "E7Unity.GoogleSpreadsheet.Editor",
+    "references": [],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}
