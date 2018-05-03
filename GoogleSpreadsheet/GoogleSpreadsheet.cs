@@ -14,11 +14,16 @@ using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 using UnityEditor;
 
-class GoogleSpreadsheet
-{
 
+/// <summary>
+/// Provides read-only service for your private spreadsheet.
+/// </summary>
+public class GoogleSpreadsheet
+{
     private SheetsService service;
 
+    /// <param name="p12PathFromAsset">Don't choose JSON format when creating the key.</param>
+    /// <param name="serviceAccountEmail">You must share the sheet with this e-mail! Or you get "The caller does not have permission [403]"</param>
     public GoogleSpreadsheet(string p12PathFromAsset, string serviceAccountEmail)
     {
         var certificate = new X509Certificate2(Application.dataPath + Path.DirectorySeparatorChar + p12PathFromAsset, "notasecret", X509KeyStorageFlags.Exportable);
@@ -44,6 +49,7 @@ class GoogleSpreadsheet
         });
     }
 
+    /// <returns>Iterate outer layer for rows, then each element of that for columns. Empty cell is not equal to null, but .ToString() is an empty string.</returns>
     public IList<IList<object>> Get(string spreadsheetId, string sheetNameAndRange)
     {
         SpreadsheetsResource.ValuesResource.GetRequest request = service.Spreadsheets.Values.Get(spreadsheetId, sheetNameAndRange);
