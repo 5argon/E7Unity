@@ -19,7 +19,8 @@ public class LegacyAnimator : MonoBehaviour {
 
 	//When chaining, this will accumulates and can be used to automatically disable the component
 	private float cumulativePlayTime;
-
+	private string firstLayerCurrentlyPlaying;
+	private string secondLayerCurrentlyPlaying;
 	private const string waitClipName = "WAIT_CLIP";
 
     /// <summary>
@@ -45,6 +46,8 @@ public class LegacyAnimator : MonoBehaviour {
 			cumulativePlayTime = playTime;
 		}
 
+        StopBeforePlayLogic(animationComponent[triggerName]);
+		//Stop same layer does not work lol...
         animationComponent.Play(triggerName, PlayMode.StopSameLayer);
 
 		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
@@ -62,6 +65,7 @@ public class LegacyAnimator : MonoBehaviour {
 
     /// <summary>
     /// Chain this with other methods but not the first one.
+	/// Probably bugged with 2nd layer I think?
     /// </summary>
     public LegacyAnimator FollowedBy(string triggerName)
 	{
@@ -131,11 +135,27 @@ public class LegacyAnimator : MonoBehaviour {
 		}
 	}
 
-	public void Stop()
-	{
-		animationComponent.Stop();
-		AutoDisable();
-	}
+    public void Stop()
+    {
+        animationComponent.Stop();
+        AutoDisable();
+    }
+
+    private void StopBeforePlayLogic(AnimationState aState)
+    {
+        //If main layer -> stop everything
+        //If 2nd layer -> stop only second layer ones
+        if (aState.layer == 0)
+        {
+            animationComponent.Stop(firstLayerCurrentlyPlaying);
+			firstLayerCurrentlyPlaying = aState.name;
+        }
+        else
+        {
+            animationComponent.Stop(secondLayerCurrentlyPlaying);
+			secondLayerCurrentlyPlaying = aState.name; 
+        }
+    }
 
 	public bool IsPlaying(string triggerName)
 	{
