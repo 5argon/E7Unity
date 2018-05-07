@@ -5,6 +5,9 @@ using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 /// <summary>
 /// Instantiate UI prefab and stretch the rect to the current rect transform
@@ -13,11 +16,42 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class PrefabInstantiator : MonoBehaviour {
 
+#if !ODIN_INSPECTOR
 	public ButtonBool togglePrefab;
 	public ButtonBool addPrefab;
 	public ButtonBool removePrefab;
     public ButtonBool applyFirstChild;
-	[Space]
+#else
+    [Button]
+    public void TogglePrefab()
+    {
+        if (IsInstantiated)
+        {
+            Destroy();
+        }
+        else
+        {
+            InstantiatePrefab();
+        }
+    }
+    [Button]
+    public void AddPrefab()
+    {
+        InstantiatePrefab();
+    }
+    [Button]
+    public void RemovePrefab()
+    {
+        Destroy();
+    }
+    [Button]
+    public void ApplyPrefabFirstChild()
+    {
+        ApplyFirstChild();
+    }
+#endif
+
+    [Space]
 	public GameObject prefab;
 	[Space]
     public Vector2 instantiateScale = Vector2.one;
@@ -77,7 +111,7 @@ public class PrefabInstantiator : MonoBehaviour {
         }
     }
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR && !ODIN_INSPECTOR
     public void Update()
     {
         if (!Application.isPlaying)

@@ -1,0 +1,10 @@
+{
+    "name": "Assembly-E7Unity-CrossSceneConnectorEditor",
+    "references": [
+        "Assembly-E7Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

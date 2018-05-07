@@ -19,13 +19,17 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //Also, it is not guaranteed that the being loaded scene will have it's Awake called before the current scene's Start!
     //Turn Start into IEnumerator and wait for the connector to complete is highly advised.
 
-    [SerializeField] protected bool mainSide;
-
     [Tooltip("Prevents Awake script from running.")]
     [SerializeField] private bool disable;
+    [Space]
+    [SerializeField] private bool mainSide;
+    protected bool MainSide => mainSide;
 
+    /// <summary>
+    /// otherSide has different meaning depending on which side this connector instance is. ("Main Side" or "Target Side")
+    /// </summary>
     protected T otherSide;
-
+    
     private static string ConnectorTagName = "Connector";
 
     protected virtual void Awake()
@@ -57,11 +61,11 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
 
         //connect
 
-        otherSide = FindOtherSide();
+        otherSide = FindTargetSide();
         //Debug.Log( SceneToConnect + " Find result " + otherSide + " main: "  + mainSide);
         if(otherSide != null) //it will surely be null the first time, since the other side is not loaded yet.
         {
-            otherSide.otherSide = otherSide.FindOtherSide();
+            otherSide.otherSide = otherSide.FindTargetSide();
         }
 
         if(otherSide != null && otherSide.otherSide == this)
@@ -98,14 +102,14 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
             }
             else
             {
-                OtherSideAssignment();
+                TargetSideAssignment();
             }
             Connected = true;
             otherSide.BeginExchanging();
         }
     }
 
-    protected T FindOtherSide()
+    private T FindTargetSide()
     {
         T otherSide = default(T);
         GameObject[] connectors = GameObject.FindGameObjectsWithTag(ConnectorTagName);
@@ -123,9 +127,8 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
         return otherSide;
     }
 
-
     protected abstract string SceneToConnect { get; }
     protected abstract void MainSideAssignment();
-    protected abstract void OtherSideAssignment();
+    protected abstract void TargetSideAssignment();
 
 }
