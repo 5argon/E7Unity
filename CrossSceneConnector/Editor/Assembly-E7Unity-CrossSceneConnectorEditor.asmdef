@@ -1,10 +1,16 @@
 {
     "name": "Assembly-E7Unity-CrossSceneConnectorEditor",
     "references": [
-        "Assembly-E7Unity"
+        "Assembly-E7Unity",
+        "Sirenix.OdinInspector.Attributes",
+        "Sirenix.OdinInspector.Editor",
+        "Sirenix.Utilities",
+        "Sirenix.Utilities.Editor"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }

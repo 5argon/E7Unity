@@ -4,21 +4,18 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using Sirenix.OdinInspector;
 
 public class ButtonExceed : Button 
 {
-    [Space]
-    public LegacyAnimator buttonAnimator;
-
     [UnityEngine.Serialization.FormerlySerializedAs("downAction")]
     public UnityEvent onDown;
-
     public Graphic[] additionalTintTargetGraphics = new Graphic[0];
-    public ColorBlockExceed colorBlockExceed = ColorBlockExceed.defaultColorBlock;
     public AnimationTriggersExceed animationTriggersExceed = new AnimationTriggersExceed();
-
-    [Tooltip("Button still looks like normal even when disabled.")]
+    public LegacyAnimator buttonAnimator;
     public bool noChangeDisable;
+
+    private List<string> LimitToTriggers => buttonAnimator?.LimitToTriggers();
 
     public override void OnPointerDown(PointerEventData eventData)
     {
@@ -40,33 +37,33 @@ public class ButtonExceed : Button
         switch (state)
         {
             case SelectionState.Normal:
-                tintColor = colorBlockExceed.normalColor;
+                tintColor = colors.normalColor;
                 transitionSprite = null;
-                triggerName = animationTriggersExceed.normalTrigger;
+                triggerName = animationTriggers.normalTrigger;
                 break;
             case SelectionState.Pressed:
-                tintColor = colorBlockExceed.pressedColor;
+                tintColor = colors.pressedColor;
                 transitionSprite = spriteState.pressedSprite;
-                triggerName = animationTriggersExceed.pressedTrigger;
+                triggerName = animationTriggers.pressedTrigger;
                 break;
             case SelectionState.Disabled:
                 if (!noChangeDisable)
                 {
-                    tintColor = colorBlockExceed.disabledColor;
+                    tintColor = colors.disabledColor;
                     transitionSprite = spriteState.disabledSprite;
-                    triggerName = animationTriggersExceed.disabledTrigger;
+                    triggerName = animationTriggers.disabledTrigger;
                 }
                 else
                 {
-                    tintColor = colorBlockExceed.normalColor;
+                    tintColor = colors.normalColor;
                     transitionSprite = null;
-                    triggerName = animationTriggersExceed.normalTrigger;
+                    triggerName = animationTriggers.normalTrigger;
                 }
                 break;
-            default: //Highlighted is invisible
-                tintColor = colorBlockExceed.normalColor;
+            default: //Highlighted has no effect.
+                tintColor = colors.normalColor;
                 transitionSprite = null;
-                triggerName = animationTriggersExceed.normalTrigger;
+                triggerName = animationTriggers.normalTrigger;
                 break;
         }
 
@@ -75,7 +72,7 @@ public class ButtonExceed : Button
             switch (transition)
             {
                 case Transition.ColorTint:
-                    StartColorTween(tintColor * colors.colorMultiplier, instant);
+                    StartColorTween(tintColor * base.colors.colorMultiplier, instant);
                     break;
                 case Transition.SpriteSwap:
                     DoSpriteSwap(transitionSprite);
@@ -87,15 +84,17 @@ public class ButtonExceed : Button
         }
     }
 
+    bool ColorTintOrSpriteSwap => transition == Transition.ColorTint || transition == Transition.SpriteSwap;
+
     void StartColorTween(Color targetColor, bool instant)
     {
         if (additionalTintTargetGraphics == null && additionalTintTargetGraphics.Length == 0 && targetGraphic == null)
             return;
 
-        targetGraphic.CrossFadeColor(targetColor, instant ? 0f : colorBlockExceed.fadeDuration, true, true);
+        targetGraphic?.CrossFadeColor(targetColor, instant ? 0f : /*colors.fadeDuration*/0, true, true);
         foreach (Graphic g in additionalTintTargetGraphics)
         {
-            g?.CrossFadeColor(targetColor, instant ? 0f : colorBlockExceed.fadeDuration, true, true);
+            g?.CrossFadeColor(targetColor, instant ? 0f : /*colors.fadeDuration*/0, true, true);
         }
     }
 
@@ -103,7 +102,6 @@ public class ButtonExceed : Button
     {
         if (image == null)
             return;
-
         image.overrideSprite = newSprite;
     }
 
@@ -125,119 +123,11 @@ public class ButtonExceed : Button
     {
         if (buttonAnimator != null && Application.isPlaying)
         {
-            if (animationTriggersExceed.normalTrigger != "")
+            if (animationTriggers.normalTrigger != "")
             {
-                buttonAnimator.SampleFirstFrame(animationTriggersExceed.normalTrigger);
+                buttonAnimator.SampleFirstFrame(animationTriggers.normalTrigger);
             }
         }
         base.OnEnable();
     }
-
-}
-
-/// <summary>
-/// Sorry desktop devs but I have removed "highlighted" for now..
-/// </summary>
-[System.Serializable]
-public struct ColorBlockExceed : System.IEquatable<ColorBlockExceed>
-{
-    [SerializeField]
-    private Color m_NormalColor;
-
-    [SerializeField]
-    private Color m_PressedColor;
-
-    [SerializeField]
-    private Color m_DisabledColor;
-
-    [Range(1, 5)]
-    [SerializeField]
-    private float m_ColorMultiplier;
-
-    [SerializeField]
-    private float m_FadeDuration;
-
-    public Color normalColor => m_NormalColor;
-    public Color pressedColor => m_PressedColor;
-    public Color disabledColor => m_DisabledColor;
-    public float colorMultiplier => m_ColorMultiplier;
-    public float fadeDuration => m_FadeDuration;
-
-    public ColorBlockExceed(Color normal, Color pressed, Color disabled)
-    {
-        m_NormalColor = normal;
-        m_PressedColor = pressed;
-        m_DisabledColor = disabled;
-        m_ColorMultiplier = 1.0f;
-        m_FadeDuration = 0;
-    }
-
-    public static ColorBlockExceed defaultColorBlock => new ColorBlockExceed(
-        new Color32(255, 255, 255, 255),
-        new Color32(200, 200, 200, 255),
-        new Color32(200, 200, 200, 128)
-    );
-
-    public override bool Equals(object obj)
-    {
-        if (!(obj is ColorBlock))
-            return false;
-
-        return Equals((ColorBlock)obj);
-    }
-
-    public bool Equals(ColorBlockExceed other)
-    {
-        return normalColor == other.normalColor &&
-            pressedColor == other.pressedColor &&
-            disabledColor == other.disabledColor &&
-            colorMultiplier == other.colorMultiplier &&
-            fadeDuration == other.fadeDuration;
-    }
-
-    public static bool operator ==(ColorBlockExceed point1, ColorBlockExceed point2)
-    {
-        return point1.Equals(point2);
-    }
-
-    public static bool operator !=(ColorBlockExceed point1, ColorBlockExceed point2)
-    {
-        return !point1.Equals(point2);
-    }
-
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
-}
-
-[System.Serializable]
-public class AnimationTriggersExceed
-{
-    private const string kDefaultNormalAnimName = "Normal";
-    // private const string kDefaultSelectedAnimName = "Highlighted";
-    private const string kDefaultPressedAnimName = "Pressed";
-    private const string kDefaultUpAnimName = "Up";
-    private const string kDefaultDisabledAnimName = "Disabled";
-
-    [SerializeField]
-    private string m_NormalTrigger = kDefaultNormalAnimName;
-
-    // [SerializeField]
-    // private string m_HighlightedTrigger = kDefaultSelectedAnimName;
-
-    [SerializeField]
-    private string m_PressedTrigger = kDefaultPressedAnimName;
-
-    [SerializeField]
-    private string m_UpTrigger = kDefaultPressedAnimName;
-
-    [SerializeField]
-    private string m_DisabledTrigger = kDefaultDisabledAnimName;
-
-    public string normalTrigger => m_NormalTrigger;
-    //public string highlightedTrigger => m_HighlightedTrigger;
-    public string pressedTrigger => m_PressedTrigger;
-    public string upTrigger => m_UpTrigger;
-    public string disabledTrigger => m_DisabledTrigger;
 }

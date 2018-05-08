@@ -1,12 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
+#if ODIN_INSPECTOR
+using Sirenix.OdinInspector;
+#endif
 
 public class LegacyAnimator : MonoBehaviour {
 
+#if ODIN_INSPECTOR
+	[ValueDropdown("LimitToTriggers")]
+#endif
 	[Tooltip("Sample the first frame of this trigger on Start()")]
 	public string waitTrigger;
 
+#if ODIN_INSPECTOR
+	[ValueDropdown("LimitToTriggers")]
+#endif
 	[Tooltip("Immediately trigger this on Start()")]
 	public string autoplayTrigger;
 
@@ -22,6 +33,13 @@ public class LegacyAnimator : MonoBehaviour {
 	private string firstLayerCurrentlyPlaying;
 	private string secondLayerCurrentlyPlaying;
 	private const string waitClipName = "WAIT_CLIP";
+
+	public List<string> LimitToTriggers()
+	{
+		List<string> list = nodes.Select(n => n.Trigger).ToList();
+		list.Add("");
+		return list;
+	}
 
     /// <summary>
     /// Kills all animations and play a new one.

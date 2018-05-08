@@ -30,7 +30,7 @@ static class CrossSceneDrawer
 
             for (int i = 0; i < property.Children.Count; i++)
             {
-                InspectorUtilities.DrawProperty(property.Children[i]);
+                InspectorUtilities.DrawProperty(property.Children[i], property.Children[i].Label);
             }
 
             SirenixEditorGUI.EndBox();

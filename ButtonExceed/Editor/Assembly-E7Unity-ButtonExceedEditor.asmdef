@@ -1,7 +1,10 @@
 {
     "name": "Assembly-E7Unity-ButtonExceedEditor",
     "references": [
-        "Assembly-E7Unity"
+        "Assembly-E7Unity",
+        "Sirenix.OdinInspector.Attributes",
+        "Sirenix.Utilities",
+        "Sirenix.OdinInspector.Editor"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

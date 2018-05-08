@@ -1,8 +1,13 @@
 {
     "name": "Assembly-E7Unity",
     "references": [
-        "Assembly-I2"
+        "Assembly-I2",
+        "Sirenix.OdinInspector.Attributes",
+        "Sirenix.OdinInspector.Editor",
+        "Sirenix.Utilities"
     ],
+    "optionalUnityReferences": [],
     "includePlatforms": [],
-    "excludePlatforms": []
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
 }
