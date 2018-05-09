@@ -153,6 +153,10 @@ If you know about [Thread Ninja](https://www.assetstore.unity3d.com/en/#!/conten
 
 Because we can get `Task` from `.Host` it should be possible to send a cancellation token to `StopCoroutine` in the host. I don't need to stop my routine at the moment, so this feature is still just an idea.
 
+## Rules
+
+It follows a normal Unity's `YieldInstruction` flow, it runs after the `Update` of that game object + all game objects. In this case that game object was created specially for hosting routine but it will still be after all of your scripts's `Update`.
+
 ## License
 
 MIT
