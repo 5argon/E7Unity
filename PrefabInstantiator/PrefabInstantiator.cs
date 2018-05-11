@@ -16,12 +16,9 @@ using Sirenix.OdinInspector;
 [ExecuteInEditMode]
 public class PrefabInstantiator : MonoBehaviour {
 
-#if !ODIN_INSPECTOR
-	public ButtonBool togglePrefab;
-	public ButtonBool addPrefab;
-	public ButtonBool removePrefab;
-    public ButtonBool applyFirstChild;
-#else
+#if UNITY_EDITOR
+#if ODIN_INSPECTOR
+#region Odin Buttons
     [Button]
     public void TogglePrefab()
     {
@@ -49,6 +46,47 @@ public class PrefabInstantiator : MonoBehaviour {
     {
         ApplyFirstChild();
     }
+#endregion
+#endif
+
+#if !ODIN_INSPECTOR
+#region Non-Odin Buttons
+	public ButtonBool togglePrefab;
+	public ButtonBool addPrefab;
+	public ButtonBool removePrefab;
+    public ButtonBool applyFirstChild;
+    public void Update()
+    {
+        if (!Application.isPlaying)
+        {
+            if (togglePrefab.Pressed)
+            {
+                if (IsInstantiated)
+                {
+                    Destroy();
+                }
+                else
+                {
+                    InstantiatePrefab();
+                }
+            }
+            else if (addPrefab.Pressed)
+            {
+                InstantiatePrefab();
+            }
+            else if (removePrefab.Pressed)
+            {
+                Destroy();
+            }
+            else if(applyFirstChild.Pressed)
+            {
+                ApplyFirstChild();
+            }
+        }
+    }
+#endregion
+#endif
+
 #endif
 
     [Space]
@@ -110,38 +148,6 @@ public class PrefabInstantiator : MonoBehaviour {
             }
         }
     }
-
-#if UNITY_EDITOR && !ODIN_INSPECTOR
-    public void Update()
-    {
-        if (!Application.isPlaying)
-        {
-            if (togglePrefab.Pressed)
-            {
-                if (IsInstantiated)
-                {
-                    Destroy();
-                }
-                else
-                {
-                    InstantiatePrefab();
-                }
-            }
-            else if (addPrefab.Pressed)
-            {
-                InstantiatePrefab();
-            }
-            else if (removePrefab.Pressed)
-            {
-                Destroy();
-            }
-            else if(applyFirstChild.Pressed)
-            {
-                ApplyFirstChild();
-            }
-        }
-    }
-#endif
 
     public bool IsInstantiated
     {

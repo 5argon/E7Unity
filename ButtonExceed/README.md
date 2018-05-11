@@ -8,7 +8,7 @@ Unity's `Button` the way I like it!
 - Separated `Down` and `Up`(Click) action. Usually you might want it to sound when down but take action on up, or take action immediately on down if it looks like a toggle or on-off switch.
 - No `Highlighted` anything on the inspector. (I am making mainly a mobile game.)
 - No `Navigation` anything on the inspector.
-- No need for `Animator` for each button. I think it was an overkill. Uses just a simple legacy animation, which I have an another component `LegacyAnimator` to make it semi stateful like `Animator`.
+- No need for `Animator` for each button. `Animator` [kills performance](https://github.com/5argon/E7Unity/tree/master/LegacyAnimator) and that's the more reason it should not be used with just a mere button. Unfortunately Unity hardwired them to `Button` and even requires you to have all 4 triggers present in the animation clip all the time even if they are empty. The change is now it use just a simple legacy animation, which I have an another component `LegacyAnimator` to make it semi stateful like `Animator`. State with empty string name will not be triggered at all.
 - Multiple tint graphics in addition to "Target Graphic".
 - Removed fields are actually still there and serialized, they are just being hidden by `OdinInspector`.
 - `noChangeDisable` makes disabling button via `interactable` not causing it to be greyed out. Useful when you want to disable them on the scene transition and don't want to make it obvious to the player, but you will also use the disabled color normally.

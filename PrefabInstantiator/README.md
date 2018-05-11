@@ -21,12 +21,14 @@ PrefabInstantiator grants you :
 3. Coded for Unity UI, the instantiated prefab `RectTransform` will fill the parent which this component is attached automatically. (You cannot use this without `RectTransform`)
 4. In the script you can keep the reference to the instantiator, then ask it about the actual object (e.g. `GetComponentOfInstantiated<T>`)
 5. You can also manually instantiate the game objects. Useful for `LayoutGroup` where you want to create multiple of that prefabs in the code. `Instantiate<T>` also conveniently return the component you want on that instantiated prefab. Check `preventAutoInstantiation` if you want to do this.
+6. A button to apply the instantiated prefab if you make changes. It apply the first one and correctly does not apply the outer prefab it resides in. (If you push Unity's Apply button, that is the case.)
 
 NEW! Now works with non-UI stuff. But you have to check UI checkbox if you want to use it with UI.
 
 ## Requirement
 
 - ButtonBool (It's in the other folder)
+- If you have `OdinInspector`, then `ButtonBool` is not required.
 
 ## Bugs
 

@@ -13,6 +13,8 @@ So this makes a legacy animation more usable and more like calling triggers to A
 - In editor if you want to sync the Animator component use the context menu "Match Animation".
 - Define a name for each animation like "Trigger" in mechanim. On Start(), it will prepare animations of that name. This means if you want to modify the animation in edit mode you cannot do that as they are no longer linked to your asset. (Right click and choose a context menu "Match Animation" if you want to do so) This way you can use the same name across different Animations like using trigger.
 - Friendly API
+- Support for `OdinInspector` if you have it.
+- Support 2 layers of animation. But be warned that layer system and legacy animation as a whole is not being maintained by Unity anymore. For example, `.Play(___, PlayMode.StopSameLayer)` does not really stop anything, etc.
 
 ## Examples
 
@@ -45,4 +47,4 @@ legacyAnimator.SetTrigger("Intro");
 
 - If you are moving from Animator (mechanim) remember that legacy animation has no concept of the "default value". It does not remember anything and just read a graph. You might have to add some "resets" on the first frame if you used to assume that.
 - If you HAVE to use the new Animator, it should not ever "wait" for trigger with Animator.enable on. It's for things like humanoid model which probably always moving. Leaving it on will incur a heavy performance loss. (Sadly, the default Unity's `Button` for example is like that. The button's Animator is always on waiting for commnad from `Button` component.)
-- Check out my "DisableAnimator" too if you really have to use the new Animator. It can help you disable the component when appropriate.
+- Check out my `DisableAnimator` too if you really have to use the new Animator. It can help you disable the component when appropriate.
