@@ -4,7 +4,11 @@
         "Assembly-I2",
         "Sirenix.OdinInspector.Attributes",
         "Sirenix.OdinInspector.Editor",
-        "Sirenix.Utilities"
+        "Sirenix.Utilities",
+        "Unity.Entities",
+        "Unity.Transforms",
+        "Unity.Mathematics",
+        "Unity.Transforms2D"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
