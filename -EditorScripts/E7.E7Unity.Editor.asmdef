@@ -1,17 +1,15 @@
 {
-    "name": "Assembly-E7Unity",
+    "name": "E7.E7Unity.Editor",
     "references": [
-        "Assembly-I2",
+        "E7.E7Unity",
         "Sirenix.OdinInspector.Attributes",
         "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
-        "Unity.Entities",
-        "Unity.Transforms",
-        "Unity.Mathematics",
-        "Unity.Transforms2D"
+        "Sirenix.Serialization",
+        "Sirenix.Utilities.Editor"
     ],
     "optionalUnityReferences": [],
-    "includePlatforms": [],
+    "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false
 }
