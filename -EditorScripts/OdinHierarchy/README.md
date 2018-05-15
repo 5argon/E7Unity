@@ -7,7 +7,7 @@ The hierarchy function actually does not related to Odin at all but it utilizes 
 ## How to use
 
 1. The code uses C#6.0 so it requires .NET 4.x settings in the Player Settings.
-2. Put the two files in `Editor` folder or any assembly with `Editor` include platform that knows Odin.
+2. Put the 3 files in `Editor` folder or any assembly with `Editor` include platform that knows Odin.
 3. `Window > Odin Hierarchy` to start setting up your hierarchy stylings.
 
 ## Usage ideas 

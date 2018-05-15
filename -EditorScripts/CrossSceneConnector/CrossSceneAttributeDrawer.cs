@@ -38,7 +38,7 @@ static class CrossSceneDrawer
         SirenixEditorGUI.EndFadeGroup();
     }
 }
-[OdinDrawer]
+
 public class MainSideDrawer : OdinGroupDrawer<MainSideAttribute>
 {
     protected override void DrawPropertyGroupLayout(InspectorProperty property, MainSideAttribute attribute, GUIContent label)
@@ -49,7 +49,6 @@ public class MainSideDrawer : OdinGroupDrawer<MainSideAttribute>
     }
 }
 
-[OdinDrawer]
 public class TargetSideDrawer : OdinGroupDrawer<TargetSideAttribute>
 {
     protected override void DrawPropertyGroupLayout(InspectorProperty property, TargetSideAttribute attribute, GUIContent label)

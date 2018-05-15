@@ -50,7 +50,7 @@ public class OdinHierarchySettings : ScriptableObject
         public void Refresh()
         {
 #if UNITY_EDITOR
-            OdinEditorWindow.GetWindow<OdinHierarchyWindow>().Refresh();
+            OdinHierarchyDrawer.LoadSettings();
 #endif
         }
     }
