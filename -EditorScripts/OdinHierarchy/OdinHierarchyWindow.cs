@@ -30,7 +30,7 @@ public class OdinHierarchyWindow : OdinEditorWindow
     {
         window = GetWindow<OdinHierarchyWindow>();
         window.position = GUIHelper.GetEditorWindowRect().AlignCenter(700, 700);
-        window.titleContent = new GUIContent("Hierarchy Setup");
+        window.titleContent = new GUIContent("Odin Hierarchy");
     }
 
     protected override void OnEnable()
@@ -79,18 +79,18 @@ public class OdinHierarchyWindow : OdinEditorWindow
                     iconProperties.Add(item.Name, item);
                 }
             }
-            EditorApplication.hierarchyWindowItemOnGUI -= DrawIconOnWindowItem;
-            EditorApplication.hierarchyWindowItemOnGUI += DrawIconOnWindowItem;
+            EditorApplication.hierarchyWindowItemOnGUI -= Draw;
+            EditorApplication.hierarchyWindowItemOnGUI += Draw;
         }
 
-        private static void DrawIconOnWindowItem(int instanceID, Rect rect)
+        private static void Draw(int id, Rect rect)
         {
             if (ohsStatic == null || ohsStatic.enabled == false)
             {
                 return;
             }
 
-            GameObject gameObject = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+            GameObject gameObject = EditorUtility.InstanceIDToObject(id) as GameObject;
 
             if (gameObject == null)
             {

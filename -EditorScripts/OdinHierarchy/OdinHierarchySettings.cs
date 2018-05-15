@@ -44,7 +44,7 @@ public class OdinHierarchySettings : ScriptableObject
 
     public class Error
     {
-        [Title("Odin Hierarchy Setup")]
+        [Title("Odin Hierarchy Settings")]
         [InfoBox("Please create an 'OdinHierarchySettings' file somewhere in the Project panel's Create menu!\nOdin Hierarchy uses the first one it found in the project.")]
         [Button("Yes I did that.", ButtonSizes.Medium)]
         public void Refresh()
@@ -55,7 +55,7 @@ public class OdinHierarchySettings : ScriptableObject
         }
     }
 
-    [Title("Odin Hierarchy Setup")]
+    [Title("Odin Hierarchy Settings")]
     [CustomContextMenu("Secret", "ToggleSecret")]
     public bool enabled = true;
 
@@ -86,7 +86,7 @@ public class OdinHierarchySettings : ScriptableObject
         [HideLabel, HorizontalGroup("Appearances/appearanceGroup", Width = 0.2f)]
         public Color color = Color.yellow;
         [EnumToggleButtons, HideLabel, HorizontalGroup("Appearances/appearanceGroup")]
-        public OdinHierarchySettings.Style style;
+        public OdinHierarchySettings.Style style = OdinHierarchySettings.Style.A4;
 
         public bool icon;
         [ShowIf("icon"), ValueDropdown("Icons"), HideLabel, HorizontalGroup("IconGroup"), Indent(1)]
@@ -129,16 +129,19 @@ public class OdinHierarchySettings : ScriptableObject
         public OdinHierarchySettings.Decoration decorationType;
         [ShowIf("decoration"), Indent(1)]
         public Color decorationColor = Color.yellow;
-
-
     }
 
     public Item MatchSettingsWithGameObject(GameObject go)
     {
-        return items.FirstOrDefault(s => {
+        return items?.FirstOrDefault(s => {
             bool nameMatch = string.IsNullOrEmpty(s.containsName) || (go.name?.Contains(s.containsName) ?? false);
             bool sceneMatch = string.IsNullOrEmpty(s.scene) || go.scene.name == s.scene;
-            bool componentMatch = string.IsNullOrEmpty(s.component) || go.GetComponents<Component>().Select(c => c.GetType().Name).Contains(s.component);
+
+            bool isLookingForBase = !string.IsNullOrEmpty(s.component) && s.component.Length > 1 && s.component[0] == '$';
+            string className = isLookingForBase ? s.component.Substring(1) : s.component;
+
+            bool componentMatch = string.IsNullOrEmpty(className) || 
+            go.GetComponents<Component>().Select(c => isLookingForBase ? c?.GetType().BaseType.Name : c?.GetType().Name).Contains(className);
             bool allEmpty = string.IsNullOrEmpty(s.containsName) && string.IsNullOrEmpty(s.scene) && string.IsNullOrEmpty(s.component);
 
             return nameMatch && sceneMatch && componentMatch && !allEmpty;
