@@ -1,7 +1,7 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "Assembly-I2",
+        "I2.Localization",
         "Sirenix.OdinInspector.Attributes",
         "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
