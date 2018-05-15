@@ -11,6 +11,12 @@ using Unity.Collections;
 
 public class Travel<T> : System.IDisposable
 {
+    public void Dispose()
+    {
+        nativeEventList.Dispose();
+        rememberAndOutput.Dispose();
+    }
+
     private bool HasEventAtZero { get; set; }
 
     private List<T> datas { get; } = new List<T>();
@@ -23,7 +29,6 @@ public class Travel<T> : System.IDisposable
 
     public Travel()
     {
-        //Debug.Log("New Travel");
         nativeEventList = new NativeArray<TravelEvent>(0, Allocator.Persistent);
         rememberAndOutput = new NativeArray<int>(2, Allocator.Persistent);
     }
@@ -36,11 +41,6 @@ public class Travel<T> : System.IDisposable
         travelEvents.Clear();
     }
 
-    public void Dispose()
-    {
-        nativeEventList.Dispose();
-        rememberAndOutput.Dispose();
-    }
 
     public T FirstData => datas.Count > 0 ? datas[0] : default(T);
     public T LastData => datas.Count > 0 ? datas[datas.Count - 1] : default(T);
@@ -147,10 +147,7 @@ public class Travel<T> : System.IDisposable
         };
         JobHandle handle = job.Schedule();
         handle.Complete();
-        //Debug.Log($"Job completed with : {nativeEventList.Length} {job.rememberAndOutput[0]} {job.rememberAndOutput[1]}");
-        //Save rememberIndex back to entity..
         travelRememberIndex = job.rememberAndOutput[0];
-
         int output = job.rememberAndOutput[1];
         return output;
     }

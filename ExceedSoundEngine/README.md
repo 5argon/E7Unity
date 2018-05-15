@@ -12,4 +12,4 @@ TODO :
 
 ## Note
 
-I probably will sell this in the Asset Store for small price once all the polishes are complete and remove from here. So grab it for free while you can..
+It will evolve into something I can sell in the future so grab it while you can.

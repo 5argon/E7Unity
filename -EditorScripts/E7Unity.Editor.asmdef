@@ -1,15 +1,15 @@
 {
-    "name": "Assembly-E7Unity-ButtonExceedEditor",
+    "name": "E7Unity.Editor",
     "references": [
         "Assembly-E7Unity",
         "Sirenix.OdinInspector.Attributes",
+        "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
-        "Sirenix.OdinInspector.Editor"
+        "Sirenix.Serialization",
+        "Sirenix.Utilities.Editor"
     ],
     "optionalUnityReferences": [],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": ["Editor"],
     "excludePlatforms": [],
     "allowUnsafeCode": false
 }
