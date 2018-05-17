@@ -12,20 +12,23 @@ using Unity.Collections;
 public class Travel 
 {
 
-    public struct DataIndexOfTimeJob : IJobParallelFor
+    public struct DataIndexOfTimeJob : IJob
     {
         [ReadOnly] public NativeArray<TravelEvent> travelEvents;
         [ReadOnly] public float time;
-        public NativeArray<int> output;
+        [WriteOnly] public NativeArray<int> output;
 
-        public void Execute(int i)
+        public void Execute()
         {
-            //Still no answer is -1
-            if (output[0] == -1 && travelEvents[i].IsTimeInRange(time))
+            for (int i = 0; i < travelEvents.Length; i++)
             {
-                output[0] = i;
-                return;
+                if (travelEvents[i].IsTimeInRange(time))
+                {
+                    output[0] = i;
+                    return;
+                }
             }
+            output[0] = -1;
         }
     }
 
@@ -207,7 +210,7 @@ public class Travel<T> : System.IDisposable
             time = time,
             output = rememberAndOutput
         };
-        var jobHandle = job.Schedule(travelEvents.Length, 5);
+        var jobHandle = job.Schedule();
         return (job, jobHandle);
     }
 
