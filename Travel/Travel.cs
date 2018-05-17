@@ -13,23 +13,23 @@ public class Travel<T> : System.IDisposable
 {
     public void Dispose()
     {
-        nativeEventList.Dispose();
+        travelEvents.Dispose();
         rememberAndOutput.Dispose();
     }
 
     private bool HasEventAtZero { get; set; }
 
-    private List<T> datas { get; } = new List<T>();
-    private List<TravelEvent> travelEvents { get; } = new List<TravelEvent>();
+    private List<T> datas { get; } 
+    private NativeList<TravelEvent> travelEvents { get; } 
     private int travelRememberIndex;
 
     //This two are for jobs. When you Add it needs to be realloc so if possible add everything before start using.
-    NativeArray<TravelEvent> nativeEventList;
     NativeArray<int> rememberAndOutput;
 
     public Travel()
     {
-        nativeEventList = new NativeArray<TravelEvent>(0, Allocator.Persistent);
+        datas = new List<T>();
+        travelEvents = new NativeList<TravelEvent>(Allocator.Persistent);
         rememberAndOutput = new NativeArray<int>(2, Allocator.Persistent);
     }
 
@@ -49,7 +49,7 @@ public class Travel<T> : System.IDisposable
     {
         get
         {
-            return travelEvents.Count > 0 ? travelEvents[0] : TravelEvent.INVALID;
+            return travelEvents.Length > 0 ? travelEvents[0] : TravelEvent.INVALID;
         }
     }
 
@@ -57,26 +57,34 @@ public class Travel<T> : System.IDisposable
     {
         get
         {
-            return travelEvents.Count > 0 ? travelEvents[travelEvents.Count - 1] : TravelEvent.INVALID;
+            return travelEvents.Length > 0 ? travelEvents[travelEvents.Length - 1] : TravelEvent.INVALID;
         }
     }
 
     private void SetLastEvent(TravelEvent te)
     {
-        travelEvents[travelEvents.Count-1] = te;
+        travelEvents.RemoveAtSwapBack(travelEvents.Length-1);
+        travelEvents.Add(te);
     }
 
-    public bool NoEvent => travelEvents.Count == 0;
+    public bool NoEvent => travelEvents.Length == 0;
 
     public (T data,TravelEvent travelEvent) DataEventOfPosition(float position)
     {
+        //Debug.Log("Finding of " + position);
         int dataIndex = DataIndexOfPosition(position);
         return dataIndex == -1 ? (default(T), TravelEvent.INVALID) : (datas[dataIndex], travelEvents[dataIndex]);
     }
 
+    public (T data, TravelEvent travelEvent) DataEventOfTime(float time)
+    {
+        int index = DataIndexOfTime(time);
+        return index != -1 ? (datas[index], travelEvents[index]) : (default(T), TravelEvent.INVALID);
+    }
+
     private struct DataIndexJob : IJob
     {
-        [ReadOnly] public NativeArray<TravelEvent> EventList;
+        [ReadOnly] public NativeList<TravelEvent> EventList;
         [ReadOnly] public float position;
         public NativeArray<int> rememberAndOutput;
 
@@ -133,7 +141,7 @@ public class Travel<T> : System.IDisposable
 
     private int DataIndexOfPosition(float position)
     {
-        if(travelEvents.Count == 0)
+        if(travelEvents.Length == 0)
         {
             return -1;
         }
@@ -141,7 +149,7 @@ public class Travel<T> : System.IDisposable
 
         var job = new DataIndexJob
         {
-            EventList = nativeEventList,
+            EventList = travelEvents,
             position = position,
             rememberAndOutput = rememberAndOutput
         };
@@ -149,40 +157,54 @@ public class Travel<T> : System.IDisposable
         handle.Complete();
         travelRememberIndex = job.rememberAndOutput[0];
         int output = job.rememberAndOutput[1];
+        // for(int i = 0; i < travelEvents.Length; i++)
+        // {
+        //     Debug.Log($"{travelEvents[i].Position} {travelEvents[i].Time}");
+        // }
+        // Debug.Log("output is " + output);
         return output;
     }
 
-
-    public T DataOfTime(float time)
+    struct DataIndexOfTimeJob : IJobParallelFor
     {
-        int index = DataIndexOfTime(time);
-        return index != -1 ? datas[index] : default(T);
-    }
+        [ReadOnly] public NativeArray<TravelEvent> travelEvents;
+        [ReadOnly] public float time;
+        public NativeArray<int> output;
 
-    /// <summary>
-    /// Get the most recent event before the time on the timeline.
-    /// </summary>
-    public TravelEvent EventOfTime(float time)
-    {
-        int index = DataIndexOfTime(time);
-        return index != -1 ? travelEvents[index] : TravelEvent.INVALID;
+        public void Execute(int i)
+        {
+            //Still no answer is -1
+            if (output[0] == -1 && travelEvents[i].IsTimeInRange(time))
+            {
+                output[0] = i;
+                return;
+            }
+        }
     }
 
     private int DataIndexOfTime(float time)
     {
-        for(int i = 0; i < travelEvents.Count ; i++)
+        if(travelEvents.Length == 0)
         {
-            if(travelEvents[i].IsTimeInRange(time))
-            {
-                return i;
-            }
+            return -1;
         }
-        return -1;
+        rememberAndOutput[0] = -1;
+        var job = new DataIndexOfTimeJob
+        {
+            travelEvents = travelEvents,
+            time = time,
+            output = rememberAndOutput
+        };
+        job.Schedule(travelEvents.Length,5).Complete();
+        return rememberAndOutput[0];
     }
 
     /// <summary>
     /// Adds event at position/time zero if there's nothing at zero yet.
     /// This prevents the travel returning null for all positive time and position
+    /// If you have something at zero already this does nothing.
+    /// BUT if you don't have anything at zero but have other data... it will crash
+    /// Travel does not support adding a data in backward direction.
     /// </summary>
     public void AddDefaultAtZero(T data)
     {
@@ -242,12 +264,12 @@ public class Travel<T> : System.IDisposable
 #if TRAVEL_DEBUG
         Debug.Log($"Adding {position} {timeElapsed} {data.ToString()}");
 #endif
-        if (travelEvents.Count != 0 && timeElapsed <= 0)
+        if (travelEvents.Length != 0 && timeElapsed <= 0)
         {
             throw new System.Exception($"Time elapsed except the first one must be positive. position : {position} timeElapsed : {timeElapsed}");
         }
         TravelEvent lastEvent = LastEvent;
-        TravelEvent newTe = new TravelEvent(position, (NoEvent ? 0 : lastEvent.Time) + timeElapsed, travelEvents.Count);
+        TravelEvent newTe = new TravelEvent(position, (NoEvent ? 0 : lastEvent.Time) + timeElapsed, travelEvents.Length);
         if(!NoEvent)
         {
             lastEvent.LinkToNext(newTe,this);
@@ -262,9 +284,6 @@ public class Travel<T> : System.IDisposable
         {
             HasEventAtZero = true;
         }
-
-        nativeEventList.Dispose();
-        nativeEventList = new NativeArray<TravelEvent>(travelEvents.ToArray(), Allocator.Persistent);
     }
 }
 

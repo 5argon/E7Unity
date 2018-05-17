@@ -11,7 +11,7 @@ public abstract class RuntimeScriptableObject<T> : ScriptableObject where T : Sc
     private static string[] guids;
     private static string path;
     private static T cached;
-    private const string resourcesFolderName = "Resources/RSO";
+    private const string resourcesFolderName = "RSO";
 
     public static T Get
     {

@@ -8,6 +8,7 @@
         "Unity.Entities",
         "Unity.Transforms",
         "Unity.Mathematics",
+        "Unity.Collections",
         "Unity.Transforms2D"
     ],
     "optionalUnityReferences": [],
