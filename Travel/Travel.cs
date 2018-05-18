@@ -9,89 +9,69 @@ using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Collections;
 
-public class Travel 
+public static class Travel 
 {
-
-    public struct DataIndexOfTimeJob : IJob
+    public static int DataIndexOfTime(NativeArray<TravelEvent> travelEvents, float time)
     {
-        [ReadOnly] public NativeArray<TravelEvent> travelEvents;
-        [ReadOnly] public float time;
-        [WriteOnly] public NativeArray<int> output;
-
-        public void Execute()
+        for (int i = 0; i < travelEvents.Length; i++)
         {
-            for (int i = 0; i < travelEvents.Length; i++)
+            if (travelEvents[i].IsTimeInRange(time))
             {
-                if (travelEvents[i].IsTimeInRange(time))
-                {
-                    output[0] = i;
-                    return;
-                }
+                return i;
             }
-            output[0] = -1;
         }
+        return -1;
     }
 
-
-    public struct DataIndexOfPositionJob : IJob
+    public static int DataIndexOfPosition(NativeList<TravelEvent> travelEvents, float position, ref int inputRememberIndex)
     {
-        [ReadOnly] public NativeList<TravelEvent> EventList;
-        [ReadOnly] public float position;
-        public NativeArray<int> rememberAndOutput;
-
-        public void Execute()
+        if (travelEvents.Length == 0)
         {
-            if (EventList.Length == 0)
-            {
-                rememberAndOutput[1] = -1;
-                return;
-            }
-            //Debug.Log($"Starting job {EventList.Length}");
-            int plusIndex = -1;
-            int minusIndex = 0;
-            int useIndex;
-            int rememberIndex = rememberAndOutput[0];
+            return -1;
+        }
+        //Debug.Log($"Starting job {EventList.Length}");
+        int plusIndex = -1;
+        int minusIndex = 0;
+        int useIndex;
+        int rememberIndex = inputRememberIndex;
 
-            for (int i = 0; i < EventList.Length; i++)
+        for (int i = 0; i < travelEvents.Length; i++)
+        {
+            if ((math.notEqual(math.mod(i, 2), 0)))
             {
-                if ((math.notEqual(math.mod(i, 2), 0)))
+                if (math.greaterThanEqual(rememberIndex - (minusIndex + 1), 0))
                 {
-                    if (math.greaterThanEqual(rememberIndex - (minusIndex + 1), 0))
-                    {
-                        minusIndex++;
-                        useIndex = rememberIndex - minusIndex;
-                    }
-                    else
-                    {
-                        plusIndex++;
-                        useIndex = rememberIndex + plusIndex;
-                    }
+                    minusIndex++;
+                    useIndex = rememberIndex - minusIndex;
                 }
                 else
                 {
-                    if (math.lessThan(rememberIndex + (plusIndex + 1), EventList.Length))
-                    {
-                        plusIndex++;
-                        useIndex = rememberIndex + plusIndex;
-                    }
-                    else
-                    {
-                        minusIndex++;
-                        useIndex = rememberIndex - minusIndex;
-                    }
-                }
-
-                if (EventList[useIndex].IsPositionInRange(position))
-                {
-                    rememberAndOutput[0] = useIndex;
-                    rememberAndOutput[1] = useIndex;
-                    return;
+                    plusIndex++;
+                    useIndex = rememberIndex + plusIndex;
                 }
             }
-            //Debug.Log("Ending with minus one");
-            rememberAndOutput[1] = -1;
-            return;
+            else
+            {
+                if (math.lessThan(rememberIndex + (plusIndex + 1), travelEvents.Length))
+                {
+                    plusIndex++;
+                    useIndex = rememberIndex + plusIndex;
+                }
+                else
+                {
+                    minusIndex++;
+                    useIndex = rememberIndex - minusIndex;
+                }
+            }
+
+            if (travelEvents[useIndex].IsPositionInRange(position))
+            {
+                rememberIndex = useIndex;
+                return useIndex;
+            }
         }
+        //Debug.Log("Ending with minus one");
+        return -1;
     }
 
 }
@@ -103,7 +83,6 @@ public struct Travel<T> : System.IDisposable where T : struct
         if (initialized)
         {
             travelEvents.Dispose();
-            rememberAndOutput.Dispose();
             datas.Dispose();
         }
     }
@@ -115,14 +94,12 @@ public struct Travel<T> : System.IDisposable where T : struct
     private int travelRememberIndex;
 
     //This two are for jobs. When you Add it needs to be realloc so if possible add everything before start using.
-    NativeArray<int> rememberAndOutput;
     bool1 initialized;
 
     public void Init()
     {
         datas = new NativeList<T>(Allocator.Persistent);
         travelEvents = new NativeList<TravelEvent>(Allocator.Persistent);
-        rememberAndOutput = new NativeArray<int>(2, Allocator.Persistent);
         initialized = true;
     }
 
@@ -165,7 +142,7 @@ public struct Travel<T> : System.IDisposable where T : struct
     public (T data, TravelEvent travelEvent) DataEventOfPosition(float position)
     {
         //Debug.Log("Finding of " + position);
-        int dataIndex = DataIndexOfPosition(position);
+        int dataIndex = Travel.DataIndexOfPosition(travelEvents, position,ref travelRememberIndex);
         return DataEventOfPositionFromIndex(dataIndex);
     }
 
@@ -173,62 +150,8 @@ public struct Travel<T> : System.IDisposable where T : struct
 
     public (T data, TravelEvent travelEvent) DataEventOfTime(float time)
     {
-        int index = DataIndexOfTime(time);
+        int index = Travel.DataIndexOfTime(travelEvents, time);
         return index != -1 ? (datas[index], travelEvents[index]) : (default(T), TravelEvent.INVALID);
-    }
-
-    public (Travel.DataIndexOfPositionJob job, JobHandle handle) DataIndexOfPositionRunJob(float position)
-    {
-        rememberAndOutput[0] = travelRememberIndex;
-        var job = new Travel.DataIndexOfPositionJob
-        {
-            EventList = travelEvents,
-            position = position,
-            rememberAndOutput = rememberAndOutput
-        };
-        JobHandle handle = job.Schedule();
-        return (job, handle);
-    }
-
-    private int DataIndexOfPosition(float position)
-    {
-        if (travelEvents.Length == 0)
-        {
-            return -1;
-        }
-        (var job, var handle) = DataIndexOfPositionRunJob(position);
-        handle.Complete();
-        travelRememberIndex = job.rememberAndOutput[0];
-        int output = job.rememberAndOutput[1];
-        // for(int i = 0; i < travelEvents.Length; i++)
-        // {
-        //     Debug.Log($"{travelEvents[i].Position} {travelEvents[i].Time}");
-        // }
-        // Debug.Log("output is " + output);
-        return output;
-    }
-    public (Travel.DataIndexOfTimeJob job, JobHandle handle) DataIndexOfTimeRunJob(float time)
-    {
-        rememberAndOutput[0] = -1;
-        var job = new Travel.DataIndexOfTimeJob
-        {
-            travelEvents = travelEvents,
-            time = time,
-            output = rememberAndOutput
-        };
-        var jobHandle = job.Schedule();
-        return (job, jobHandle);
-    }
-
-    private int DataIndexOfTime(float time)
-    {
-        if (travelEvents.Length == 0)
-        {
-            return -1;
-        }
-        (var job, var jobHandle) = DataIndexOfTimeRunJob(time);
-        jobHandle.Complete();
-        return rememberAndOutput[0];
     }
 
     /// <summary>
@@ -321,6 +244,7 @@ public struct Travel<T> : System.IDisposable where T : struct
 
 /// <summary>
 /// To keep struct purity there's no data in here! Ask data with DataIndex from Travel!
+/// (It is kind of like LinkedList, but with purely struct data.
 /// </summary>
 public struct TravelEvent 
 {
@@ -343,21 +267,6 @@ public struct TravelEvent
     public float TimeNext { get; private set; }
 
     public int DataIndex { get;}
-
-    /// <summary>
-    /// When this is the last event, this is null.
-    /// </summary>
-
-    // public TravelEvent<T> Next
-    // {
-    //     get => throw new System.NotImplementedException();
-    //     set => throw new System.NotImplementedException();
-    // }
-    // public TravelEvent<T> Previous
-    // {
-    //     get => throw new System.NotImplementedException();
-    //     set => throw new System.NotImplementedException();
-    // }
 
     public TravelEvent(float absolutePosition, float time, int dataIndex)
     {
