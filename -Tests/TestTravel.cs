@@ -13,6 +13,8 @@ namespace E7Unity.Tests
         {
             Travel<int> t1 = new Travel<int>();
             Travel<float> t2 = new Travel<float>();
+            t1.Init();
+            t2.Init();
             t1.Dispose();
             t2.Dispose();
         }
@@ -21,6 +23,7 @@ namespace E7Unity.Tests
         {
             get{
                 Travel<int> t = new Travel<int>();
+                t.Init();
                 t.Add(0,0,500);
                 t.Add(10,5,600);
                 t.Add(20,5,700);
@@ -70,6 +73,7 @@ namespace E7Unity.Tests
         public void AddDefaultAtZero()
         {
             Travel<int> t = new Travel<int>();
+            t.Init();
             t.Add(10, 5, 600);
             t.Add(20, 5, 700);
             t.Add(40, 5, 800);
@@ -77,6 +81,7 @@ namespace E7Unity.Tests
             t.Dispose();
 
             t = new Travel<int>();
+            t.Init();
             t.AddDefaultAtZero(555);
             Assert.That(t.DataEventOfTime(2).data, Is.EqualTo(555));
             t.Add(10, 5, 600);

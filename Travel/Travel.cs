@@ -96,28 +96,34 @@ public class Travel
 
 }
 
-public class Travel<T> : System.IDisposable
+public struct Travel<T> : System.IDisposable where T : struct
 {
     public void Dispose()
     {
-        travelEvents.Dispose();
-        rememberAndOutput.Dispose();
+        if (initialized)
+        {
+            travelEvents.Dispose();
+            rememberAndOutput.Dispose();
+            datas.Dispose();
+        }
     }
 
-    private bool HasEventAtZero { get; set; }
+    private bool1 HasEventAtZero { get; set; }
 
-    private List<T> datas { get; }
-    private NativeList<TravelEvent> travelEvents { get; }
+    private NativeList<T> datas { get; set; }
+    private NativeList<TravelEvent> travelEvents { get; set; }
     private int travelRememberIndex;
 
     //This two are for jobs. When you Add it needs to be realloc so if possible add everything before start using.
     NativeArray<int> rememberAndOutput;
+    bool1 initialized;
 
-    public Travel()
+    public void Init()
     {
-        datas = new List<T>();
+        datas = new NativeList<T>(Allocator.Persistent);
         travelEvents = new NativeList<TravelEvent>(Allocator.Persistent);
         rememberAndOutput = new NativeArray<int>(2, Allocator.Persistent);
+        initialized = true;
     }
 
     public void Clear()
@@ -129,8 +135,8 @@ public class Travel<T> : System.IDisposable
     }
 
 
-    public T FirstData => datas.Count > 0 ? datas[0] : default(T);
-    public T LastData => datas.Count > 0 ? datas[datas.Count - 1] : default(T);
+    public T FirstData => datas.Length > 0 ? datas[0] : default(T);
+    public T LastData => datas.Length > 0 ? datas[datas.Length - 1] : default(T);
 
     public TravelEvent FirstEvent
     {
@@ -246,7 +252,7 @@ public class Travel<T> : System.IDisposable
     public T NextDataOf(TravelEvent travelEvent)
     {
         int nextIndex = travelEvent.DataIndex + 1;
-        if (nextIndex < datas.Count)
+        if (nextIndex < datas.Length)
         {
             return datas[nextIndex];
         }
@@ -259,7 +265,7 @@ public class Travel<T> : System.IDisposable
     public TravelEvent NextOf(TravelEvent te)
     {
         int nextIndex = te.DataIndex + 1;
-        if (nextIndex < datas.Count)
+        if (nextIndex < datas.Length)
         {
             return travelEvents[nextIndex];
         }
@@ -272,7 +278,7 @@ public class Travel<T> : System.IDisposable
     public TravelEvent PreviousOf(TravelEvent te)
     {
         int prevIndex = te.DataIndex - 1;
-        if (prevIndex >= 0 && datas.Count > 0)
+        if (prevIndex >= 0 && datas.Length > 0)
         {
             return travelEvents[prevIndex];
         }
@@ -362,7 +368,7 @@ public struct TravelEvent
         this.DataIndex = dataIndex;
     }
 
-    public void LinkToNext<T>(TravelEvent te, Travel<T> owningTravel)
+    public void LinkToNext<T>(TravelEvent te, Travel<T> owningTravel) where T : struct
     {
 #if TRAVEL_DEBUG
         Debug.Log($"Linking to next : {te.Time} {te.Position}");
