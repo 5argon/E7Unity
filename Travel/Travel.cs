@@ -76,6 +76,9 @@ public static class Travel
 
 }
 
+/// <summary>
+/// This type is not blittable! But as a struct it can lives in a job.
+/// </summary>
 public struct Travel<T> : System.IDisposable where T : struct
 {
     public void Dispose()
