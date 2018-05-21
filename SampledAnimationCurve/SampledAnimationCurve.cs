@@ -1,8 +1,6 @@
 using UnityEngine;
-using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
-using Unity.Jobs;
 
 public struct SampledAnimationCurve : System.IDisposable
 {

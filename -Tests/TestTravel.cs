@@ -99,7 +99,7 @@ namespace E7Unity.Tests
             Travel<int> t = MakeTravel;
             TravelEvent te = t.DataEventOfPosition(30).travelEvent;
             Assert.That(t.NextOf(te).Position,Is.EqualTo(40) );
-            Assert.That(t.PreviousOf(te).Position,Is.EqualTo(10) );
+            Assert.That(t.PreviousOf(te).travelEvent.Position, Is.EqualTo(10));
             Assert.That(t.NextDataOf(te),Is.EqualTo(800) );
 
             t.Dispose();

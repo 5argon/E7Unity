@@ -201,16 +201,16 @@ public struct Travel<T> : System.IDisposable where T : struct
         }
     }
 
-    public TravelEvent PreviousOf(TravelEvent te)
+    public (T data,TravelEvent travelEvent) PreviousOf(TravelEvent te)
     {
         int prevIndex = te.DataIndex - 1;
         if (prevIndex >= 0 && datas.Length > 0)
         {
-            return travelEvents[prevIndex];
+            return (datas[prevIndex], travelEvents[prevIndex]);
         }
         else
         {
-            return TravelEvent.INVALID;
+            return (default(T), TravelEvent.INVALID);
         }
     }
 
