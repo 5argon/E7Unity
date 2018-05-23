@@ -17,7 +17,7 @@ where ReactiveComponent : struct, IComponentData, IReactive
         public EntityArray entities { get; }
         public int Length;
     }
-    [Inject] private InjectGroup injectedGroup;
+    [Inject] protected InjectGroup injectedGroup;
     protected InjectGroup InjectedGroup => injectedGroup;
 }
 
@@ -37,6 +37,6 @@ where DataComponent : struct, IComponentData
         public ComponentDataArray<DataComponent> data { get; }
         public int Length;
     }
-    [Inject] private InjectGroup injectedGroup;
+    [Inject] protected InjectGroup injectedGroup;
     protected InjectGroup InjectedGroup => injectedGroup;
 }

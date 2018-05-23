@@ -15,7 +15,7 @@ public static class EntityCommandBufferExtension
     }
 
     /// <summary>
-    /// Takes the whole IReactiveInjectGroup and it will remove the reactive component in that group for you at the index that you are currently iterating.
+    /// End a reactive routine by removing a component from an entity. You must specify a reactive component type manually.
     /// </summary>
     public static void EndReactive<ReactiveComponent>(this EntityCommandBuffer ecb, EntityArray entityArray, int entityArrayIndex)
     where ReactiveComponent : struct, IComponentData, IReactive
@@ -25,6 +25,7 @@ public static class EntityCommandBufferExtension
 
     /// <summary>
     /// Destroys the entity, not just removing a component. Use with `Issue` because that creates a new entity.
+    /// Just use the IReactiveInjectGroup and it knows what to do.
     /// </summary>
     public static void EndReactive<T>(this EntityCommandBuffer ecb, IReactiveInjectGroup<T> injectGroup, int entityArrayIndex)
     where T : struct, IComponentData, IReactive
