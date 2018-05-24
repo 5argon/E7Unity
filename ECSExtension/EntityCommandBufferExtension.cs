@@ -25,6 +25,12 @@ namespace E7.Entities
             ecb.RemoveComponent<ReactiveComponent>(entityArray[entityArrayIndex]);
         }
 
+        public static void EndReactive<ReactiveComponent>(this EntityCommandBuffer ecb, Entity entity)
+        where ReactiveComponent : struct, IComponentData, IReactive
+        {
+            ecb.RemoveComponent<ReactiveComponent>(entity);
+        }
+
         /// <summary>
         /// Destroys the entity, not just removing a component. Use with `Issue` because that creates a new entity.
         /// Just use the IReactiveInjectGroup and it knows what to do.

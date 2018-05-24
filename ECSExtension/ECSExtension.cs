@@ -114,14 +114,14 @@ namespace E7.Entities
         /// Throw a tag to any game object in your scene with `GameObjectEntity` and a system like `ReactiveMonoCS` can pick it up.
         /// Adds a tag to the first one found.
         /// </summary>
-        public static void AddTagMono<MonoComponent, T>(MonoComponent entity)
+        public static void AddTagMono<Tag, MonoComponent>()
         where MonoComponent : Component
-        where T : struct, IComponentData, ITag
+        where Tag : struct, IComponentData, ITag
         {
             var components = InjectMono<MonoComponent>();
             if (components.Length > 0)
             {
-                AddTag<T>(components[0].entity);
+                AddTag<Tag>(components[0].entity);
             }
         }
 

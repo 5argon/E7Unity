@@ -11,15 +11,26 @@ namespace E7.Entities
     {
         /// <summary>
         /// Because ComponentSystem is on the main thread we have the class context and know which one is the reactive component, this can work.
+        /// Or you could call base.OnUpdate() on your OnUpdate() to remove all reactive components captured in this update.
         /// </summary>
-        protected void EndReactive(int entityIndex) => PostUpdateCommands.EndReactive<ReactiveComponent>(ReactiveGroup.entities, entityIndex);
+        // protected void EndReactive(int entityIndex) => PostUpdateCommands.EndReactive<ReactiveComponent>(ReactiveGroup.entities, entityIndex);
 
         /// <summary>
         /// You sure there's only one of them?
         /// </summary>
-        protected void EndReactive() => EndReactive(0);
+        //protected void EndReactive() => EndReactive(0);
 
-        protected abstract IReactiveInjectGroup<ReactiveComponent> ReactiveGroup { get; }
+        private protected abstract IReactiveInjectGroup<ReactiveComponent> ReactiveGroup { get; }
+
+        protected abstract void OnReaction();
+        protected override void OnUpdate()
+        {
+            OnReaction();
+            for (int i = 0; i < ReactiveGroup.entities.Length; i++)
+            {
+                PostUpdateCommands.EndReactive<ReactiveComponent>(ReactiveGroup.entities[i]);
+            }
+        }
     }
 
     /// <summary>
@@ -39,7 +50,7 @@ namespace E7.Entities
         [Inject] private protected InjectGroup injectedGroup;
         protected InjectGroup InjectedGroup => injectedGroup;
 
-        protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => injectedGroup;
+        private protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => injectedGroup;
     }
 
     /// <summary>
@@ -60,7 +71,7 @@ namespace E7.Entities
         [Inject] private protected InjectGroup injectedGroup;
         protected InjectGroup InjectedGroup => injectedGroup;
 
-        protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => injectedGroup;
+        private protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => injectedGroup;
     }
 
     /// <summary>
