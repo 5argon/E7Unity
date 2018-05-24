@@ -6,6 +6,7 @@
         "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
         "Unity.Entities",
+        "Unity.Entities.Hybrid",
         "Unity.Transforms",
         "Unity.Mathematics",
         "Unity.Collections",

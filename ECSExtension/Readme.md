@@ -1,8 +1,6 @@
 # ECSExtension
 
-Adds cool stuff to Unity's ECS
-
-
+Adds cool stuff to Unity's ECS. All the things are in `using E7.Entities;` namespace.
 
 ## ECSMathExtension
 
