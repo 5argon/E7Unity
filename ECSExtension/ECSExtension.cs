@@ -6,6 +6,19 @@ using System.Collections.Generic;
 
 public static class MonoECS 
 {
+    private static EntityManager me;
+    private static EntityManager em
+    {
+        get
+        {
+            if (me == null)
+            {
+                me = World.Active.GetOrCreateManager<EntityManager>();
+            }
+            return me;
+        }
+    }
+
     /// <summary>
     /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
     /// Useful for when you are in the middle of moving things to ECS. Runs on your active world's EntityManager.
@@ -13,7 +26,6 @@ public static class MonoECS
     public static T[] Inject<T>() where T : struct, IComponentData
     {
         List<T> list = new List<T>();
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         using (NativeArray<Entity> allEntities = em.GetAllEntities())
         {
             foreach (Entity e in allEntities)
@@ -37,7 +49,6 @@ public static class MonoECS
     where T2 : struct, IComponentData
     {
         List<(T1,T2)> list = new List<(T1,T2)>();
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         using (NativeArray<Entity> allEntities = em.GetAllEntities())
         {
             foreach (Entity e in allEntities)
@@ -52,16 +63,13 @@ public static class MonoECS
         }
         return list.ToArray();
     }
-
     public static bool HasTag<T>(Entity entity) where T : struct, IComponentData
     {
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         return em.HasComponent<T>(entity);
     }
 
     public static void AddTag<T>(Entity entity) where T : struct, IComponentData
     {
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         if (em.HasComponent<T>(entity) == false)
         {
             em.AddComponentData<T>(entity, default(T));
@@ -70,7 +78,6 @@ public static class MonoECS
 
     public static void RemoveTag<T>(Entity entity) where T : struct, IComponentData
     {
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         if (em.HasComponent<T>(entity))
         {
             em.RemoveComponent<T>(entity);
@@ -79,13 +86,11 @@ public static class MonoECS
 
     public static T GetComponentData<T>(Entity entity) where T : struct, IComponentData
     {
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         return em.GetComponentData<T>(entity);
     }
 
     public static void SetComponentData<T>(Entity entity, T data) where T : struct, IComponentData
     {
-        var em = World.Active.GetOrCreateManager<EntityManager>();
         em.SetComponentData(entity, data);
     }
 }
