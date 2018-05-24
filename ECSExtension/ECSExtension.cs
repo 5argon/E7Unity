@@ -33,9 +33,9 @@ namespace E7.Entities
         /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
         /// Useful for when you are in the middle of moving things to ECS. Runs on your active world's EntityManager.
         /// </summary>
-        public static T[] Inject<T>() where T : struct, IComponentData
+        public static (T component, Entity entity)[] Inject<T>() where T : struct, IComponentData
         {
-            List<T> list = new List<T>();
+            List<(T, Entity)> list = new List<(T, Entity)>();
             using (NativeArray<Entity> allEntities = em.GetAllEntities())
             {
                 foreach (Entity e in allEntities)
@@ -43,7 +43,7 @@ namespace E7.Entities
                     if (em.HasComponent<T>(e))
                     {
                         T componentData = em.GetComponentData<T>(e);
-                        list.Add(componentData);
+                        list.Add((componentData, e));
                     }
                 }
             }
@@ -75,11 +75,11 @@ namespace E7.Entities
         /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
         /// Useful for when you are in the middle of moving things to ECS. Runs on your active world's EntityManager.
         /// </summary>
-        public static (T1, T2)[] Inject<T1, T2>()
+        public static (T1 component1, T2 component2, Entity entity)[] Inject<T1, T2>()
         where T1 : struct, IComponentData
         where T2 : struct, IComponentData
         {
-            List<(T1, T2)> list = new List<(T1, T2)>();
+            List<(T1, T2, Entity)> list = new List<(T1, T2, Entity)>();
             using (NativeArray<Entity> allEntities = em.GetAllEntities())
             {
                 foreach (Entity e in allEntities)
@@ -88,12 +88,13 @@ namespace E7.Entities
                     {
                         T1 componentData = em.GetComponentData<T1>(e);
                         T2 componentData2 = em.GetComponentData<T2>(e);
-                        list.Add((componentData, componentData2));
+                        list.Add((componentData, componentData2, e));
                     }
                 }
             }
             return list.ToArray();
         }
+
         public static bool HasTag<T>(Entity entity) where T : struct, IComponentData, ITag
         {
             return em.HasComponent<T>(entity);
