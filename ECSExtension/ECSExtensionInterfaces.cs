@@ -9,7 +9,7 @@ namespace E7.Entities
     /// </summary>
     public interface IReactiveDataInjectGroup<ReactiveComponent, DataComponent> : IReactiveInjectGroup<ReactiveComponent> where DataComponent : struct, IComponentData where ReactiveComponent : struct, IComponentData, IReactive
     {
-        ComponentDataArray<DataComponent> data { get; }
+        ComponentDataArray<DataComponent> datas { get; }
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ namespace E7.Entities
     where MonoComponent : Component
     where ReactiveComponent : struct, IComponentData, IReactive
     {
-        ComponentArray<MonoComponent> monoComponent { get; }
+        ComponentArray<MonoComponent> monoComponents { get; }
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace E7.Entities
     /// </summary>
     public interface IReactiveInjectGroup<RxComponent> where RxComponent : struct, IComponentData, IReactive
     {
-        ComponentDataArray<RxComponent> reactiveComponent { get; }
+        ComponentDataArray<RxComponent> reactiveComponents { get; }
         EntityArray entities { get; }
     }
 

@@ -43,7 +43,7 @@ namespace E7.Entities
     {
         protected struct InjectGroup : IReactiveInjectGroup<ReactiveComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponent { get; }
+            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
             public int Length;
         }
@@ -63,13 +63,19 @@ namespace E7.Entities
     {
         protected struct InjectGroup : IReactiveMonoInjectGroup<ReactiveComponent, MonoComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponent { get; }
-            public ComponentArray<MonoComponent> monoComponent { get; }
+            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
+            public ComponentArray<MonoComponent> monoComponents { get; }
             public EntityArray entities { get; }
             public int Length;
         }
         [Inject] private protected InjectGroup injectedGroup;
         protected InjectGroup InjectedGroup => injectedGroup;
+
+        /// <summary>
+        /// Get the first component captured. Useful when you know there's only one.
+        /// Should not be index out of range given the system must have some elements to run.
+        /// </summary>
+        protected MonoComponent FirstInjected => injectedGroup.monoComponents[0];
 
         private protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => injectedGroup;
     }
@@ -84,7 +90,7 @@ namespace E7.Entities
     {
         protected struct InjectGroup : IReactiveInjectGroup<ReactiveComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponent { get; }
+            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
             public int Length;
         }
@@ -103,9 +109,9 @@ namespace E7.Entities
     {
         protected struct InjectGroup : IReactiveDataInjectGroup<ReactiveComponent, DataComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponent { get; }
+            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
-            public ComponentDataArray<DataComponent> data { get; }
+            public ComponentDataArray<DataComponent> datas { get; }
             public int Length;
         }
         [Inject] private protected InjectGroup injectedGroup;

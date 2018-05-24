@@ -16,6 +16,12 @@ namespace E7.Entities
             ecb.AddComponent<T>(component);
         }
 
+        public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
+        where T : struct, IComponentData, ITag
+        {
+            ecb.AddComponent<T>(addToEntity, default);
+        }
+
         /// <summary>
         /// End a reactive routine by removing a component from an entity. You must specify a reactive component type manually.
         /// </summary>
