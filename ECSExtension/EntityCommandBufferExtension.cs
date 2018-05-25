@@ -13,6 +13,7 @@ namespace E7.Entities
         public static void Issue<T>(this EntityCommandBuffer ecb, T component)
         where T : struct, IComponentData, IReactive
         {
+            ecb.CreateEntity();
             ecb.AddComponent<T>(component);
         }
 
@@ -25,14 +26,14 @@ namespace E7.Entities
         /// <summary>
         /// End a reactive routine by removing a component from an entity. You must specify a reactive component type manually.
         /// </summary>
-        public static void EndReactive<ReactiveComponent>(this EntityCommandBuffer ecb, EntityArray entityArray, int entityArrayIndex)
-        where ReactiveComponent : struct, IComponentData, IReactive
+        public static void EndTagResponse<ReactiveComponent>(this EntityCommandBuffer ecb, EntityArray entityArray, int entityArrayIndex)
+        where ReactiveComponent : struct, IComponentData, ITag
         {
             ecb.RemoveComponent<ReactiveComponent>(entityArray[entityArrayIndex]);
         }
 
-        public static void EndReactive<ReactiveComponent>(this EntityCommandBuffer ecb, Entity entity)
-        where ReactiveComponent : struct, IComponentData, IReactive
+        public static void EndTagResponse<ReactiveComponent>(this EntityCommandBuffer ecb, Entity entity)
+        where ReactiveComponent : struct, IComponentData, ITag
         {
             ecb.RemoveComponent<ReactiveComponent>(entity);
         }

@@ -9,17 +9,6 @@ namespace E7.Entities
     public abstract class ReactiveCSBase<ReactiveComponent> : ComponentSystem
     where ReactiveComponent : struct, IComponentData, IReactive
     {
-        /// <summary>
-        /// Because ComponentSystem is on the main thread we have the class context and know which one is the reactive component, this can work.
-        /// Or you could call base.OnUpdate() on your OnUpdate() to remove all reactive components captured in this update.
-        /// </summary>
-        // protected void EndReactive(int entityIndex) => PostUpdateCommands.EndReactive<ReactiveComponent>(ReactiveGroup.entities, entityIndex);
-
-        /// <summary>
-        /// You sure there's only one of them?
-        /// </summary>
-        //protected void EndReactive() => EndReactive(0);
-
         private protected abstract IReactiveInjectGroup<ReactiveComponent> ReactiveGroup { get; }
 
         protected abstract void OnReaction();
@@ -28,7 +17,7 @@ namespace E7.Entities
             OnReaction();
             for (int i = 0; i < ReactiveGroup.entities.Length; i++)
             {
-                PostUpdateCommands.EndReactive<ReactiveComponent>(ReactiveGroup.entities[i]);
+                PostUpdateCommands.EndTagResponse<ReactiveComponent>(ReactiveGroup.entities[i]);
             }
         }
     }
@@ -85,10 +74,10 @@ namespace E7.Entities
     /// You can send the whole InjectGroup into the job with [ReadOnly]
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class ReactiveJCS<ReactiveComponent> : JobComponentSystem
-    where ReactiveComponent : struct, IComponentData, IReactive
+    public abstract class TagResponseJCS<ReactiveComponent> : JobComponentSystem
+    where ReactiveComponent : struct, IComponentData,ITag 
     {
-        protected struct InjectGroup : IReactiveInjectGroup<ReactiveComponent>
+        protected struct InjectGroup : ITagResponseInjectGroup<ReactiveComponent>
         {
             public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
@@ -103,11 +92,11 @@ namespace E7.Entities
     /// Take the content out before sending them to the job so that `data` can be written to.
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class ReactiveDataJCS<ReactiveComponent, DataComponent> : JobComponentSystem
-    where ReactiveComponent : struct, IComponentData, IReactive
+    public abstract class TagResponseDataJCS<ReactiveComponent, DataComponent> : JobComponentSystem
+    where ReactiveComponent : struct, IComponentData,ITag 
     where DataComponent : struct, IComponentData
     {
-        protected struct InjectGroup : IReactiveDataInjectGroup<ReactiveComponent, DataComponent>
+        protected struct InjectGroup : ITagResponseDataInjectGroup<ReactiveComponent, DataComponent>
         {
             public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
