@@ -62,6 +62,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Collections;
+using Unity.Jobs;
 
 /// <summary>
 /// From a sequence of Down, Move, and Up touch events (no Stationary)
@@ -71,29 +75,45 @@ using UnityEngine;
 /// 
 /// It currently cannot assign an ID to these touches. Just how many and where they are.
 /// </summary>
-public class PointTracker {
+public struct PointTracker : System.IDisposable
+{
+    private NativeList<float2> registeredPoints;
+    private NativeHashMap<float2, bool1> registeredStates;
 
-    private List<Vector2> registeredPoints;
-    private Dictionary<Vector2, bool> registeredStates;
-
-    public PointTracker()
+    public void Dispose()
     {
-        registeredPoints = new List<Vector2>();
-        registeredStates = new Dictionary<Vector2, bool>();
+        registeredPoints.Dispose();
+        registeredStates.Dispose();
     }
+
+    public PointTracker(Allocator a)
+    {
+        registeredPoints = new NativeList<float2>(a);
+        registeredStates = new NativeHashMap<float2, bool1>(20, a);
+    }
+
 
     /// <summary>
     /// All points in this list are currently "down". Not array for performance reason so don't modify the list! Just read it!
     /// </summary>
-	public List<Vector2> CurrentPoints => registeredPoints;
+	public IEnumerable<float2> CurrentPoints
+    {
+        get
+        {
+            for (int i = 0; i < registeredPoints.Length; i++)
+            {
+                yield return registeredPoints[i];
+            }
+        }
+    }
 
     /// <summary>
     /// You can keep whatever state you want with a bool per point.
     /// </summary>
-    public bool StateOfPoint(Vector2 point)
+    public bool1 StateOfPoint(float2 point)
     {
         point = RoundVector(point);
-        bool ret;
+        bool1 ret;
         if (registeredStates.TryGetValue(point, out ret))
         {
             //DebugLog($"State of {point.x} {point.y} is {ret}", LogType.Log);
@@ -112,22 +132,22 @@ public class PointTracker {
         registeredStates.Clear();
     }
 
-    public void Down(Vector2 pointDown)
+    public void Down(float2 pointDown)
     {
         pointDown = RoundVector(pointDown);
         DebugLog($"Down {pointDown.x} {pointDown.y}", LogType.Log);
         registeredPoints.Add(pointDown);
-        registeredStates.Add(pointDown, false);
+        registeredStates.TryAdd(pointDown, false);
     }
 
-    public void SetState(Vector2 pointNow, bool toState)
+    public void SetState(float2 pointNow, bool toState)
     {
         pointNow = RoundVector(pointNow);
-        if (registeredPoints.Contains(pointNow) && registeredStates.ContainsKey(pointNow))
+        if (registeredPoints.Contains(pointNow) && registeredStates.TryGetValue(pointNow, out _))
         {
             //Debug.Log($"Set state OK {point.x} {point.y} {toState}");
             registeredStates.Remove(pointNow);
-            registeredStates.Add(pointNow, toState);
+            registeredStates.TryAdd(pointNow, toState);
         }
 #if DEBUG_POINT_TRACKER
         else
@@ -140,9 +160,9 @@ public class PointTracker {
     /// <summary>
     /// This is just to fight with Unity's floating point weirdness
     /// </summary>
-    private Vector2 RoundVector(Vector2 vector) => new Vector2(Mathf.Round(vector.x), Mathf.Round(vector.y));
+    private float2 RoundVector(float2 vector) => new float2(math.round(vector.x), math.round(vector.y));
 
-    public bool Move(Vector2 pointNow, Vector2 pointPrevious)
+    public bool Move(float2 pointNow, float2 pointPrevious)
     {
         pointNow = RoundVector(pointNow);
         pointPrevious = RoundVector(pointPrevious);
@@ -160,21 +180,21 @@ public class PointTracker {
         }
 #endif
 
-        bool state;
+        bool1 state;
 
-        bool containsPrevious = registeredPoints.Contains(pointPrevious);
+        bool1 containsPrevious = registeredPoints.Contains(pointPrevious);
 
         if (containsPrevious)
         {
-            Vector2 victim = pointPrevious;
+            float2 victim = pointPrevious;
             if (registeredStates.TryGetValue(victim, out state))
             {
-                registeredPoints.Remove(victim);
+                registeredPoints.RemoveAtSwapBack(registeredPoints.IndexOf(victim));
                 registeredStates.Remove(victim);
                 registeredPoints.Add(pointNow);
-                if (!registeredStates.ContainsKey(pointNow)) //somehow ArgumentException crash happen below!!
+                if (!registeredStates.TryGetValue(pointNow,out _)) //somehow ArgumentException crash happen below!!
                 {
-                    registeredStates.Add(pointNow, state); //copy state
+                    registeredStates.TryAdd(pointNow, state); //copy state
                 }
                 return true;
             }
@@ -185,7 +205,7 @@ public class PointTracker {
         return false;
     }
 
-    public bool Up(Vector2 pointUp, Vector2 pointPrevious)
+    public bool Up(float2 pointUp, float2 pointPrevious)
     {
         pointUp = RoundVector(pointUp);
         pointPrevious = RoundVector(pointPrevious);
@@ -203,10 +223,10 @@ public class PointTracker {
 
         if (containsPrevious || containsUp )
         {
-            Vector2 victim = containsUp ? pointUp : pointPrevious;
-            if (registeredStates.ContainsKey(victim))
+            float2 victim = containsUp ? pointUp : pointPrevious;
+            if (registeredStates.TryGetValue(victim, out _))
             {
-                registeredPoints.Remove(victim);
+                registeredPoints.RemoveAtSwapBack(registeredPoints.IndexOf(victim));
                 registeredStates.Remove(victim);
                 return true;
             }
