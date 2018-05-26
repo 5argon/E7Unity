@@ -51,27 +51,6 @@ namespace E7.Entities
         }
 
         /// <summary>
-        /// This one works with mono things attached with `GameObjectEntity`
-        /// </summary>
-        /// <returns>Contains both the component and its corresponding entity generated from `GameObjectEntity`.</returns>
-        public static (T monoComponent, Entity entity)[] InjectMono<T>() where T : Component
-        {
-            List<(T, Entity)> list = new List<(T, Entity)>();
-            using (NativeArray<Entity> allEntities = em.GetAllEntities())
-            {
-                foreach (Entity e in allEntities)
-                {
-                    if (em.HasComponent<T>(e))
-                    {
-                        T componentData = em.GetComponentObject<T>(e);
-                        list.Add((componentData, e));
-                    }
-                }
-            }
-            return list.ToArray();
-        }
-
-        /// <summary>
         /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
         /// Useful for when you are in the middle of moving things to ECS. Runs on your active world's EntityManager.
         /// </summary>
@@ -95,37 +74,72 @@ namespace E7.Entities
             return list.ToArray();
         }
 
+        /// <summary>
+        /// Get all of your `MonoBehaviour` attached with `GameObjectEntity` outside of ECS.
+        /// </summary>
+        /// <returns>Contains both the component and its corresponding entity generated from `GameObjectEntity`.</returns>
+        public static (T monoComponent, Entity entity)[] InjectMono<T>() where T : Component
+        {
+            List<(T, Entity)> list = new List<(T, Entity)>();
+            using (NativeArray<Entity> allEntities = em.GetAllEntities())
+            {
+                foreach (Entity e in allEntities)
+                {
+                    if (em.HasComponent<T>(e))
+                    {
+                        T componentData = em.GetComponentObject<T>(e);
+                        list.Add((componentData, e));
+                    }
+                }
+            }
+            return list.ToArray();
+        }
+
+
         public static bool HasTag<T>(Entity entity) where T : struct, IComponentData, ITag
         {
             return em.HasComponent<T>(entity);
         }
 
         /// <summary>
-        /// Adds a component if not already there, the content of component is its empty default because we assume it is just a "tag" anyways.
+        /// Adds a tag component if not already there, the content of component is its empty default because we assume it is just a "tag" anyways.
         /// </summary>
-        public static void AddTag<T>(Entity entity) where T : struct, IComponentData, ITag
+        public static void AddTag<T>(Entity entity) where T : struct, IComponentData, ITag => AddTag<T>(entity, default(T));
+
+        /// <summary>
+        /// Adds a tag component if not already there. 
+        /// </summary>
+        public static void AddTag<T>(Entity entity, T tagContent) where T : struct, IComponentData, ITag
         {
             if (em.HasComponent<T>(entity) == false)
             {
-                em.AddComponentData<T>(entity, default(T));
+                em.AddComponentData<T>(entity, tagContent);
             }
         }
 
         /// <summary>
-        /// Throw a tag to any game object in your scene with `GameObjectEntity` and a system like `ReactiveMonoCS` can pick it up.
-        /// Adds a tag to the first one found.
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
         /// </summary>
-        public static void AddTagMono<Tag, MonoComponent>()
+        public static void Issue<ReactiveComponent, MonoComponent>()
         where MonoComponent : Component
-        where Tag : struct, IComponentData, ITag
-        {
-            var components = InjectMono<MonoComponent>();
-            if (components.Length > 0)
-            {
-                AddTag<Tag>(components[0].entity);
-            }
-        }
+        where ReactiveComponent : struct, IComponentData, IReactive
+        => Issue<ReactiveComponent, MonoComponent>(default(ReactiveComponent));
 
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// You can add some data to that reactive component as a "method argument" of sorts.
+        /// </summary>
+        public static void Issue<ReactiveComponent, MonoComponent>(ReactiveComponent rx)
+        where MonoComponent : Component
+        where ReactiveComponent: struct, IComponentData, IReactive
+        {
+            var e = em.CreateEntity(typeof(ReactiveComponent));
+            em.SetComponentData(e, rx);
+        }
 
         /// <summary>
         /// Removes a tag component if it is there.

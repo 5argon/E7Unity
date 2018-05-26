@@ -3,33 +3,27 @@ using UnityEngine;
 
 namespace E7.Entities
 {
-    /// <summary>
-    /// The same as IReactiveInjectGroup but with additional data inside the entity that contains the reactive component.
-    /// It has effect on methods like commandBuffer.EndReactive where it will just remove the component, not destroying the whole entity.
-    /// </summary>
-    public interface IReactiveDataInjectGroup<ReactiveComponent, DataComponent> : IReactiveInjectGroup<ReactiveComponent> 
-    where DataComponent : struct, IComponentData 
-    where ReactiveComponent : struct, IComponentData, IReactive
-    {
-        ComponentDataArray<DataComponent> datas { get; }
-    }
+    // /// <summary>
+    // /// The same as IReactiveInjectGroup but with additional data inside the entity that contains the reactive component.
+    // /// It has effect on methods like commandBuffer.EndReactive where it will just remove the component, not destroying the whole entity.
+    // /// </summary>
+    // public interface IReactiveDataInjectGroup<ReactiveComponent, DataComponent> : IReactiveInjectGroup<ReactiveComponent> 
+    // where DataComponent : struct, IComponentData 
+    // where ReactiveComponent : struct, IComponentData, IReactive
+    // {
+    //     ComponentDataArray<DataComponent> datas { get; }
+    // }
 
-    public interface ITagResponseDataInjectGroup<ReactiveComponent, DataComponent> : ITagResponseInjectGroup<ReactiveComponent>
-    where DataComponent : struct, IComponentData
-    where ReactiveComponent : struct, IComponentData, ITag
-    {
-        ComponentDataArray<DataComponent> datas { get; }
-    }
 
-    /// <summary>
-    /// Designed to work with GameObjectEntity attached MonoBehaviours
-    /// </summary>
-    public interface IReactiveMonoInjectGroup<ReactiveComponent, MonoComponent> : IReactiveInjectGroup<ReactiveComponent>
-    where MonoComponent : Component
-    where ReactiveComponent : struct, IComponentData, IReactive
-    {
-        ComponentArray<MonoComponent> monoComponents { get; }
-    }
+    // /// <summary>
+    // /// Designed to work with GameObjectEntity attached MonoBehaviours
+    // /// </summary>
+    // public interface IReactiveMonoInjectGroup<ReactiveComponent, MonoComponent> : IReactiveInjectGroup<ReactiveComponent>
+    // where MonoComponent : Component
+    // where ReactiveComponent : struct, IComponentData, IReactive
+    // {
+    //     ComponentArray<MonoComponent> monoComponents { get; }
+    // }
 
     /// <summary>
     /// An inject struct that has a reactive component to be removed at the end of system function,
@@ -38,6 +32,13 @@ namespace E7.Entities
     public interface IReactiveInjectGroup<RxComponent> : ITagResponseInjectGroup<RxComponent> 
     where RxComponent : struct, IComponentData, IReactive
     {
+    }
+
+    public interface ITagResponseDataInjectGroup<ReactiveComponent, DataComponent> : ITagResponseInjectGroup<ReactiveComponent>
+    where DataComponent : struct, IComponentData
+    where ReactiveComponent : struct, IComponentData, ITag
+    {
+        ComponentDataArray<DataComponent> datas { get; }
     }
 
     public interface ITagResponseInjectGroup<RxComponent> 
