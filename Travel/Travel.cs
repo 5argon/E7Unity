@@ -145,7 +145,7 @@ public struct Travel<T> : System.IDisposable where T : struct
     public (T data, TravelEvent travelEvent) DataEventOfPosition(float position)
     {
         //Debug.Log("Finding of " + position);
-        int dataIndex = Travel.DataIndexOfPosition(travelEvents, position,ref travelRememberIndex);
+        int dataIndex = Travel.DataIndexOfPosition(travelEvents, position, ref travelRememberIndex);
         return DataEventOfPositionFromIndex(dataIndex);
     }
 
