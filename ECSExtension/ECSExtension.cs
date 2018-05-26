@@ -122,10 +122,10 @@ namespace E7.Entities
         /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
         /// take action, and destroy them afterwards automatically.
         /// </summary>
-        public static void Issue<ReactiveComponent, MonoComponent>()
-        where MonoComponent : Component
-        where ReactiveComponent : struct, IComponentData, IReactive
-        => Issue<ReactiveComponent, MonoComponent>(default(ReactiveComponent));
+        public static void Issue<ReactiveComponent,ReactiveGroup>()
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(default);
 
         /// <summary>
         /// Make a new entity just for carrying the reactive component.
@@ -133,12 +133,13 @@ namespace E7.Entities
         /// take action, and destroy them afterwards automatically.
         /// You can add some data to that reactive component as a "method argument" of sorts.
         /// </summary>
-        public static void Issue<ReactiveComponent, MonoComponent>(ReactiveComponent rx)
-        where MonoComponent : Component
-        where ReactiveComponent: struct, IComponentData, IReactive
+        public static void Issue<ReactiveComponent, ReactiveGroup>(ReactiveComponent rx)
+        where ReactiveComponent: struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
         {
-            var e = em.CreateEntity(typeof(ReactiveComponent));
-            em.SetComponentData(e, rx);
+            var e = em.CreateEntity();
+            em.AddComponentData<ReactiveComponent>(e, rx);
+            em.AddSharedComponentData<ReactiveGroup>(e, default);
         }
 
         /// <summary>

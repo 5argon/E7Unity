@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Unity.Mathematics;
 
 /// <summary>
 /// With C# 7.2, use this with `in` parameter modifier to both pass this large struct as a reference and without the costly defensive copy.
@@ -21,8 +22,8 @@ public readonly struct ReadOnlyTouch
 
     public ReadOnlyTouch(
     int fingerId,
-    Vector2 position,
-    Vector2 deltaPosition,
+    float2 position,
+    float2 deltaPosition,
     TouchPhase phase
     )
     {
@@ -39,11 +40,11 @@ public readonly struct ReadOnlyTouch
     /// <summary>
     /// The position of the touch in pixel coordinates.
     /// </summary>
-    public Vector2 position { get; }
+    public float2 position { get; }
     /// <summary>
     /// The position delta since last change.
     /// </summary>
-    public Vector2 deltaPosition { get; }
+    public float2 deltaPosition { get; }
     /// <summary>
     /// Describes the phase of the touch.
     /// </summary>

@@ -7,20 +7,36 @@ using System.Collections.Generic;
 
 namespace E7.Entities
 {
-    public abstract class ReactiveCSBase<ReactiveComponent> : ComponentSystem
-    where ReactiveComponent : struct, IComponentData, IReactive
+    public abstract class ReactiveCSBase<ReactiveGroup> : ComponentSystem
+    where ReactiveGroup : struct, IReactiveGroup 
     {
-        private protected abstract IReactiveInjectGroup<ReactiveComponent> ReactiveGroup { get; }
+        private protected abstract IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup { get; }
 
-        protected abstract void OnReaction(ReactiveComponent reactiveComponent);
+        /// <summary>
+        /// Use `if(ReactsTo<IReactive>...` given that `IReactive` belongs to the group.
+        /// </summary>
+        protected abstract void OnReaction();
         protected override void OnUpdate()
         {
             //There is a possibility that we have a mono entity but not any reactive entities in `ReactiveMonoCS`.
-            for (int i = 0; i < ReactiveGroup.entities.Length; i++)
+            for (int i = 0; i < InjectedReactivesInGroup.Entities.Length; i++)
             {
-                OnReaction(ReactiveGroup.reactiveComponents[i]);
-                PostUpdateCommands.DestroyEntity(ReactiveGroup.entities[i]);
+                iteratingEntity = InjectedReactivesInGroup.Entities[i];
+                OnReaction();
+                PostUpdateCommands.DestroyEntity(InjectedReactivesInGroup.Entities[i]);
             }
+        }
+
+        private protected Entity iteratingEntity;
+        protected bool ReactsTo<T>(out T reactiveComponent) where T : struct, IReactive
+        {
+            if (EntityManager.HasComponent<T>(iteratingEntity))
+            {
+                reactiveComponent = EntityManager.GetComponentData<T>(iteratingEntity);
+                return true;
+            }
+            reactiveComponent = default;
+            return false;
         }
     }
 
@@ -30,21 +46,24 @@ namespace E7.Entities
     /// Process each reactive entities captured in this frame one by one with 
     /// `OnReaction`, all of them will be destroyed automatically. (Runs only once)
     /// </summary>
-    public abstract class ReactiveCS<ReactiveComponent> : ReactiveCSBase<ReactiveComponent>
-    where ReactiveComponent : struct, IComponentData, IReactive
+    public abstract class ReactiveCS<ReactiveGroup> : ReactiveCSBase<ReactiveGroup>
+    where ReactiveGroup : struct, IReactiveGroup
     {
         /// <summary>
         /// Captures reactive entities ready to be destroy after the task.
         /// </summary>
-        protected struct ReactiveInjectGroup : IReactiveInjectGroup<ReactiveComponent>
+        protected struct ReactiveInjectGroup : IReactiveInjectGroup<ReactiveGroup>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
-            public EntityArray entities { get; }
+            [ReadOnly] public SharedComponentDataArray<ReactiveGroup> reactiveGroups;
+            public EntityArray entities;
             public int Length;
-        }
-        [Inject] private protected ReactiveInjectGroup reactiveGroup;
 
-        private protected override IReactiveInjectGroup<ReactiveComponent> ReactiveGroup => reactiveGroup;
+            public SharedComponentDataArray<ReactiveGroup> ReactiveGroups => reactiveGroups;
+            public EntityArray Entities => entities;
+        }
+        [Inject] private protected ReactiveInjectGroup injectedReactivesInGroup;
+
+        private protected override IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup => injectedReactivesInGroup;
     }
 
     /// <summary>
@@ -55,8 +74,8 @@ namespace E7.Entities
     /// Process each reactive entities captured in this frame one by one with
     /// `OnReaction`, all of them will be destroyed automatically. (Runs only once)
     /// </summary>
-    public abstract class ReactiveMonoCS<ReactiveComponent, MonoComponent> : ReactiveCS<ReactiveComponent>
-    where ReactiveComponent : struct, IComponentData, IReactive
+    public abstract class ReactiveMonoCS<ReactiveGroup, MonoComponent> : ReactiveCS<ReactiveGroup>
+    where ReactiveGroup : struct, IReactiveGroup
     where MonoComponent : Component
     {
         /// <summary>

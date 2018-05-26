@@ -7,17 +7,25 @@ namespace E7.Entities
 {
     public static class EntityCommandBufferExtension
     {
-        /// <summary>
-        /// Make a new entity just for carrying the reactive component.
-        /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
-        /// take action, and destroy them afterwards automatically.
-        /// </summary>
-        public static void Issue<T>(this EntityCommandBuffer ecb, T component)
-        where T : struct, IComponentData, IReactive
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer ecb)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, default, default);
+
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer ecb, ReactiveComponent rx)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, rx, default);
+
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer ecb, ReactiveComponent rx, ReactiveGroup rg)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
         {
             ecb.CreateEntity();
-            ecb.AddComponent<T>(component);
+            ecb.AddComponent<ReactiveComponent>(rx);
+            ecb.AddSharedComponent<ReactiveGroup>(rg);
         }
+
 
         public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
         where T : struct, IComponentData, ITag

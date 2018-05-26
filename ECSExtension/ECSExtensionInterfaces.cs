@@ -28,10 +28,13 @@ namespace E7.Entities
     /// <summary>
     /// An inject struct that has a reactive component to be removed at the end of system function,
     /// plus an injected array of entities so that we knows which one to remove a component from.
+    /// We need one more component data array with IReactive but it is not enforced in this interface.
     /// </summary>
-    public interface IReactiveInjectGroup<RxComponent> : ITagResponseInjectGroup<RxComponent> 
-    where RxComponent : struct, IComponentData, IReactive
+    public interface IReactiveInjectGroup<RxGroup>
+    where RxGroup : struct, IReactiveGroup
     {
+        SharedComponentDataArray<RxGroup> ReactiveGroups { get; }
+        EntityArray Entities { get; }
     }
 
     public interface ITagResponseDataInjectGroup<ReactiveComponent, DataComponent> : ITagResponseInjectGroup<ReactiveComponent>
@@ -53,9 +56,11 @@ namespace E7.Entities
     /// </summary>
     public interface IReactive : ITag { }
 
+    public interface IReactiveGroup : ISharedComponentData { }
+
     /// <summary>
     /// Use when an `IComponentData` is to stick around and dictates behaviour, or use with `SubtractiveComponent` for example.
     /// Or use when a removal is optional unlike `IReactive`.
     /// </summary>
-    public interface ITag { }
+    public interface ITag : IComponentData { }
 }
