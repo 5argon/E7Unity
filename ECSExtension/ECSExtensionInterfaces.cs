@@ -1,7 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 
-namespace E7.Entities
+namespace E7.ECS
 {
     // /// <summary>
     // /// The same as IReactiveInjectGroup but with additional data inside the entity that contains the reactive component.

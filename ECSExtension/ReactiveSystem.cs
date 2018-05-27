@@ -5,8 +5,67 @@ using Unity.Jobs;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace E7.Entities
+namespace E7.ECS
 {
+    /// <summary>
+    /// `ReactiveJCS` has a different approach from `ReactiveCS`.
+    /// Because you usually wants to bring all the stuffs to do together inside the job, use `GetReactions<T>`
+    /// to get a `ComponentDataArray<T>` of that reactive type.
+    /// All of the reactive entities will be destroyed regardless of if you use them or not.
+    /// </summary>
+    public abstract class ReactiveJCS<ReactiveGroup> : JobComponentSystem
+    where ReactiveGroup : struct, IReactiveGroup 
+    {
+        /// <summary>
+        /// Determines how many inject groups you will have. 
+        /// Use the same type with `GetReactions<T>` to get the `ComponentDataArray<T>` of reactives.
+        /// </summary>
+        protected abstract ComponentType[] ReactsTo { get; }
+
+        /// <summary>
+        /// Provide a command buffer so that the system can destroy all the captured
+        /// reactive entities for you. You can use your `barrier.PostUpdateCommand`.
+        /// </summary>
+        protected abstract EntityCommandBuffer DestroyReactivesBuffer { get; }
+
+        private Dictionary<ComponentType, ComponentGroup> allInjects;
+
+        /// <summary>
+        /// Dynamically inject reactive entities.
+        /// </summary>
+        protected override void OnCreateManager(int capacity)
+        {
+            var types = ReactsTo;
+            allInjects = new Dictionary<ComponentType, ComponentGroup>();
+            for (int i = 0; i < types.Length; i++)
+            {
+                allInjects.Add(types[i], GetComponentGroup(types[i], ComponentType.ReadOnly<ReactiveGroup>()));
+            }
+        }
+
+        protected ComponentDataArray<T> GetReactions<T>() where T : struct, IReactive
+        {
+            return allInjects[ComponentType.Create<T>()].GetComponentDataArray<T>();
+        }
+
+        protected abstract JobHandle OnReaction(JobHandle inputDeps);
+
+        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        {
+            var jobHandle = OnReaction(inputDeps);
+            /// Automatically destroy all injected reactive entites after the job with provided barrier system.
+            foreach(ComponentGroup g in allInjects.Values)
+            {
+                var entityArray = g.GetEntityArray();
+                for (int i = 0; i < entityArray.Length; i++)
+                {
+                    DestroyReactivesBuffer.DestroyEntity(entityArray[i]);
+                }
+            }
+            return jobHandle;
+        }
+    }
+
     public abstract class ReactiveCSBase<ReactiveGroup> : ComponentSystem
     where ReactiveGroup : struct, IReactiveGroup 
     {

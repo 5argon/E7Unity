@@ -1,6 +1,6 @@
 using Unity.Mathematics;
 
-namespace E7.Entities
+namespace E7.ECS
 {
     public static class ECSMathExtension
     {

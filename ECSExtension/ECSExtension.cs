@@ -5,7 +5,7 @@ using Unity.Jobs;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace E7.Entities
+namespace E7.ECS
 {
     /// <summary>
     /// A slew of cheat functions to help you put a band-aid solution over your MonoBehaviour code while moving to ECS.

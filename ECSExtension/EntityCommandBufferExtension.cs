@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
 
-namespace E7.Entities
+namespace E7.ECS
 {
     public static class EntityCommandBufferExtension
     {
