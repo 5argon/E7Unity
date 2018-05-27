@@ -114,12 +114,12 @@ namespace E7.Entities
     /// You can send the whole InjectGroup into the job with [ReadOnly]
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class TagResponseJCS<ReactiveComponent> : JobComponentSystem
-    where ReactiveComponent : struct, IComponentData, ITag
+    public abstract class TagResponseJCS<TagComponent> : JobComponentSystem
+    where TagComponent : struct, IComponentData, ITag
     {
-        protected struct InjectGroup : ITagResponseInjectGroup<ReactiveComponent>
+        protected struct InjectGroup : ITagResponseInjectGroup<TagComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
+            public ComponentDataArray<TagComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
             public int Length;
         }
@@ -132,13 +132,13 @@ namespace E7.Entities
     /// Take the content out before sending them to the job so that `data` can be written to.
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class TagResponseDataJCS<ReactiveComponent, DataComponent> : JobComponentSystem
-    where ReactiveComponent : struct, IComponentData, ITag
+    public abstract class TagResponseDataJCS<TagComponent, DataComponent> : JobComponentSystem
+    where TagComponent : struct, IComponentData, ITag
     where DataComponent : struct, IComponentData
     {
-        protected struct InjectGroup : ITagResponseDataInjectGroup<ReactiveComponent, DataComponent>
+        protected struct InjectGroup : ITagResponseDataInjectGroup<TagComponent, DataComponent>
         {
-            public ComponentDataArray<ReactiveComponent> reactiveComponents { get; }
+            public ComponentDataArray<TagComponent> reactiveComponents { get; }
             public EntityArray entities { get; }
             public ComponentDataArray<DataComponent> datas { get; }
             public int Length;

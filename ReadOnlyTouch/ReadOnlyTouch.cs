@@ -31,6 +31,7 @@ public readonly struct ReadOnlyTouch
         this.position = position;
         this.deltaPosition = deltaPosition;
         this.phase = phase;
+        this.Valid = true;
     }
 
     /// <summary>
@@ -49,4 +50,6 @@ public readonly struct ReadOnlyTouch
     /// Describes the phase of the touch.
     /// </summary>
     public TouchPhase phase { get; }
+
+    public bool1 Valid { get; }
 }
