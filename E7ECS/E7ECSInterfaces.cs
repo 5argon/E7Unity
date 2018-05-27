@@ -3,32 +3,10 @@ using UnityEngine;
 
 namespace E7.ECS
 {
-    // /// <summary>
-    // /// The same as IReactiveInjectGroup but with additional data inside the entity that contains the reactive component.
-    // /// It has effect on methods like commandBuffer.EndReactive where it will just remove the component, not destroying the whole entity.
-    // /// </summary>
-    // public interface IReactiveDataInjectGroup<ReactiveComponent, DataComponent> : IReactiveInjectGroup<ReactiveComponent> 
-    // where DataComponent : struct, IComponentData 
-    // where ReactiveComponent : struct, IComponentData, IReactive
-    // {
-    //     ComponentDataArray<DataComponent> datas { get; }
-    // }
-
-
-    // /// <summary>
-    // /// Designed to work with GameObjectEntity attached MonoBehaviours
-    // /// </summary>
-    // public interface IReactiveMonoInjectGroup<ReactiveComponent, MonoComponent> : IReactiveInjectGroup<ReactiveComponent>
-    // where MonoComponent : Component
-    // where ReactiveComponent : struct, IComponentData, IReactive
-    // {
-    //     ComponentArray<MonoComponent> monoComponents { get; }
-    // }
-
     /// <summary>
     /// An inject struct that has a reactive component to be removed at the end of system function,
     /// plus an injected array of entities so that we knows which one to remove a component from.
-    /// We need one more component data array with IReactive but it is not enforced in this interface.
+    /// We need one more component data array with IReactive, but it is not enforced in this interface.
     /// </summary>
     public interface IReactiveInjectGroup<RxGroup>
     where RxGroup : struct, IReactiveGroup
@@ -52,10 +30,13 @@ namespace E7.ECS
     }
 
     /// <summary>
-    /// Use when an IComponentData is to be picked up by some system and immediately remove them without condition.
+    /// Use when an IComponentData is intended to be picked up by some system and immediately remove them without condition.
     /// </summary>
     public interface IReactive : ITag { }
 
+/// <summary>
+/// A E7ECS's reactive system will look for only one kind of reactive group, while that group could contains various reactions to perform.
+/// </summary>
     public interface IReactiveGroup : ISharedComponentData { }
 
     /// <summary>

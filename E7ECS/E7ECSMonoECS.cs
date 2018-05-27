@@ -8,7 +8,8 @@ using UnityEngine;
 namespace E7.ECS
 {
     /// <summary>
-    /// A slew of cheat functions to help you put a band-aid solution over your MonoBehaviour code while moving to ECS.
+    /// A slew of cheat functions to help you bridge `MonoBehaviour` world with ECS.
+    /// Also useful as a band-aid solution while moving to ECS.
     /// </summary>
     public static class MonoECS
     {
@@ -118,31 +119,6 @@ namespace E7.ECS
         }
 
         /// <summary>
-        /// Make a new entity just for carrying the reactive component.
-        /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
-        /// take action, and destroy them afterwards automatically.
-        /// </summary>
-        public static void Issue<ReactiveComponent,ReactiveGroup>()
-        where ReactiveComponent : struct, IReactive
-        where ReactiveGroup : struct, IReactiveGroup
-        => Issue<ReactiveComponent, ReactiveGroup>(default);
-
-        /// <summary>
-        /// Make a new entity just for carrying the reactive component.
-        /// A system like `ReactiveCS` or `ReactiveMonoCS` can pick it up,
-        /// take action, and destroy them afterwards automatically.
-        /// You can add some data to that reactive component as a "method argument" of sorts.
-        /// </summary>
-        public static void Issue<ReactiveComponent, ReactiveGroup>(ReactiveComponent rx)
-        where ReactiveComponent: struct, IReactive
-        where ReactiveGroup : struct, IReactiveGroup
-        {
-            var e = em.CreateEntity();
-            em.AddComponentData<ReactiveComponent>(e, rx);
-            em.AddSharedComponentData<ReactiveGroup>(e, default);
-        }
-
-        /// <summary>
         /// Removes a tag component if it is there.
         /// </summary>
         public static void RemoveTag<T>(Entity entity) where T : struct, IComponentData, ITag
@@ -151,6 +127,34 @@ namespace E7.ECS
             {
                 em.RemoveComponent<T>(entity);
             }
+        }
+
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// </summary>
+        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
+        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
+        public static void Issue<ReactiveComponent,ReactiveGroup>()
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(default);
+
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// </summary>
+        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
+        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
+        public static void Issue<ReactiveComponent, ReactiveGroup>(ReactiveComponent rx)
+        where ReactiveComponent: struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        {
+            var e = em.CreateEntity();
+            em.AddComponentData<ReactiveComponent>(e, rx);
+            em.AddSharedComponentData<ReactiveGroup>(e, default);
         }
 
         /// <summary>
