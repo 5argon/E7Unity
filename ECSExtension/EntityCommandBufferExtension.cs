@@ -27,6 +27,10 @@ namespace E7.Entities
         }
 
 
+        /// <summary>
+        /// Be careful not to add duplicate tags since command buffer
+        /// cound not use `HasTag`!
+        /// </summary>
         public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
         where T : struct, IComponentData, ITag
         {
