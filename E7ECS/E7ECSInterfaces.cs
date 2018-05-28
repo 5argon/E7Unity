@@ -25,8 +25,8 @@ namespace E7.ECS
     public interface ITagResponseInjectGroup<RxComponent> 
     where RxComponent : struct, IComponentData, ITag
     {
-        ComponentDataArray<RxComponent> reactiveComponents { get; }
-        EntityArray entities { get; }
+        ComponentDataArray<RxComponent> ReactiveComponents { get; }
+        EntityArray Entities { get; }
     }
 
     /// <summary>

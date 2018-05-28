@@ -1,3 +1,5 @@
+//#define I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
+
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
@@ -142,8 +144,7 @@ namespace E7.ECS
         /// </summary>
         protected struct MonoGroup
         {
-            public ComponentArray<MonoComponent> monoComponents { get; }
-            public EntityArray entities { get; }
+            [ReadOnly] public ComponentArray<MonoComponent> monoComponents;
             public int Length;
         }
         [Inject] private protected MonoGroup monoGroup;
@@ -151,7 +152,12 @@ namespace E7.ECS
         /// <summary>
         /// Get the first `MonoBehaviour` captured. Useful when you know there's only one in the scene to take all the reactive actions.
         /// </summary>
-        protected MonoComponent FirstMono => monoGroup.monoComponents[0];
+        protected MonoComponent FirstMono 
+#if !I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
+        => monoGroup.Length > 0 ? monoGroup.monoComponents[0] : throw new System.Exception($"You don't have any {typeof(MonoComponent).Name} which has GameObjectEntity attached...");
+#else
+        => monoGroup.monoComponents[0];
+#endif
 
         /// <summary>
         /// Iterate on all `MonoBehaviour` captured.
@@ -169,6 +175,69 @@ namespace E7.ECS
     }
 
     /// <summary>
+    /// Not really reactive but nice to have... basically get a `MonoBehaviour` entities and an another set of unrelated entities with `IComponentData` that you want.
+    /// </summary>
+    public abstract class MonoDataCS<MonoComponent,DataComponent> : ComponentSystem
+    where MonoComponent : Component
+    where DataComponent : struct, IComponentData
+    {
+        /// <summary>
+        /// Captures your `MonoBehaviour`s
+        /// </summary>
+        protected struct MonoGroup
+        {
+            [ReadOnly] public ComponentArray<MonoComponent> monoComponents;
+            public int Length;
+        }
+        [Inject] private protected MonoGroup monoGroup;
+
+        protected struct DataGroup
+        {
+            public ComponentDataArray<DataComponent> dataComponents;
+            public int Length;
+        }
+        [Inject] private protected DataGroup dataGroup;
+
+        /// <summary>
+        /// Get the first `MonoBehaviour` captured. 
+        /// </summary>
+        protected MonoComponent FirstMono 
+#if !I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
+        => monoGroup.Length > 0 ? monoGroup.monoComponents[0] : throw new System.Exception($"You don't have any {typeof(MonoComponent).Name} which has GameObjectEntity attached...");
+#else
+        => monoGroup.monoComponents[0];
+#endif
+
+        /// <summary>
+        /// Iterate on all `MonoBehaviour` captured.
+        /// </summary>
+        protected IEnumerable<MonoComponent> MonoComponents
+        {
+            get
+            {
+                for (int i = 0; i < monoGroup.Length; i++)
+                {
+                    yield return monoGroup.monoComponents[i];
+                }
+            }
+        }
+
+        /// <summary>
+        /// Iterate on all `IComponentData` captured.
+        /// </summary>
+        protected IEnumerable<DataComponent> DataComponents
+        {
+            get
+            {
+                for (int i = 0; i < dataGroup.Length; i++)
+                {
+                    yield return dataGroup.dataComponents[i];
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// When you want to make a reactive system that removes that component at the end, this is a nice start.
     /// You can send the whole InjectGroup into the job with [ReadOnly]
     /// Use `InjectedGroup` to get the data.
@@ -178,9 +247,12 @@ namespace E7.ECS
     {
         protected struct InjectGroup : ITagResponseInjectGroup<TagComponent>
         {
-            public ComponentDataArray<TagComponent> reactiveComponents { get; }
-            public EntityArray entities { get; }
+            [ReadOnly] public ComponentDataArray<TagComponent> reactiveComponents;
+            [ReadOnly] public EntityArray entities;
             public int Length;
+
+            public ComponentDataArray<TagComponent> ReactiveComponents => reactiveComponents;
+            public EntityArray Entities => entities;
         }
         [Inject] private protected InjectGroup injectedGroup;
         protected InjectGroup InjectedGroup => injectedGroup;
@@ -197,10 +269,13 @@ namespace E7.ECS
     {
         protected struct InjectGroup : ITagResponseDataInjectGroup<TagComponent, DataComponent>
         {
-            public ComponentDataArray<TagComponent> reactiveComponents { get; }
-            public EntityArray entities { get; }
+            [ReadOnly] public ComponentDataArray<TagComponent> reactiveComponents;
+            [ReadOnly] public EntityArray entities;
             public ComponentDataArray<DataComponent> datas { get; }
             public int Length;
+
+            public ComponentDataArray<TagComponent> ReactiveComponents => reactiveComponents;
+            public EntityArray Entities => entities;
         }
         [Inject] private protected InjectGroup injectedGroup;
         protected InjectGroup InjectedGroup => injectedGroup;
