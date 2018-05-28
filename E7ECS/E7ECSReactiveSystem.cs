@@ -68,10 +68,22 @@ namespace E7.ECS
         }
     }
 
+    internal sealed class ReactiveCSEndFrameBarriers { }
+
     public abstract class ReactiveCSBase<ReactiveGroup> : ComponentSystem
     where ReactiveGroup : struct, IReactiveGroup 
     {
+        [UpdateInGroup(typeof(ReactiveCSEndFrameBarriers))]
+        private class DestroyReactivesBarrier : EndFrameBarrier { }
+        [Inject] DestroyReactivesBarrier barrier;
+
         private protected abstract IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup { get; }
+
+        /// <summary>
+        /// Represent a handled reactives. ReactiveCS systems will not reacts to handled reactives.
+        /// If a reactive entity has been react to it will automatically get this component.
+        /// </summary>
+        protected struct HandledReactive : IComponentData { }
 
         /// <summary>
         /// Use `if(ReactsTo<IReactive>...` given that `IReactive` belongs to the group.
@@ -84,6 +96,8 @@ namespace E7.ECS
             {
                 iteratingEntity = InjectedReactivesInGroup.Entities[i];
                 OnReaction();
+
+                //TODO : destroy at end frame not immediately, so other systems might react to leftovers.
                 PostUpdateCommands.DestroyEntity(InjectedReactivesInGroup.Entities[i]);
             }
         }
@@ -93,6 +107,7 @@ namespace E7.ECS
         {
             if (EntityManager.HasComponent<T>(iteratingEntity))
             {
+                EntityManager.AddComponentData(iteratingEntity, new HandledReactive());
                 reactiveComponent = EntityManager.GetComponentData<T>(iteratingEntity);
                 return true;
             }
