@@ -79,17 +79,27 @@ public struct PointTracker : System.IDisposable
 {
     private NativeList<float2> registeredPoints;
     private NativeHashMap<float2, bool1> registeredStates;
+    private NativeHashMap<float2, int> registeredTouchId;
+    private int touchIdRunner;
+
+    /// <summary>
+    /// Make sure even if player use all of fingers and toes he still could not crash the game...
+    /// </summary>
+    public const int maximumTouch = 21;
 
     public void Dispose()
     {
         registeredPoints.Dispose();
         registeredStates.Dispose();
+        registeredTouchId.Dispose();
     }
 
-    public PointTracker(Allocator a)
+    public PointTracker(Allocator allocator)
     {
-        registeredPoints = new NativeList<float2>(a);
-        registeredStates = new NativeHashMap<float2, bool1>(20, a);
+        registeredPoints = new NativeList<float2>(allocator);
+        registeredStates = new NativeHashMap<float2, bool1>(maximumTouch, allocator);
+        registeredTouchId = new NativeHashMap<float2, int>(maximumTouch, allocator);
+        touchIdRunner = 0;
     }
 
 
@@ -126,10 +136,31 @@ public struct PointTracker : System.IDisposable
         }
     }
 
+    /// <summary>
+    /// Each touch gets a unique generated ID that is carried over from point to point.
+    /// So you know a new touch in other frame is perhaps the same ones from earlier frame.
+    /// </summary>
+    public int IdOfPoint(float2 point)
+    {
+        point = RoundVector(point);
+        int ret;
+        if (registeredTouchId.TryGetValue(point, out ret))
+        {
+            //DebugLog($"Id of {point.x} {point.y} is {ret}", LogType.Log);
+            return ret;
+        }
+        else
+        {
+            //DebugLog($"Id of {point.x} {point.y} not found", LogType.Log);
+            return -1;
+        }
+    }
+
     public void Reset()
     {
         registeredPoints.Clear();
         registeredStates.Clear();
+        registeredTouchId.Clear();
     }
 
     public void Down(float2 pointDown)
@@ -138,6 +169,8 @@ public struct PointTracker : System.IDisposable
         DebugLog($"Down {pointDown.x} {pointDown.y}", LogType.Log);
         registeredPoints.Add(pointDown);
         registeredStates.TryAdd(pointDown, false);
+        registeredTouchId.TryAdd(pointDown, touchIdRunner);
+        touchIdRunner++;
     }
 
     public void SetState(float2 pointNow, bool toState)
@@ -181,20 +214,23 @@ public struct PointTracker : System.IDisposable
 #endif
 
         bool1 state;
+        int touchId;
 
         bool1 containsPrevious = registeredPoints.Contains(pointPrevious);
 
         if (containsPrevious)
         {
             float2 victim = pointPrevious;
-            if (registeredStates.TryGetValue(victim, out state))
+            if (registeredStates.TryGetValue(victim, out state) && registeredTouchId.TryGetValue(victim, out touchId))
             {
                 registeredPoints.RemoveAtSwapBack(registeredPoints.IndexOf(victim));
                 registeredStates.Remove(victim);
+                registeredTouchId.Remove(victim);
                 registeredPoints.Add(pointNow);
-                if (!registeredStates.TryGetValue(pointNow,out _)) //somehow ArgumentException crash happen below!!
+                if (!registeredStates.TryGetValue(pointNow, out _) && !registeredTouchId.TryGetValue(pointNow, out _)) //somehow ArgumentException crash happen below!!
                 {
                     registeredStates.TryAdd(pointNow, state); //copy state
+                    registeredTouchId.TryAdd(pointNow, touchId); //copy touch ID too
                 }
                 return true;
             }
@@ -224,10 +260,11 @@ public struct PointTracker : System.IDisposable
         if (containsPrevious || containsUp )
         {
             float2 victim = containsUp ? pointUp : pointPrevious;
-            if (registeredStates.TryGetValue(victim, out _))
+            if (registeredStates.TryGetValue(victim, out _) && registeredTouchId.TryGetValue(victim, out _))
             {
                 registeredPoints.RemoveAtSwapBack(registeredPoints.IndexOf(victim));
                 registeredStates.Remove(victim);
+                registeredTouchId.Remove(victim);
                 return true;
             }
         }
