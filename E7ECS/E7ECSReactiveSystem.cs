@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Experimental.PlayerLoop;
 using System.Collections.Generic;
 
 namespace E7.ECS
@@ -13,7 +14,6 @@ namespace E7.ECS
     /// `ReactiveJCS` has a different approach from `ReactiveCS`.
     /// Because you usually wants to bring all the stuffs to do together inside the job, use `GetReactions<T>`
     /// to get a `ComponentDataArray<T>` of that reactive type.
-    /// All of the reactive entities will be destroyed regardless of if you use them or not.
     /// </summary>
     public abstract class ReactiveJCS<ReactiveGroup> : JobComponentSystem
     where ReactiveGroup : struct, IReactiveGroup 
@@ -23,12 +23,6 @@ namespace E7.ECS
         /// Use the same type with `GetReactions<T>` to get the `ComponentDataArray<T>` of reactives.
         /// </summary>
         protected abstract ComponentType[] ReactsTo { get; }
-
-        /// <summary>
-        /// Provide a command buffer so that the system can destroy all the captured
-        /// reactive entities for you. You can use your `barrier.PostUpdateCommand`.
-        /// </summary>
-        protected abstract EntityCommandBuffer DestroyReactivesBuffer { get; }
 
         private Dictionary<ComponentType, ComponentGroup> allInjects;
 
@@ -55,35 +49,41 @@ namespace E7.ECS
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
             var jobHandle = OnReaction(inputDeps);
-            /// Automatically destroy all injected reactive entites after the job with provided barrier system.
-            foreach(ComponentGroup g in allInjects.Values)
-            {
-                var entityArray = g.GetEntityArray();
-                for (int i = 0; i < entityArray.Length; i++)
-                {
-                    DestroyReactivesBuffer.DestroyEntity(entityArray[i]);
-                }
-            }
             return jobHandle;
         }
     }
 
-    internal sealed class ReactiveCSEndFrameBarriers { }
+    /// <summary>
+    /// A reactive entity could be handled by multiple systems, but they will not persist across frame.
+    /// This system will clean them up on each frame.
+    /// </summary>
+    [UpdateBefore(typeof(Initialization))]
+    public class DestroyReactivesSystem : ComponentSystem
+    {
+        /// <summary>
+        /// All entities created from `.Issue` has this shared component data, so they can be cleaned up together at the end frame.
+        /// </summary>
+        public struct ReactiveEntity : ISharedComponentData { }
+
+        struct AllReactives
+        {
+            [ReadOnly] public SharedComponentDataArray<ReactiveEntity> reactiveEntities;
+            [ReadOnly] public EntityArray entities;
+        }
+        [Inject] AllReactives allReactives;
+        protected override void OnUpdate()
+        {
+            for (int i = 0; i < allReactives.entities.Length; i++)
+            {
+                PostUpdateCommands.DestroyEntity(allReactives.entities[i]);
+            }
+        }
+    }
 
     public abstract class ReactiveCSBase<ReactiveGroup> : ComponentSystem
     where ReactiveGroup : struct, IReactiveGroup 
     {
-        [UpdateInGroup(typeof(ReactiveCSEndFrameBarriers))]
-        private class DestroyReactivesBarrier : EndFrameBarrier { }
-        [Inject] DestroyReactivesBarrier barrier;
-
         private protected abstract IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup { get; }
-
-        /// <summary>
-        /// Represent a handled reactives. ReactiveCS systems will not reacts to handled reactives.
-        /// If a reactive entity has been react to it will automatically get this component.
-        /// </summary>
-        protected struct HandledReactive : IComponentData { }
 
         /// <summary>
         /// Use `if(ReactsTo<IReactive>...` given that `IReactive` belongs to the group.
@@ -96,9 +96,6 @@ namespace E7.ECS
             {
                 iteratingEntity = InjectedReactivesInGroup.Entities[i];
                 OnReaction();
-
-                //TODO : destroy at end frame not immediately, so other systems might react to leftovers.
-                PostUpdateCommands.DestroyEntity(InjectedReactivesInGroup.Entities[i]);
             }
         }
 
@@ -107,7 +104,6 @@ namespace E7.ECS
         {
             if (EntityManager.HasComponent<T>(iteratingEntity))
             {
-                EntityManager.AddComponentData(iteratingEntity, new HandledReactive());
                 reactiveComponent = EntityManager.GetComponentData<T>(iteratingEntity);
                 return true;
             }

@@ -24,8 +24,9 @@ namespace E7.ECS
             ecb.CreateEntity();
             ecb.AddComponent<ReactiveComponent>(rx);
             ecb.AddSharedComponent<ReactiveGroup>(rg);
+            //TODO : Create an archetype that has this because we always need this...
+            ecb.AddSharedComponent<DestroyReactivesSystem.ReactiveEntity>(default);
         }
-
 
         /// <summary>
         /// Be careful not to add duplicate tags since command buffer

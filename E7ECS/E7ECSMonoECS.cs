@@ -155,6 +155,8 @@ namespace E7.ECS
             var e = em.CreateEntity();
             em.AddComponentData<ReactiveComponent>(e, rx);
             em.AddSharedComponentData<ReactiveGroup>(e, default);
+            //TODO : Create an archetype that has this because we always need this...
+            em.AddSharedComponentData<DestroyReactivesSystem.ReactiveEntity>(e, default);
         }
 
         /// <summary>

@@ -1,8 +1,8 @@
 # E7ECS
 
-Lightweight reactive systems and cool stuffs centered on the idea of using **generic class parameter** and **overrides** instead of verbose inject declaration for your data requirement.
+Lightweight reactive systems and cool stuffs built **on top** of Unity's regular ECS. Centered on the idea of using **generic class parameter** and **overrides** instead of verbose inject declaration for your data requirement, while still not abstracting Unity ECS's concept too much.
 
-Implemented **on top** of Unity's regular ECS. Use `using E7.ECS;` to access them. **Requirement** : C#7.2 (Use Unity Incremental Compiler and you will have it)
+Use `using E7.ECS;` to access them. **Requirement** : C#7.2 (Use Unity Incremental Compiler and you will have it)
 
 ## Reactive Systems
 
