@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
+using UnityEngine;
 
 namespace E7.ECS
 {
@@ -35,6 +36,7 @@ namespace E7.ECS
         public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
         where T : struct, IComponentData, ITag
         {
+            Debug.Log($"Adding tag " + typeof(T).Name);
             ecb.AddComponent<T>(addToEntity, default);
         }
 
