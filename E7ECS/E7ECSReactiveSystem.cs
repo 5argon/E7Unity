@@ -92,6 +92,7 @@ namespace E7.ECS
         protected override void OnUpdate()
         {
             //There is a possibility that we have a mono entity but not any reactive entities in `ReactiveMonoCS`.
+            //Debug.Log(InjectedReactivesInGroup.Entities.Length);
             for (int i = 0; i < InjectedReactivesInGroup.Entities.Length; i++)
             {
                 iteratingEntity = InjectedReactivesInGroup.Entities[i];
@@ -102,6 +103,7 @@ namespace E7.ECS
         private protected Entity iteratingEntity;
         protected bool ReactsTo<T>(out T reactiveComponent) where T : struct, IReactive
         {
+            //Debug.Log("Checking with " + typeof(T).Name);
             if (EntityManager.HasComponent<T>(iteratingEntity))
             {
                 reactiveComponent = EntityManager.GetComponentData<T>(iteratingEntity);
@@ -127,10 +129,12 @@ namespace E7.ECS
         protected struct ReactiveInjectGroup : IReactiveInjectGroup<ReactiveGroup>
         {
             [ReadOnly] public SharedComponentDataArray<ReactiveGroup> reactiveGroups;
+            [ReadOnly] public SharedComponentDataArray<DestroyReactivesSystem.ReactiveEntity> reactiveEntityTag;
             public EntityArray entities;
             public int Length;
 
             public SharedComponentDataArray<ReactiveGroup> ReactiveGroups => reactiveGroups;
+            public SharedComponentDataArray<DestroyReactivesSystem.ReactiveEntity> ReactiveEntityTag => reactiveEntityTag;
             public EntityArray Entities => entities;
         }
         [Inject] private protected ReactiveInjectGroup injectedReactivesInGroup;
@@ -186,11 +190,10 @@ namespace E7.ECS
     }
 
     /// <summary>
-    /// Not really reactive but nice to have... basically get a `MonoBehaviour` entities and an another set of unrelated entities with `IComponentData` that you want.
+    /// Not really reactive but nice to have... basically get a `MonoBehaviour` entities.
     /// </summary>
-    public abstract class MonoDataCS<MonoComponent,DataComponent> : ComponentSystem
+    public abstract class MonoCS<MonoComponent> : ComponentSystem
     where MonoComponent : Component
-    where DataComponent : struct, IComponentData
     {
         /// <summary>
         /// Captures your `MonoBehaviour`s
@@ -202,17 +205,10 @@ namespace E7.ECS
         }
         [Inject] private protected MonoGroup monoGroup;
 
-        protected struct DataGroup
-        {
-            public ComponentDataArray<DataComponent> dataComponents;
-            public int Length;
-        }
-        [Inject] private protected DataGroup dataGroup;
-
         /// <summary>
         /// Get the first `MonoBehaviour` captured. 
         /// </summary>
-        protected MonoComponent FirstMono 
+        protected MonoComponent FirstMono
 #if !I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
         => monoGroup.Length > 0 ? monoGroup.monoComponents[0] : throw new System.Exception($"You don't have any {typeof(MonoComponent).Name} which has GameObjectEntity attached...");
 #else
@@ -232,6 +228,21 @@ namespace E7.ECS
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Not really reactive but nice to have... basically get a `MonoBehaviour` entities and an another set of unrelated entities with `IComponentData` that you want.
+    /// </summary>
+    public abstract class MonoDataCS<MonoComponent, DataComponent> : MonoCS<MonoComponent>
+    where MonoComponent : Component
+    where DataComponent : struct, IComponentData
+    {
+        protected struct DataGroup
+        {
+            public ComponentDataArray<DataComponent> dataComponents;
+            public int Length;
+        }
+        [Inject] private protected DataGroup dataGroup;
 
         /// <summary>
         /// Iterate on all `IComponentData` captured.

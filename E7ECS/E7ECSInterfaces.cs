@@ -12,6 +12,7 @@ namespace E7.ECS
     where RxGroup : struct, IReactiveGroup
     {
         SharedComponentDataArray<RxGroup> ReactiveGroups { get; }
+        SharedComponentDataArray<DestroyReactivesSystem.ReactiveEntity> ReactiveEntityTag { get; }
         EntityArray Entities { get; }
     }
 

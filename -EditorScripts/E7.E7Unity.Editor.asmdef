@@ -6,10 +6,13 @@
         "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
         "Sirenix.Serialization",
-        "Sirenix.Utilities.Editor"
+        "Sirenix.Utilities.Editor",
+        "Unity.Entities"
     ],
     "optionalUnityReferences": [],
-    "includePlatforms": ["Editor"],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false
 }
