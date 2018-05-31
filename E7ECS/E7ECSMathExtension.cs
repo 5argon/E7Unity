@@ -27,5 +27,10 @@ namespace E7.ECS
             }
             return new Rect(fc[0].x, fc[0].y, fc[2].x - fc[1].x, fc[1].y - fc[0].y);
         }
+
+        public static bool RectContains(in Rect rect, float2 point)
+        {
+            return (point.x >= rect.xMin) && (point.x < rect.xMax) && (point.y >= rect.yMin) && (point.y < rect.yMax);
+        }
     }
 }
