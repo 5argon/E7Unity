@@ -232,17 +232,21 @@ namespace E7.ECS
 
     /// <summary>
     /// Not really reactive but nice to have... basically get a `MonoBehaviour` entities and an another set of unrelated entities with `IComponentData` that you want.
+    /// The system will run anyways even without data if you have your MonoBehaviour. Use `NoData` to early exit.
     /// </summary>
     public abstract class MonoDataCS<MonoComponent, DataComponent> : MonoCS<MonoComponent>
     where MonoComponent : Component
     where DataComponent : struct, IComponentData
     {
-        protected struct DataGroup
+        protected struct InjectedDataGroup
         {
             public ComponentDataArray<DataComponent> dataComponents;
+            public EntityArray entityArray;
             public int Length;
         }
-        [Inject] private protected DataGroup dataGroup;
+        [Inject] private protected InjectedDataGroup dataGroup;
+
+        protected InjectedDataGroup DataGroup => dataGroup;
 
         /// <summary>
         /// Iterate on all `IComponentData` captured.
@@ -255,6 +259,16 @@ namespace E7.ECS
                 {
                     yield return dataGroup.dataComponents[i];
                 }
+            }
+        }
+
+        protected bool NoData => dataGroup.Length == 0;
+
+        protected void DestroyAllEntitiesOfDataComponent()
+        {
+            for (int i = 0; i < dataGroup.entityArray.Length; i++)
+            {
+                PostUpdateCommands.DestroyEntity(dataGroup.entityArray[i]);
             }
         }
     }

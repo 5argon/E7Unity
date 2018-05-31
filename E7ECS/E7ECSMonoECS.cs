@@ -152,6 +152,7 @@ namespace E7.ECS
         where ReactiveComponent: struct, IReactive
         where ReactiveGroup : struct, IReactiveGroup
         {
+            //Debug.Log($"Issuing command {typeof(ReactiveComponent).Name}");
             var e = em.CreateEntity();
             em.AddComponentData<ReactiveComponent>(e, rx);
             em.AddSharedComponentData<ReactiveGroup>(e, default);
