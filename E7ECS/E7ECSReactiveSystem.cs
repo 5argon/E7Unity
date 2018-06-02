@@ -187,6 +187,8 @@ namespace E7.ECS
                 }
             }
         }
+
+        protected ComponentArray<MonoComponent> MonoComponentArray => monoGroup.monoComponents;
     }
 
     /// <summary>
