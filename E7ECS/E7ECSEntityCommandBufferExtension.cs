@@ -6,6 +6,23 @@ using UnityEngine;
 
 namespace E7.ECS
 {
+    public static class EntityManagerExtension 
+    {
+        /// <summary>
+        /// If you just loop and destroy each one in EntityArray without a command buffer, it will cause problems mid-loop!
+        /// </summary>
+        public static void DestroyAllInEntityArray(this EntityManager em, EntityArray ea)
+        {
+            var na = new NativeArray<Entity>(ea.Length, Allocator.Temp);
+            ea.CopyTo(na,0);
+            for (int i = 0; i < na.Length; i++)
+            {
+                em.DestroyEntity(na[i]);
+            }
+            na.Dispose();
+        }
+    }
+
     public static class EntityCommandBufferExtension
     {
         public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer ecb)
@@ -22,6 +39,7 @@ namespace E7.ECS
         where ReactiveComponent : struct, IReactive
         where ReactiveGroup : struct, IReactiveGroup
         {
+            //Debug.Log($"Issuing {typeof(ReactiveComponent).Name} (ECB)");
             ecb.CreateEntity();
             ecb.AddComponent<ReactiveComponent>(rx);
             ecb.AddSharedComponent<ReactiveGroup>(rg);

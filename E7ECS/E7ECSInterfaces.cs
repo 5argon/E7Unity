@@ -44,5 +44,7 @@ namespace E7.ECS
     /// Use when an `IComponentData` is to stick around and dictates behaviour, or use with `SubtractiveComponent` for example.
     /// Or use when a removal is optional unlike `IReactive`.
     /// </summary>
+
+    //TODO : Make it a shared component data? So adding a tag/reactives is just a matter of be in a different chunk but still the same shape.
     public interface ITag : IComponentData { }
 }

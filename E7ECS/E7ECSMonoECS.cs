@@ -8,6 +8,38 @@ using UnityEngine;
 namespace E7.ECS
 {
     /// <summary>
+    /// Used for manual injection from outside of ECS.
+    /// </summary>
+    public class InjectorSystem : ComponentSystem
+    {
+        protected override void OnCreateManager(int capacity)
+        {
+            this.Enabled = false;
+        }
+
+        protected override void OnUpdate() { Debug.LogError("Should not ever run!"); }
+
+        public ComponentDataArray<T> Inject<T>() where T : struct, IComponentData
+        {
+            var group = GetComponentGroup(ComponentType.Create<T>());
+            var cda = group.GetComponentDataArray<T>();
+            group.Dispose();
+            return cda;
+        }
+
+        public (ComponentDataArray<T1>, ComponentDataArray<T2>) Inject<T1, T2>()
+        where T1 : struct, IComponentData
+        where T2 : struct, IComponentData
+        {
+            var group = GetComponentGroup(ComponentType.Create<T1>(), ComponentType.Create<T2>());
+            var cda = group.GetComponentDataArray<T1>();
+            var cda2 = group.GetComponentDataArray<T2>();
+            group.Dispose();
+            return (cda, cda2);
+        }
+    }
+
+    /// <summary>
     /// A slew of cheat functions to help you bridge `MonoBehaviour` world with ECS.
     /// Also useful as a band-aid solution while moving to ECS.
     /// </summary>
@@ -152,7 +184,7 @@ namespace E7.ECS
         where ReactiveComponent: struct, IReactive
         where ReactiveGroup : struct, IReactiveGroup
         {
-            //Debug.Log($"Issuing command {typeof(ReactiveComponent).Name}");
+            //Debug.Log($"Issuing {typeof(ReactiveComponent).Name}");
             var e = em.CreateEntity();
             em.AddComponentData<ReactiveComponent>(e, rx);
             em.AddSharedComponentData<ReactiveGroup>(e, default);
