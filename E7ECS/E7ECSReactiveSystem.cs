@@ -81,7 +81,7 @@ namespace E7.ECS
     }
 
     public abstract class ReactiveCSBase<ReactiveGroup> : ComponentSystem
-    where ReactiveGroup : struct, IReactiveGroup 
+    where ReactiveGroup : struct, IReactiveGroup
     {
         private protected abstract IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup { get; }
 
@@ -93,10 +93,18 @@ namespace E7.ECS
         {
             //There is a possibility that we have a mono entity but not any reactive entities in `ReactiveMonoCS`.
             //Debug.Log(InjectedReactivesInGroup.Entities.Length);
-            for (int i = 0; i < InjectedReactivesInGroup.Entities.Length; i++)
+            try
             {
-                iteratingEntity = InjectedReactivesInGroup.Entities[i];
-                OnReaction();
+                for (int i = 0; i < InjectedReactivesInGroup.Entities.Length; i++)
+                {
+                    iteratingEntity = InjectedReactivesInGroup.Entities[i];
+                    OnReaction();
+                }
+            }
+            catch (System.InvalidOperationException)
+            {
+                Debug.LogError("Did you use EntityManager and invalidate the injected array? Group : " + typeof(ReactiveGroup).Name);
+                throw;
             }
         }
 

@@ -161,36 +161,15 @@ namespace E7.ECS
             }
         }
 
-        /// <summary>
-        /// Make a new entity just for carrying the reactive component.
-        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
-        /// take action, and destroy them afterwards automatically.
-        /// </summary>
-        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
-        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
         public static void Issue<ReactiveComponent,ReactiveGroup>()
         where ReactiveComponent : struct, IReactive
         where ReactiveGroup : struct, IReactiveGroup
-        => Issue<ReactiveComponent, ReactiveGroup>(default);
+        => em.Issue<ReactiveComponent, ReactiveGroup>();
 
-        /// <summary>
-        /// Make a new entity just for carrying the reactive component.
-        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
-        /// take action, and destroy them afterwards automatically.
-        /// </summary>
-        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
-        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
         public static void Issue<ReactiveComponent, ReactiveGroup>(ReactiveComponent rx)
         where ReactiveComponent: struct, IReactive
         where ReactiveGroup : struct, IReactiveGroup
-        {
-            //Debug.Log($"Issuing {typeof(ReactiveComponent).Name}");
-            var e = em.CreateEntity();
-            em.AddComponentData<ReactiveComponent>(e, rx);
-            em.AddSharedComponentData<ReactiveGroup>(e, default);
-            //TODO : Create an archetype that has this because we always need this...
-            em.AddSharedComponentData<DestroyReactivesSystem.ReactiveEntity>(e, default);
-        }
+        => em.Issue<ReactiveComponent, ReactiveGroup>(rx);
 
         /// <summary>
         /// Runs on the currently active world and EntityManager.

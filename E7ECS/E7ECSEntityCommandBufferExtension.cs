@@ -21,6 +21,49 @@ namespace E7.ECS
             }
             na.Dispose();
         }
+
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// </summary>
+        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
+        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityManager ecb)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, default, default);
+
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// </summary>
+        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
+        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityManager ecb, ReactiveComponent rx)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, rx, default);
+
+        /// <summary>
+        /// Make a new entity just for carrying the reactive component.
+        /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
+        /// take action, and destroy them afterwards automatically.
+        /// </summary>
+        /// <typeparam name="ReactiveComponent">An `IReactive` which you can check in the receiving system what action to take.</typeparam>
+        /// <typeparam name="ReactiveGroup">An `IReactiveGroup` that determines which system could pick up the reaction.</typeparam>
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityManager ecb, ReactiveComponent rx, ReactiveGroup rg)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        {
+            //Debug.Log($"Issuing {typeof(ReactiveComponent).Name} (ECB)");
+            var e = ecb.CreateEntity();
+            ecb.AddComponentData<ReactiveComponent>(e, rx);
+            ecb.AddSharedComponentData<ReactiveGroup>(e, rg);
+            //TODO : Create an archetype that has this because we always need this...
+            ecb.AddSharedComponentData<DestroyReactivesSystem.ReactiveEntity>(e, default);
+        }
     }
 
     public static class EntityCommandBufferExtension
