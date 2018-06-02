@@ -275,12 +275,27 @@ namespace E7.ECS
         }
     }
 
+    public abstract class TagResponseJCSBase<TagComponent> : JobComponentSystem
+    where TagComponent : struct, IComponentData, ITag
+    {
+        protected abstract ITagResponseInjectGroup<TagComponent> InjectedGroup { get; }
+
+        protected void EndAllInjectedTagResponse()
+        {
+            for (int i = 0; i < InjectedGroup.Entities.Length; i++)
+            {
+                EntityManager.RemoveComponent<TagComponent>(InjectedGroup.Entities[i]);
+            }
+        }
+    }
+
+
     /// <summary>
     /// When you want to make a reactive system that removes that component at the end, this is a nice start.
     /// You can send the whole InjectGroup into the job with [ReadOnly]
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class TagResponseJCS<TagComponent> : JobComponentSystem
+    public abstract class TagResponseJCS<TagComponent> : TagResponseJCSBase<TagComponent>
     where TagComponent : struct, IComponentData, ITag
     {
         protected struct InjectGroup : ITagResponseInjectGroup<TagComponent>
@@ -293,7 +308,7 @@ namespace E7.ECS
             public EntityArray Entities => entities;
         }
         [Inject] private protected InjectGroup injectedGroup;
-        protected InjectGroup InjectedGroup => injectedGroup;
+        protected override ITagResponseInjectGroup<TagComponent> InjectedGroup => injectedGroup;
     }
 
     /// <summary>
@@ -301,7 +316,7 @@ namespace E7.ECS
     /// Take the content out before sending them to the job so that `data` can be written to.
     /// Use `InjectedGroup` to get the data.
     /// </summary>
-    public abstract class TagResponseDataJCS<TagComponent, DataComponent> : JobComponentSystem
+    public abstract class TagResponseDataJCS<TagComponent, DataComponent> : TagResponseJCSBase<TagComponent>
     where TagComponent : struct, IComponentData, ITag
     where DataComponent : struct, IComponentData
     {
@@ -315,7 +330,8 @@ namespace E7.ECS
             public ComponentDataArray<TagComponent> ReactiveComponents => reactiveComponents;
             public EntityArray Entities => entities;
         }
+
         [Inject] private protected InjectGroup injectedGroup;
-        protected InjectGroup InjectedGroup => injectedGroup;
+        protected override ITagResponseInjectGroup<TagComponent> InjectedGroup => injectedGroup;
     }
 }
