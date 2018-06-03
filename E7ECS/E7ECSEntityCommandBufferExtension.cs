@@ -94,6 +94,16 @@ namespace E7.ECS
         /// Be careful not to add duplicate tags since command buffer
         /// cound not use `HasTag`!
         /// </summary>
+        public static void AddTag<T>(this EntityCommandBuffer ecb)
+        where T : struct, IComponentData, ITag
+        {
+            ecb.AddComponent<T>(default);
+        }
+
+        /// <summary>
+        /// Be careful not to add duplicate tags since command buffer
+        /// cound not use `HasTag`!
+        /// </summary>
         public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
         where T : struct, IComponentData, ITag
         {
@@ -110,14 +120,5 @@ namespace E7.ECS
             ecb.RemoveComponent<ReactiveComponent>(entityArray[entityArrayIndex]);
         }
 
-        // /// <summary>
-        // /// Destroys the entity, not just removing a component. Use with `Issue` because that creates a new entity.
-        // /// Just use the IReactiveInjectGroup and it knows what to do.
-        // /// </summary>
-        // public static void EndReactive<T>(this EntityCommandBuffer ecb, IReactiveInjectGroup<T> injectGroup, int entityArrayIndex)
-        // where T : struct, IComponentData, IReactive
-        // {
-        //     ecb.DestroyEntity(injectGroup.entities[entityArrayIndex]);
-        // }
     }
 }
