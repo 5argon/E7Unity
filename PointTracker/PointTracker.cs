@@ -78,7 +78,7 @@ using Unity.Jobs;
 public struct PointTracker : System.IDisposable
 {
     private NativeList<float2> registeredPoints;
-    private NativeHashMap<float2, bool1> registeredStates;
+    private NativeHashMap<float2, Bool> registeredStates;
     private NativeHashMap<float2, int> registeredTouchId;
     private int touchIdRunner;
 
@@ -97,7 +97,7 @@ public struct PointTracker : System.IDisposable
     public PointTracker(Allocator allocator)
     {
         registeredPoints = new NativeList<float2>(allocator);
-        registeredStates = new NativeHashMap<float2, bool1>(maximumTouch, allocator);
+        registeredStates = new NativeHashMap<float2, Bool>(maximumTouch, allocator);
         registeredTouchId = new NativeHashMap<float2, int>(maximumTouch, allocator);
         touchIdRunner = 0;
     }
@@ -120,10 +120,10 @@ public struct PointTracker : System.IDisposable
     /// <summary>
     /// You can keep whatever state you want with a bool per point.
     /// </summary>
-    public bool1 StateOfPoint(float2 point)
+    public Bool StateOfPoint(float2 point)
     {
         point = RoundVector(point);
-        bool1 ret;
+        Bool ret;
         if (registeredStates.TryGetValue(point, out ret))
         {
             //DebugLog($"State of {point.x} {point.y} is {ret}", LogType.Log);
@@ -213,10 +213,10 @@ public struct PointTracker : System.IDisposable
         }
 #endif
 
-        bool1 state;
+        Bool state;
         int touchId;
 
-        bool1 containsPrevious = registeredPoints.Contains(pointPrevious);
+        Bool containsPrevious = registeredPoints.Contains(pointPrevious);
 
         if (containsPrevious)
         {

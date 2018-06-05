@@ -90,14 +90,14 @@ public struct Travel<T> : System.IDisposable where T : struct
         }
     }
 
-    private bool1 HasEventAtZero { get; set; }
+    private Bool HasEventAtZero { get; set; }
 
     private NativeList<T> datas { get; set; }
     private NativeList<TravelEvent> travelEvents { get; set; }
     private int travelRememberIndex;
 
     //This two are for jobs. When you Add it needs to be realloc so if possible add everything before start using.
-    bool1 initialized;
+    Bool initialized;
 
     public void Init()
     {

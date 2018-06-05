@@ -51,5 +51,5 @@ public readonly struct ReadOnlyTouch
     /// </summary>
     public TouchPhase phase { get; }
 
-    public bool1 Valid { get; }
+    public Bool Valid { get; }
 }

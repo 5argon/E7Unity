@@ -37,6 +37,7 @@ namespace E7.ECS
             group.Dispose();
             return (cda, cda2);
         }
+
     }
 
     /// <summary>
@@ -45,22 +46,7 @@ namespace E7.ECS
     /// </summary>
     public static class MonoECS
     {
-        private static EntityManager cachedEntityManager;
-
-        /// <summary>
-        /// If you change the manager or world this will be broken...
-        /// </summary>
-        private static EntityManager em
-        {
-            get
-            {
-                if (cachedEntityManager == null)
-                {
-                    cachedEntityManager = World.Active.GetOrCreateManager<EntityManager>();
-                }
-                return cachedEntityManager;
-            }
-        }
+        private static EntityManager em => World.Active.GetOrCreateManager<EntityManager>();
 
         /// <summary>
         /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
@@ -176,6 +162,7 @@ namespace E7.ECS
         /// </summary>
         public static T GetComponentData<T>(Entity entity) where T : struct, IComponentData
         {
+            //return em.GetComponentData<T>(entity);
             return em.GetComponentData<T>(entity);
         }
 
@@ -184,7 +171,7 @@ namespace E7.ECS
         /// </summary>
         public static void SetComponentData<T>(Entity entity, T data) where T : struct, IComponentData
         {
-            em.SetComponentData(entity, data);
+            em.SetComponentData<T>(entity, data);
         }
     }
 }
