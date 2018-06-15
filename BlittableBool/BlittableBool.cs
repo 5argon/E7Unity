@@ -16,4 +16,5 @@ public struct Bool
 	{
 		return b.Value == 1;
 	}
+    public override string ToString() => Value == 1 ? "true" : "false";
 }

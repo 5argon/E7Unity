@@ -46,7 +46,7 @@ namespace E7.ECS
     /// </summary>
     public static class MonoECS
     {
-        private static EntityManager em => World.Active.GetOrCreateManager<EntityManager>();
+        private static EntityManager em => World.Active.GetExistingManager<EntityManager>();
 
         /// <summary>
         /// A very inefficient and barbaric way of getting a filtered entities outside of ECS world.
@@ -133,6 +133,11 @@ namespace E7.ECS
             if (em.HasComponent<T>(entity) == false)
             {
                 em.AddComponentData<T>(entity, tagContent);
+            }
+            else
+            {
+                //You can change tag content if it is already there.
+                em.SetComponentData<T>(entity, tagContent);
             }
         }
 

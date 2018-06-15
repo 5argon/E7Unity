@@ -91,8 +91,7 @@ namespace E7.ECS
         }
 
         /// <summary>
-        /// Be careful not to add duplicate tags since command buffer
-        /// cound not use `HasTag`!
+        /// Be careful not to add duplicate tags!
         /// </summary>
         public static void AddTag<T>(this EntityCommandBuffer ecb)
         where T : struct, IComponentData, ITag
@@ -101,14 +100,31 @@ namespace E7.ECS
         }
 
         /// <summary>
-        /// Be careful not to add duplicate tags since command buffer
-        /// cound not use `HasTag`!
+        /// Determine whether it is an Add or Set command based on if it currently has a component at the time of calling this or not.
         /// </summary>
-        public static void AddTag<T>(this EntityCommandBuffer ecb,Entity addToEntity)
+        public static void AddTag<T>(this EntityCommandBuffer ecb, Entity addToEntity)
+        where T : struct, IComponentData, ITag
+        => AddTag<T>(ecb, addToEntity, default);
+
+        /// <summary>
+        /// Determine whether it is an Add or Set command based on if it currently has a component at the time of calling this or not.
+        /// </summary>
+        public static void AddTag<T>(this EntityCommandBuffer ecb, Entity addToEntity, T data)
         where T : struct, IComponentData, ITag
         {
             //Debug.Log($"Adding tag " + typeof(T).Name);
-            ecb.AddComponent<T>(addToEntity, default);
+            var em = World.Active.GetExistingManager<EntityManager>();
+
+            if (em.HasComponent<T>(addToEntity) == false)
+            {
+                //Debug.Log($"Choose to add {addToEntity.Index}");
+                ecb.AddComponent<T>(addToEntity, data);
+            }
+            else
+            {
+                //Debug.Log($"Choose to set! {addToEntity.Index}");
+                ecb.SetComponent<T>(addToEntity, data);
+            }
         }
 
         /// <summary>

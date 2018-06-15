@@ -1,4 +1,4 @@
-//#define I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
+#define I_AM_WORRIED_ABOUT_EXECEPTION_PERFORMANCE
 
 using Unity.Entities;
 using Unity.Mathematics;
