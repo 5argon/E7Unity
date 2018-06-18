@@ -274,11 +274,14 @@ namespace E7.ECS
 
         protected bool NoData => dataGroup.Length == 0;
 
+        [Inject] private protected EndFrameBarrier efb;
+
         protected void DestroyAllEntitiesOfDataComponent()
         {
+            var ecb = efb.CreateCommandBuffer();
             for (int i = 0; i < dataGroup.entityArray.Length; i++)
             {
-                PostUpdateCommands.DestroyEntity(dataGroup.entityArray[i]);
+                ecb.DestroyEntity(dataGroup.entityArray[i]);
             }
         }
     }
@@ -290,6 +293,9 @@ namespace E7.ECS
 
         [Inject] private protected EndFrameBarrier efb;
 
+        /// <summary>
+        /// Tags are destroyed at EndFrameBarrier, not immediately.
+        /// </summary>
         protected void EndAllInjectedTagResponse()
         {
             var ecb = efb.CreateCommandBuffer();
