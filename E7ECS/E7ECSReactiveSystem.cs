@@ -288,11 +288,14 @@ namespace E7.ECS
     {
         protected abstract ITagResponseInjectGroup<TagComponent> InjectedGroup { get; }
 
+        [Inject] private protected EndFrameBarrier efb;
+
         protected void EndAllInjectedTagResponse()
         {
+            var ecb = efb.CreateCommandBuffer();
             for (int i = 0; i < InjectedGroup.Entities.Length; i++)
             {
-                EntityManager.RemoveComponent<TagComponent>(InjectedGroup.Entities[i]);
+                ecb.RemoveComponent<TagComponent>(InjectedGroup.Entities[i]);
             }
         }
     }
