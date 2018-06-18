@@ -80,7 +80,12 @@ public struct PointTracker : System.IDisposable
     private NativeList<float2> registeredPoints;
     private NativeHashMap<float2, Bool> registeredStates;
     private NativeHashMap<float2, int> registeredTouchId;
-    private int touchIdRunner;
+    private NativeArray<int> touchIdRunnerMemory;
+    private int touchIdRunner
+    {
+        get => touchIdRunnerMemory[0];
+        set => touchIdRunnerMemory[0] = value;
+    }
 
     /// <summary>
     /// Make sure even if player use all of fingers and toes he still could not crash the game...
@@ -99,9 +104,9 @@ public struct PointTracker : System.IDisposable
         registeredPoints = new NativeList<float2>(allocator);
         registeredStates = new NativeHashMap<float2, Bool>(maximumTouch, allocator);
         registeredTouchId = new NativeHashMap<float2, int>(maximumTouch, allocator);
+        touchIdRunnerMemory = new NativeArray<int>(1, allocator);
         touchIdRunner = 0;
     }
-
 
     /// <summary>
     /// All points in this list are currently "down". Not array for performance reason so don't modify the list! Just read it!
@@ -166,11 +171,11 @@ public struct PointTracker : System.IDisposable
     public void Down(float2 pointDown)
     {
         pointDown = RoundVector(pointDown);
-        DebugLog($"Down {pointDown.x} {pointDown.y}", LogType.Log);
+        DebugLog($"Down {pointDown.x} {pointDown.y} ID : {touchIdRunner}", LogType.Log);
         registeredPoints.Add(pointDown);
         registeredStates.TryAdd(pointDown, false);
         registeredTouchId.TryAdd(pointDown, touchIdRunner);
-        touchIdRunner++;
+        touchIdRunner = touchIdRunner + 1;
     }
 
     public void SetState(float2 pointNow, bool toState)
