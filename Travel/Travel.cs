@@ -175,29 +175,16 @@ public struct Travel<T> : System.IDisposable where T : struct
         }
     }
 
-    public T NextDataOf(TravelEvent travelEvent)
-    {
-        int nextIndex = travelEvent.DataIndex + 1;
-        if (nextIndex < datas.Length)
-        {
-            return datas[nextIndex];
-        }
-        else
-        {
-            return default(T);
-        }
-    }
-
-    public TravelEvent NextOf(TravelEvent te)
+    public (T data, TravelEvent travelEvent) NextOf(TravelEvent te)
     {
         int nextIndex = te.DataIndex + 1;
         if (nextIndex < datas.Length)
         {
-            return travelEvents[nextIndex];
+            return (datas[nextIndex], travelEvents[nextIndex]);
         }
         else
         {
-            return TravelEvent.INVALID;
+            return (default(T), TravelEvent.INVALID);
         }
     }
 
