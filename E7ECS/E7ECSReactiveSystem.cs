@@ -86,6 +86,11 @@ namespace E7.ECS
         private protected abstract IReactiveInjectGroup<ReactiveGroup> InjectedReactivesInGroup { get; }
 
         /// <summary>
+        /// Will not run if it could not find any reactive entities.
+        /// </summary>
+        protected virtual void OnOncePerAllReactions() { }
+
+        /// <summary>
         /// Use `if(ReactsTo<IReactive>...` given that `IReactive` belongs to the group.
         /// </summary>
         protected abstract void OnReaction();
@@ -95,6 +100,7 @@ namespace E7.ECS
             //Debug.Log(InjectedReactivesInGroup.Entities.Length);
             try
             {
+                OnOncePerAllReactions();
                 for (int i = 0; i < InjectedReactivesInGroup.Entities.Length; i++)
                 {
                     iteratingEntity = InjectedReactivesInGroup.Entities[i];
