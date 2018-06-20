@@ -90,6 +90,9 @@ public struct Travel<T> : System.IDisposable where T : struct
         }
     }
 
+    /// <summary>
+    /// Only used for add default at zero check, but actually you can go to negative?
+    /// </summary>
     private Bool HasEventAtZero { get; set; }
 
     private NativeList<T> datas { get; set; }
