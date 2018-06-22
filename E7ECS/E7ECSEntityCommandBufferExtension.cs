@@ -23,6 +23,38 @@ namespace E7.ECS
         }
 
         /// <summary>
+        /// Adds a tag component if not already there, the content of component is its empty default because we assume it is just a "tag" anyways.
+        /// </summary>
+        public static void AddTag<T>(this EntityManager em, Entity entity) where T : struct, IComponentData, ITag => AddTag<T>(em, entity, default(T));
+
+        /// <summary>
+        /// Adds a tag component if not already there. 
+        /// </summary>
+        public static void AddTag<T>(this EntityManager em, Entity entity, T tagContent) where T : struct, IComponentData, ITag
+        {
+            if (em.HasComponent<T>(entity) == false)
+            {
+                em.AddComponentData<T>(entity, tagContent);
+            }
+            else
+            {
+                //You can change tag content if it is already there.
+                em.SetComponentData<T>(entity, tagContent);
+            }
+        }
+
+        /// <summary>
+        /// Removes a tag component if it is there.
+        /// </summary>
+        public static void RemoveTag<T>(this EntityManager em, Entity entity) where T : struct, IComponentData, ITag
+        {
+            if (em.HasComponent<T>(entity))
+            {
+                em.RemoveComponent<T>(entity);
+            }
+        }
+
+        /// <summary>
         /// Make a new entity just for carrying the reactive component.
         /// A system like `ReactiveCS`, `ReactiveMonoCS`, or `ReactiveJCS` can pick it up,
         /// take action, and destroy them afterwards automatically.
@@ -128,13 +160,26 @@ namespace E7.ECS
         }
 
         /// <summary>
-        /// End a tag response routine by removing a component from an entity. You must specify a reactive component type manually.
+        /// An overload suitable to use with system with EntityManager.
+        /// Contains HasComponent check.
         /// </summary>
-        public static void EndTagResponse<ReactiveComponent>(this EntityCommandBuffer ecb, EntityArray entityArray, int entityArrayIndex)
+        public static void RemoveTag<ReactiveComponent>(this EntityCommandBuffer ecb, Entity e, EntityManager em)
         where ReactiveComponent : struct, IComponentData, ITag
         {
-            ecb.RemoveComponent<ReactiveComponent>(entityArray[entityArrayIndex]);
+            if (em.HasComponent<ReactiveComponent>(e))
+            {
+                RemoveTag<ReactiveComponent>(ecb, e);
+            }
         }
 
+
+        /// <summary>
+        /// End a tag response routine by removing a component from an entity. You must specify a reactive component type manually.
+        /// </summary>
+        public static void RemoveTag<ReactiveComponent>(this EntityCommandBuffer ecb, Entity e)
+        where ReactiveComponent : struct, IComponentData, ITag
+        {
+            ecb.RemoveComponent<ReactiveComponent>(e);
+        }
     }
 }
