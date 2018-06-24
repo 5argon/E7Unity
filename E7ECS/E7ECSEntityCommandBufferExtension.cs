@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace E7.ECS
 {
@@ -22,15 +23,9 @@ namespace E7.ECS
             na.Dispose();
         }
 
-        /// <summary>
-        /// Adds a tag component if not already there, the content of component is its empty default because we assume it is just a "tag" anyways.
-        /// </summary>
-        public static void AddTag<T>(this EntityManager em, Entity entity) where T : struct, IComponentData, ITag => AddTag<T>(em, entity, default(T));
+        public static void UpsertComponent<T>(this EntityManager em, Entity entity) where T : struct, IComponentData => UpsertComponent<T>(em, entity, default(T));
 
-        /// <summary>
-        /// Adds a tag component if not already there. 
-        /// </summary>
-        public static void AddTag<T>(this EntityManager em, Entity entity, T tagContent) where T : struct, IComponentData, ITag
+        public static void UpsertComponent<T>(this EntityManager em, Entity entity, T tagContent) where T : struct, IComponentData
         {
             if (em.HasComponent<T>(entity) == false)
             {
@@ -38,7 +33,6 @@ namespace E7.ECS
             }
             else
             {
-                //You can change tag content if it is already there.
                 em.SetComponentData<T>(entity, tagContent);
             }
         }
@@ -180,6 +174,18 @@ namespace E7.ECS
         where ReactiveComponent : struct, IComponentData, ITag
         {
             ecb.RemoveComponent<ReactiveComponent>(e);
+        }
+    }
+
+    public static class ComponentDataArrayExtension
+    {
+        public static List<T> CopyToList<T>(this ComponentDataArray<T> cda) where T : struct, IComponentData
+        {
+            var na = new NativeArray<T>(cda.Length, Allocator.Temp);
+            cda.CopyTo(na);
+            List<T> list = new List<T>(na);
+            na.Dispose();
+            return list;
         }
     }
 }
