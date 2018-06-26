@@ -221,6 +221,8 @@ namespace E7.ECS
         }
         [Inject] private protected MonoGroup monoGroup;
 
+        protected bool AnyMono => monoGroup.Length > 0;
+
         /// <summary>
         /// Get the first `MonoBehaviour` captured. 
         /// </summary>
