@@ -26,6 +26,7 @@ namespace E7.E7Unity.ScriptPostprocessor
 
             if (anyChanges)
             {
+                Debug.Log(nameof(ScriptPostprocessor));
                 AssetDatabase.Refresh();
             }
         }
