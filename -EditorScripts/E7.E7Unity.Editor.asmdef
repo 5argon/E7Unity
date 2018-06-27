@@ -4,8 +4,8 @@
         "E7.E7Unity",
         "Sirenix.OdinInspector.Attributes",
         "Sirenix.OdinInspector.Editor",
-        "Sirenix.Utilities",
         "Sirenix.Serialization",
+        "Sirenix.Utilities",
         "Sirenix.Utilities.Editor",
         "Unity.Entities"
     ],
