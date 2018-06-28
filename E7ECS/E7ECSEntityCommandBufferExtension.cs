@@ -198,11 +198,12 @@ namespace E7.ECS
     {
         public static List<T> CopyToList<T>(this ComponentDataArray<T> cda) where T : struct, IComponentData
         {
-            var na = new NativeArray<T>(cda.Length, Allocator.Temp);
-            cda.CopyTo(na);
-            List<T> list = new List<T>(na);
-            na.Dispose();
-            return list;
+            using (var na = new NativeArray<T>(cda.Length, Allocator.Temp))
+            {
+                cda.CopyTo(na);
+                List<T> list = new List<T>(na);
+                return list;
+            }
         }
     }
 }
