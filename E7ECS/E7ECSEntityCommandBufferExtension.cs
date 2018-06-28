@@ -37,6 +37,20 @@ namespace E7.ECS
             }
         }
 
+        public static bool TryGetComponent<T>(this EntityManager em, Entity entity, out T componentData) where T : struct, IComponentData
+        {
+            if(em.HasComponent<T>(entity))
+            {
+                componentData = em.GetComponentData<T>(entity);
+                return true;
+            }
+            else
+            {
+                componentData = default;
+                return false;
+            }
+        }
+
         /// <summary>
         /// Removes a tag component if it is there.
         /// </summary>
