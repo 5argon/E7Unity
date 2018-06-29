@@ -65,18 +65,25 @@ namespace E7.ECS
         /// </summary>
         public struct ReactiveEntity : ISharedComponentData { }
 
-        struct AllReactives
+        // struct AllReactives
+        // {
+        //     [ReadOnly] public SharedComponentDataArray<ReactiveEntity> reactiveEntities;
+        //     [ReadOnly] public EntityArray entities;
+        // }
+        // [Inject] AllReactives allReactives;
+        private ComponentGroup allReactivesGroup;
+        protected override void OnCreateManager(int capacity)
         {
-            [ReadOnly] public SharedComponentDataArray<ReactiveEntity> reactiveEntities;
-            [ReadOnly] public EntityArray entities;
+            allReactivesGroup = GetComponentGroup(ComponentType.ReadOnly<ReactiveEntity>());
         }
-        [Inject] AllReactives allReactives;
+
         protected override void OnUpdate()
         {
-            for (int i = 0; i < allReactives.entities.Length; i++)
-            {
-                PostUpdateCommands.DestroyEntity(allReactives.entities[i]);
-            }
+            EntityManager.DestroyEntity(allReactivesGroup);
+            // for (int i = 0; i < allReactives.entities.Length; i++)
+            // {
+            //     PostUpdateCommands.DestroyEntity(allReactives.entities[i]);
+            // }
         }
     }
 
