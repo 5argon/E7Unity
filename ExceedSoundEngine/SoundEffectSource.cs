@@ -254,7 +254,6 @@ public abstract class SoundEffectSource<T> : MonoBehaviour where T : MonoBehavio
     {
         get
         {
-
             if (instance == null)
             {
                 instance = FindObjectOfType(typeof(T)) as T;
@@ -270,6 +269,15 @@ public abstract class SoundEffectSource<T> : MonoBehaviour where T : MonoBehavio
                 cast.source.outputAudioMixerGroup = cast.routeToMixerGroup;
             }
             return instance;
+        }
+    }
+
+    public void OnEnable()
+    {
+        if(instance == null)
+        {
+            //Enable with instance == null means we are not using static..
+            source = GetComponent<AudioSource>();
         }
     }
 
