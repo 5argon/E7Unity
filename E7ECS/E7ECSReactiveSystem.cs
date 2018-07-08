@@ -152,7 +152,7 @@ namespace E7.ECS
             [ReadOnly] public SharedComponentDataArray<ReactiveGroup> reactiveGroups;
             [ReadOnly] public SharedComponentDataArray<DestroyReactivesSystem.ReactiveEntity> reactiveEntityTag;
             public EntityArray entities;
-            public int Length;
+            public readonly int Length;
 
             public SharedComponentDataArray<ReactiveGroup> ReactiveGroups => reactiveGroups;
             public SharedComponentDataArray<DestroyReactivesSystem.ReactiveEntity> ReactiveEntityTag => reactiveEntityTag;
@@ -181,7 +181,7 @@ namespace E7.ECS
         protected struct MonoGroup
         {
             [ReadOnly] public ComponentArray<MonoComponent> monoComponents;
-            public int Length;
+            public readonly int Length;
         }
         [Inject] private protected MonoGroup monoGroup;
 
@@ -224,7 +224,7 @@ namespace E7.ECS
         protected struct MonoGroup
         {
             [ReadOnly] public ComponentArray<MonoComponent> monoComponents;
-            public int Length;
+            public readonly int Length;
         }
         [Inject] private protected MonoGroup monoGroup;
 
@@ -267,7 +267,7 @@ namespace E7.ECS
         {
             public ComponentDataArray<DataComponent> dataComponents;
             public EntityArray entityArray;
-            public int Length;
+            public readonly int Length;
         }
         [Inject] private protected InjectedDataGroup dataGroup;
 
@@ -334,7 +334,7 @@ namespace E7.ECS
         {
             [ReadOnly] public ComponentDataArray<TagComponent> reactiveComponents;
             [ReadOnly] public EntityArray entities;
-            public int Length;
+            public readonly int Length;
 
             public ComponentDataArray<TagComponent> ReactiveComponents => reactiveComponents;
             public EntityArray Entities => entities;
@@ -357,7 +357,7 @@ namespace E7.ECS
             [ReadOnly] public ComponentDataArray<TagComponent> reactiveComponents;
             [ReadOnly] public EntityArray entities;
             public ComponentDataArray<DataComponent> datas { get; }
-            public int Length;
+            public readonly int Length;
 
             public ComponentDataArray<TagComponent> ReactiveComponents => reactiveComponents;
             public EntityArray Entities => entities;
