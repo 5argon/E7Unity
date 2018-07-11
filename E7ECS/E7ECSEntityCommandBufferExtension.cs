@@ -130,6 +130,28 @@ namespace E7.ECS
             ecb.AddSharedComponent<DestroyReactivesSystem.ReactiveEntity>(default);
         }
 
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer.Concurrent ecb)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, default, default);
+
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer.Concurrent ecb, ReactiveComponent rx)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        => Issue<ReactiveComponent, ReactiveGroup>(ecb, rx, default);
+
+        public static void Issue<ReactiveComponent, ReactiveGroup>(this EntityCommandBuffer.Concurrent ecb, ReactiveComponent rx, ReactiveGroup rg)
+        where ReactiveComponent : struct, IReactive
+        where ReactiveGroup : struct, IReactiveGroup
+        {
+            //Debug.Log($"Issuing {typeof(ReactiveComponent).Name} (ECB)");
+            ecb.CreateEntity();
+            ecb.AddComponent<ReactiveComponent>(rx);
+            ecb.AddSharedComponent<ReactiveGroup>(rg);
+            //TODO : Create an archetype that has this because we always need this...
+            ecb.AddSharedComponent<DestroyReactivesSystem.ReactiveEntity>(default);
+        }
+
         /// <summary>
         /// No upsert check!
         /// Be careful not to add duplicate tags!
@@ -139,6 +161,16 @@ namespace E7.ECS
         => AddTag<T>(ecb, addToEntity, default(T));
 
         public static void AddTag<T>(this EntityCommandBuffer ecb, Entity addToEntity, T data)
+        where T : struct, IComponentData, ITag
+        {
+            ecb.AddComponent<T>(addToEntity, data);
+        }
+
+        public static void AddTag<T>(this EntityCommandBuffer.Concurrent ecb, Entity addToEntity)
+        where T : struct, IComponentData, ITag
+        => AddTag<T>(ecb, addToEntity, default(T));
+
+        public static void AddTag<T>(this EntityCommandBuffer.Concurrent ecb, Entity addToEntity, T data)
         where T : struct, IComponentData, ITag
         {
             ecb.AddComponent<T>(addToEntity, data);
