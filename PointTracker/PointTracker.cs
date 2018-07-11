@@ -97,6 +97,7 @@ public struct PointTracker : System.IDisposable
         registeredPoints.Dispose();
         registeredStates.Dispose();
         registeredTouchId.Dispose();
+        touchIdRunnerMemory.Dispose();
     }
 
     public PointTracker(Allocator allocator)
