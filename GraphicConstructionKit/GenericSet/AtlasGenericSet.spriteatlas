@@ -1,0 +1,89 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: AtlasGenericSet
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 2
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 0
+    platformSettings:
+    - serializedVersion: 2
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 2
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 22ca5f798c8bf4f65a9b5b7d980855e4, type: 3}
+    bindAsDefault: 1
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 0b2f0041ad7304bbf92bb41890e443d3, type: 3}
+  - {fileID: 21300000, guid: 18a67b81dcaf34442bbe4b2c9be3095b, type: 3}
+  - {fileID: 21300000, guid: c6aef643f64eb482e85c6c55f31fbd4c, type: 3}
+  - {fileID: 21300000, guid: 66ec389300fa3495485f9f798b2ac25a, type: 3}
+  - {fileID: 21300000, guid: 3df9bfc306ff84fcc9c7e346e6d83d8f, type: 3}
+  - {fileID: 21300000, guid: 250129f43cd594deea7e9115e5bb3aca, type: 3}
+  - {fileID: 21300000, guid: a2ec00179bb934c068429bf4067ab1b0, type: 3}
+  - {fileID: 21300000, guid: 968ce317a434e415a88ab8da4929b7f3, type: 3}
+  - {fileID: 21300000, guid: 4df5b9598eb1c48638535250c29ce056, type: 3}
+  - {fileID: 21300000, guid: d2a4ba4a4c7b6497d8aea35b879c66fa, type: 3}
+  - {fileID: 21300000, guid: 58f14b7a35e84418d88ab73b19c00933, type: 3}
+  - {fileID: 21300000, guid: 20ec5fab82fc04e94aa4fcc60acf2a9c, type: 3}
+  - {fileID: 21300000, guid: 2143181c2d57a4bb58a0bfd9779b391f, type: 3}
+  - {fileID: 21300000, guid: d0ea3a4dee39f41d9842ddd3a241bad6, type: 3}
+  - {fileID: 21300000, guid: 58c8a66d0b34744e894ab57af293935e, type: 3}
+  - {fileID: 21300000, guid: abf9196d14c0a43c6b18cbb681cea940, type: 3}
+  - {fileID: 21300000, guid: 221679dd245c24f1bab1d612e5ee6dc7, type: 3}
+  - {fileID: 21300000, guid: fea9c8fd43d5c4ca98a1de709771bf59, type: 3}
+  - {fileID: 21300000, guid: b2b5235e64f4643859cee84fb4215f27, type: 3}
+  - {fileID: 21300000, guid: 9e62b40f54d7c478cad6fdd1d13ae531, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - SpeedLineSmooth
+  - PerspectiveRing
+  - UnevenGlow
+  - Bubble
+  - Strip
+  - SwordLine
+  - GradientSquare
+  - CoarseGradient
+  - Circle
+  - LightRay
+  - PulseRing
+  - SpeedLine
+  - ThinRingQuarter
+  - Sparkle
+  - Hexagon
+  - Triangle
+  - Cloud
+  - SwiftBeam
+  - Wind
+  - GradientRadial
+  m_Tag: AtlasGenericSet
+  m_IsVariant: 0

@@ -1,0 +1,18 @@
+{
+    "name": "E7.E7Unity.Editor",
+    "references": [
+        "E7.E7Unity",
+        "Sirenix.OdinInspector.Attributes",
+        "Sirenix.OdinInspector.Editor",
+        "Sirenix.Serialization",
+        "Sirenix.Utilities",
+        "Sirenix.Utilities.Editor",
+        "Unity.Entities"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false
+}

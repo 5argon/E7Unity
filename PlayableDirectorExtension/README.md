@@ -1,0 +1,3 @@
+# PlayableDirectorExtension
+
+Because Unity's Pause and Resume is not as expected, I have to make it right...

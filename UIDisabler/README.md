@@ -1,0 +1,3 @@
+# UIDisabler
+
+Pretty cool. You can paste it to any Game Object and you can collect UIs in it. Then with one function call they can be all disbled! I use this on every scene. In situation like what will happen if you press "Back"? Of course the scene will transition to previous scene. In that transition time, if player mash the screen something bad might happen so I can just disable all the buttons in the scene with this.
