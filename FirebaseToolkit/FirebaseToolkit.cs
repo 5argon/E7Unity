@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 using System.IO;
 using UnityEngine;
 
-using Newtonsoft.Json;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -233,6 +231,6 @@ public static class FirebaseExtension
     /// </summary>
     public static async Task SetJson(this DatabaseReference dbRef, object jsonObject)
     {
-        await dbRef.SetRawJsonValueAsync(JsonConvert.SerializeObject(jsonObject));
+        await dbRef.SetRawJsonValueAsync(JsonUtility.ToJson(jsonObject));
     }
 }

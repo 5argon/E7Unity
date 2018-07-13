@@ -24,8 +24,6 @@ using Firebase.Database;
 using Firebase.Storage;
 using Firebase.Unity.Editor; //We don't need this anymore after v4.5.0 !
 
-using Newtonsoft.Json;
-
 using System.Threading.Tasks;
 
 /*  
