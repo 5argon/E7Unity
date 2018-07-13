@@ -1,16 +1,13 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "I2.Localization",
         "Sirenix.OdinInspector.Attributes",
         "Sirenix.OdinInspector.Editor",
         "Sirenix.Utilities",
-        "Unity.Collections",
         "Unity.Entities",
+        "Unity.Collections",
         "Unity.Entities.Hybrid",
-        "Unity.Mathematics",
-        "Unity.Transforms",
-        "Unity.Transforms2D"
+        "Unity.Mathematics"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

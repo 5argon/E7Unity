@@ -3,9 +3,5 @@
     "displayName": "E7Unity",
     "version": "0.0.1",
     "unity": "2018.1",
-    "description": "Things Exceed7 Experiments use in all projects. I don't care if you are missing some plugin dependencies!",
-    "keywords": [
-        "unity"
-    ],
-    "category": "Unity"
+    "description": "Things Exceed7 Experiments use in all projects. I don't care if you are missing some plugin dependencies!"
 }
