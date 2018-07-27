@@ -7,7 +7,7 @@ public class TextFlatten : MonoBehaviour {
 
 	public Transform targetTransform;
 	[Tooltip("The flattened order will be like in this array.")]
-	public Text[] texts;
+	public MaskableGraphic[] texts;
 
 	[Tooltip("If the animator has control to the text, it will attemps to animate the text one frame after flattening.")]
 	public Animator[] stopAnimators;
@@ -54,7 +54,7 @@ public class TextFlatten : MonoBehaviour {
 			{
 				c.enabled = false;
 			}
-            foreach (Text t in texts)
+            foreach (MaskableGraphic t in texts)
             {
                 t.transform.SetParent(targetTransform, true);
                 t.transform.SetAsLastSibling();

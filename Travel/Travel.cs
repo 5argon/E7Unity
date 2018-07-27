@@ -241,10 +241,11 @@ public struct Travel<T> : System.IDisposable where T : struct
 /// </summary>
 public struct TravelEvent 
 {
-    private static readonly TravelEvent constINVALID = new TravelEvent(Mathf.NegativeInfinity, float.NegativeInfinity, -1);
-    public static ref readonly TravelEvent INVALID => ref constINVALID;
+    // private static readonly TravelEvent constINVALID = new TravelEvent(Mathf.NegativeInfinity, float.NegativeInfinity, -1);
+    // public static ref readonly TravelEvent INVALID => ref constINVALID;
+    public static TravelEvent INVALID => new TravelEvent(Mathf.NegativeInfinity, float.NegativeInfinity, -1);
 
-    public bool Invalid => Position == constINVALID.Position && Time == constINVALID.Time;
+    public bool Invalid => Position == INVALID.Position && Time == INVALID.Time;
     public bool Valid => !Invalid;
 
     public float Position { get; }

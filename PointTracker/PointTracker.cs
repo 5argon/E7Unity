@@ -97,6 +97,7 @@ public struct PointTracker : System.IDisposable
         registeredPoints.Dispose();
         registeredStates.Dispose();
         registeredTouchId.Dispose();
+        touchIdRunnerMemory.Dispose();
     }
 
     public PointTracker(Allocator allocator)
@@ -121,6 +122,8 @@ public struct PointTracker : System.IDisposable
             }
         }
     }
+
+	public NativeList<float2> CurrentPointsBurst => registeredPoints;
 
     /// <summary>
     /// You can keep whatever state you want with a bool per point.
@@ -171,7 +174,9 @@ public struct PointTracker : System.IDisposable
     public void Down(float2 pointDown)
     {
         pointDown = RoundVector(pointDown);
+#if DEBUG_POINT_TRACKER
         DebugLog($"Down {pointDown.x} {pointDown.y} ID : {touchIdRunner}", LogType.Log);
+#endif
         registeredPoints.Add(pointDown);
         registeredStates.TryAdd(pointDown, false);
         registeredTouchId.TryAdd(pointDown, touchIdRunner);
@@ -190,7 +195,9 @@ public struct PointTracker : System.IDisposable
 #if DEBUG_POINT_TRACKER
         else
         {
+#if DEBUG_POINT_TRACKER
             DebugLog($"Set state fail {pointNow.x} {pointNow.y} {toState}", LogType.Log);
+#endif
         }
 #endif
     }
@@ -205,14 +212,18 @@ public struct PointTracker : System.IDisposable
         pointNow = RoundVector(pointNow);
         pointPrevious = RoundVector(pointPrevious);
 
+#if DEBUG_POINT_TRACKER
         DebugLog($"Move {pointNow.x} {pointNow.y} {pointPrevious.x} {pointPrevious.y}", LogType.Log);
+#endif
 
 #if UNITY_IOS
         if (pointNow == pointPrevious)
         {
             //This weird bug iOS reports happen after an errornous Up.. we interpret this as Down.
 
+#if DEBUG_POINT_TRACKER
             DebugLog($"Error Move!! {pointNow.x} {pointNow.y} {pointPrevious.x} {pointPrevious.y}", LogType.Error);
+#endif
             Down(pointNow);
             return true;
         }
@@ -242,7 +253,9 @@ public struct PointTracker : System.IDisposable
         }
 
 
+#if DEBUG_POINT_TRACKER
         DebugLog($"No such previous point! (move) {pointPrevious.x} x {pointPrevious.y}", LogType.Error);
+#endif
         return false;
     }
 
@@ -251,7 +264,9 @@ public struct PointTracker : System.IDisposable
         pointUp = RoundVector(pointUp);
         pointPrevious = RoundVector(pointPrevious);
 
+#if DEBUG_POINT_TRACKER
         DebugLog($"Up {pointUp.x} {pointUp.y} {pointPrevious.x} {pointPrevious.y}", LogType.Log);
+#endif
 
         //It has the same problem as Down
         bool containsPrevious = registeredPoints.Contains(pointPrevious);
@@ -274,7 +289,9 @@ public struct PointTracker : System.IDisposable
             }
         }
 
+#if DEBUG_POINT_TRACKER
         DebugLog($"No such previous point! (up) {pointPrevious.x} x {pointPrevious.y}", LogType.Error);
+#endif
         return false;
     }
 
