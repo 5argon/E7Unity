@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TMPro;
 
 /// <summary>
 /// InteBase by 5argon - Exceed7 Experiments
@@ -352,7 +353,7 @@ public abstract class InteBase {
 
             foreach(RaycastResult rr in results)
             {
-                //Debug.Log("Hit : " + rr.gameObject.name);
+                Debug.Log("Hit : " + rr.gameObject.name);
                 Button b = rr.gameObject.GetComponent<Button>();
                 if (b != null && b.interactable)
                 {
@@ -596,6 +597,12 @@ public static class UGUITestExtension
     {
         Text t  = graphic.GetComponent<Text>();
         if(t != null && t.text == "")
+        {
+            return true;
+        }
+
+        TextMeshProUGUI tmpro  = graphic.GetComponent<TextMeshProUGUI>();
+        if(t != null && (t.text == "" || t.color.a == 0))
         {
             return true;
         }
