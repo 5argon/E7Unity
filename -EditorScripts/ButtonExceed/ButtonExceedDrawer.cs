@@ -20,15 +20,14 @@ public class ButtonExceedDrawer : OdinEditor
     {
         if (customTree == null)
         {
-            customTree = PropertyTree.Create(serializedObject, new ButtonExceedAttributeProcessorLocator(), null);
+            customTree = PropertyTree.Create(serializedObject);
         }
         InspectorUtilities.BeginDrawPropertyTree(customTree, true);
         InspectorUtilities.DrawPropertiesInTree(customTree);
         InspectorUtilities.EndDrawPropertyTree(customTree);
     }
 
-    [OdinDontRegister]
-    public class ButtonExceedAttributeProcessor : OdinAttributeProcessor
+    public class ButtonExceedAttributeProcessor : OdinAttributeProcessor<ButtonExceed>
     {
         public override void ProcessChildMemberAttributes(InspectorProperty parentProperty, MemberInfo member, List<Attribute> attributes)
         {
@@ -100,14 +99,6 @@ public class ButtonExceedDrawer : OdinEditor
                     break;
 #endif
             }
-        }
-    }
-
-    public class ButtonExceedAttributeProcessorLocator : MatchableOdinAttributeProcessorLocator
-    {
-        public override IEnumerable<Type> GetResolverTypes()
-        {
-            return new Type[] { typeof(ButtonExceedAttributeProcessor) };
         }
     }
 }
