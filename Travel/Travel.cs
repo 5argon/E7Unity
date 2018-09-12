@@ -37,9 +37,9 @@ public static class Travel
 
         for (int i = 0; i < travelEvents.Length; i++)
         {
-            if ((math.notEqual(math.mod(i, 2), 0)))
+            if ((math.mod(i, 2) != 0))
             {
-                if (math.greaterThanEqual(rememberIndex - (minusIndex + 1), 0))
+                if ((rememberIndex - (minusIndex + 1) >= 0))
                 {
                     minusIndex++;
                     useIndex = rememberIndex - minusIndex;
@@ -52,7 +52,7 @@ public static class Travel
             }
             else
             {
-                if (math.lessThan(rememberIndex + (plusIndex + 1), travelEvents.Length))
+                if ((rememberIndex + (plusIndex + 1) < travelEvents.Length))
                 {
                     plusIndex++;
                     useIndex = rememberIndex + plusIndex;
@@ -289,7 +289,7 @@ public struct TravelEvent
         Debug.Log($"Is in range? {Position} - {position} - {PositionNext}");
 #endif
         //return (position >= Position) && (position < PositionNext);
-        return math.greaterThanEqual(position, Position) && math.lessThan(position, PositionNext);
+        return (position >= Position) && (position < PositionNext);
     }
 
     public bool IsTimeInRange(float time)
@@ -298,7 +298,7 @@ public struct TravelEvent
         Debug.LogFormat($"Is time in range? {Time} - {time} - {TimeNext}");
 #endif
         //return (time >= Time) && (time < TimeNext);
-        return math.greaterThanEqual(time, Time) && math.lessThan(time, TimeNext);
+        return (time >= Time) && (time < TimeNext);
     }
 
     public override string ToString()

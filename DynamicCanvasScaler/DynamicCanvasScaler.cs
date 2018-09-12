@@ -13,7 +13,24 @@ public class DynamicCanvasScaler : MonoBehaviour
 {
     public CanvasScaler canvasScaler;
     public AnimationCurve aspectCurve;
+
+    [Tooltip("Even with this off, you can manually request the scaler change with UpdateScaler()")]
+    public bool alwaysUpdate;
+
+    public void Awake()
+    {
+        UpdateScaler();
+    }
+
     public void Update()
+    {
+        if (alwaysUpdate || (Application.isEditor && !Application.isPlaying))
+        {
+            UpdateScaler();
+        }
+    }
+
+    public void UpdateScaler()
     {
         if (canvasScaler != null)
         {
