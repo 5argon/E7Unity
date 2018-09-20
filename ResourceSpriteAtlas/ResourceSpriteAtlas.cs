@@ -3,24 +3,34 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.U2D;
+using UnityEngine.AddressableAssets;
 
 public class ResourceSpriteAtlas
 {
-    private string ResourcePath { get; }
+    private string Address { get; }
 
-    public SpriteAtlas Atlas => Resources.Load<SpriteAtlas>(ResourcePath); //does not consume memory, loading is fast
+    private SpriteAtlas loadedAtlas;
+    private SpriteAtlas Atlas
+    {
+        get
+        {
+            if (loadedAtlas == null)
+            {
+                var async = Addressables.LoadAsset<SpriteAtlas>(Address); //does not consume memory, loading is fast
+                while (async.IsDone == false) { }
+                loadedAtlas = async.Result;
+            }
+            return loadedAtlas;
+        }
+    }
     private Sprite[] allSprites;
     public bool Loaded { get; private set; }
 
-    public ResourceSpriteAtlas(string resourcePath)
+    /// <param name="address">Put the string of Addressable Asset System here.</param>
+    public ResourceSpriteAtlas(string address)
     {
-        this.ResourcePath = resourcePath;
+        this.Address = address;
     }
-
-    /// <summary>
-    /// Overload for only one layer of folder in Resources.
-    /// </summary>
-    public ResourceSpriteAtlas(string folder, string atlasName) : this(folder + Path.DirectorySeparatorChar + atlasName) { }
 
     /// <summary>
     /// Use this so getting sprite is fast on the first time.
@@ -34,10 +44,7 @@ public class ResourceSpriteAtlas
 
     public void UnloadTextures()
     {
-        foreach(Sprite s in allSprites)
-        {
-            Resources.UnloadAsset(s.texture);
-        }
+        Addressables.ReleaseAsset(loadedAtlas);
         Loaded = false;
     }
 

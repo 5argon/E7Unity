@@ -1,14 +1,13 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "Sirenix.OdinInspector.Attributes",
-        "Sirenix.OdinInspector.Editor",
-        "Sirenix.Utilities",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Entities.Hybrid",
         "Unity.Mathematics",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],

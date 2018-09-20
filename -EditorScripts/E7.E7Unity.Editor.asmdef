@@ -1,11 +1,7 @@
 {
     "name": "E7.E7Unity.Editor",
     "references": [
-        "E7.E7Unity",
-        "Sirenix.OdinInspector.Attributes",
-        "Sirenix.OdinInspector.Editor",
-        "Sirenix.Utilities",
-        "Sirenix.Utilities.Editor"
+        "E7.E7Unity"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
