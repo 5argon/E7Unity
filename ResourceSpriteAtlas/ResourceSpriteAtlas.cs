@@ -4,27 +4,25 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.AddressableAssets;
+using UniRx.Async;
+using System;
+using UnityEngine.ResourceManagement;
 
+/// <summary>
+/// TODO : Make it so that getting sprite name is able to load Addressable from multiple atlas source.
+/// </summary>
 public class ResourceSpriteAtlas
 {
     private string Address { get; }
 
     private SpriteAtlas loadedAtlas;
-    private SpriteAtlas Atlas
-    {
-        get
-        {
-            if (loadedAtlas == null)
-            {
-                var async = Addressables.LoadAsset<SpriteAtlas>(Address); //does not consume memory, loading is fast
-                while (async.IsDone == false) { }
-                loadedAtlas = async.Result;
-            }
-            return loadedAtlas;
-        }
-    }
     private Sprite[] allSprites;
-    public bool Loaded { get; private set; }
+
+    public bool NotLoaded => loadedAtlas == null;
+
+    //Because we cannot check valid status of IAsync
+    private bool loadTextureCalled = false;
+    IAsyncOperation<SpriteAtlas> loadTextureOperation;
 
     /// <param name="address">Put the string of Addressable Asset System here.</param>
     public ResourceSpriteAtlas(string address)
@@ -33,28 +31,50 @@ public class ResourceSpriteAtlas
     }
 
     /// <summary>
-    /// Use this so getting sprite is fast on the first time.
+    /// Calling on this multiple times is safe. There will be no load on subsequent calls.
     /// </summary>
-    public void LoadTextures()
+    public async UniTask LoadTextures()
     {
-        allSprites = new Sprite[Atlas.spriteCount];
-        Atlas.GetSprites(allSprites);
-        Loaded = true;
+        if (loadTextureCalled == false)
+        {
+            loadTextureCalled = true;
+            loadTextureOperation = Addressables.LoadAsset<SpriteAtlas>(Address); //should be fast
+            loadedAtlas = await loadTextureOperation;
+            if (loadedAtlas == null)
+            {
+                throw new Exception($"The address {Address} returns null atlas!");
+            }
+            allSprites = new Sprite[loadedAtlas.spriteCount];
+            loadedAtlas.GetSprites(allSprites); //slow
+        }
+        else
+        {
+            await loadTextureOperation;
+        }
     }
 
     public void UnloadTextures()
     {
-        Addressables.ReleaseAsset(loadedAtlas);
-        Loaded = false;
+        if (loadedAtlas != null && loadTextureCalled )
+        {
+            Addressables.ReleaseAsset(loadedAtlas);
+            loadedAtlas = null;
+            loadTextureCalled = false;
+        }
     }
 
+    /// <summary>
+    /// If you didn't call LoadTextures() first this will be an error!!
+    /// </summary>
     public Sprite GetSpriteNamed(string spriteName)
     {
-        if(!Loaded)
+        if(loadedAtlas == null)
         {
-            LoadTextures();
+            throw new System.Exception("You must call LoadTexture() first!");
         }
-        return Atlas.GetSprite(spriteName);
+        Sprite sp = loadedAtlas.GetSprite(spriteName);
+
+        return sp ? sp : throw new System.Exception($"{spriteName} is not in the atlas {loadedAtlas.name}! Oh no!");
     }
 
 }

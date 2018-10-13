@@ -37,7 +37,7 @@ public static class Travel
 
         for (int i = 0; i < travelEvents.Length; i++)
         {
-            if ((math.mod(i, 2) != 0))
+            if (i % 2 != 0)
             {
                 if ((rememberIndex - (minusIndex + 1) >= 0))
                 {
@@ -95,8 +95,8 @@ public struct Travel<T> : System.IDisposable where T : struct
     /// </summary>
     private Bool HasEventAtZero { get; set; }
 
-    private NativeList<T> datas { get; set; }
-    private NativeList<TravelEvent> travelEvents { get; set; }
+    private NativeList<T> datas;
+    private NativeList<TravelEvent> travelEvents;
     private int travelRememberIndex;
 
     //This two are for jobs. When you Add it needs to be realloc so if possible add everything before start using.

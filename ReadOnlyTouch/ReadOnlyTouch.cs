@@ -31,6 +31,23 @@ public readonly struct ReadOnlyTouch
         this.position = position;
         this.deltaPosition = deltaPosition;
         this.phase = phase;
+        this.timestamp = 0;
+        this.Valid = true;
+    }
+
+    public ReadOnlyTouch(
+    int fingerId,
+    float2 position,
+    float2 deltaPosition,
+    TouchPhase phase,
+    double timestamp
+    )
+    {
+        this.fingerId = fingerId;
+        this.position = position;
+        this.deltaPosition = deltaPosition;
+        this.phase = phase;
+        this.timestamp = timestamp;
         this.Valid = true;
     }
 
@@ -50,6 +67,8 @@ public readonly struct ReadOnlyTouch
     /// Describes the phase of the touch.
     /// </summary>
     public TouchPhase phase { get; }
+
+    public double timestamp { get; }
 
     public Bool Valid { get; }
 }
