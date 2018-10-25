@@ -7,6 +7,15 @@ public class UIDisabler : MonoBehaviour {
 
 	public Selectable[] uis;
 	public bool alsoDisableAnimator;
+	public bool disableOnAwake;
+
+    public void Awake()
+    {
+        if (disableOnAwake)
+        {
+            Disable();
+        }
+    }
 
 	public void Disable()
 	{

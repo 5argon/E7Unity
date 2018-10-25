@@ -13,5 +13,11 @@
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Unity.Compat.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": []
 }

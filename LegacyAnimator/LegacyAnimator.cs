@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UniRx.Async;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -13,17 +14,21 @@ public class LegacyAnimator : MonoBehaviour {
 	[ValueDropdown("LimitToTriggers")]
 #endif
 	[Tooltip("Sample the first frame of this trigger on Start()")]
-	public string waitTrigger;
+	[SerializeField]
+	private string waitTrigger;
 
 #if ODIN_INSPECTOR
 	[ValueDropdown("LimitToTriggers")]
 #endif
 	[Tooltip("Immediately trigger this on Start()")]
-	public string autoplayTrigger;
+	[SerializeField]
+	private string autoplayTrigger;
 
 	[Space]
-	public LegacyAnimatorNode[] nodes;
-	public Dictionary<string,LegacyAnimatorNode> nodeSearch;
+	[SerializeField]
+	private LegacyAnimatorNode[] nodes;
+
+	private Dictionary<string,LegacyAnimatorNode> nodeSearch;
 
 	private Dictionary<string,bool> variableBool;
 	private Animation animationComponent;
@@ -34,12 +39,19 @@ public class LegacyAnimator : MonoBehaviour {
 	private string secondLayerCurrentlyPlaying;
 	private const string waitClipName = "WAIT_CLIP";
 
-	public List<string> LimitToTriggers()
-	{
-		List<string> list = nodes.Select(n => n.Trigger).ToList();
-		list.Add("");
-		return list;
-	}
+    public List<string> LimitToTriggers()
+    {
+        if (nodes != null)
+        {
+            List<string> list = nodes.Select(n => n.Trigger).ToList();
+            list.Add("");
+            return list;
+        }
+        else
+        {
+            return new List<string>();
+        }
+    }
 
     /// <summary>
     /// Kills all animations and play a new one.
@@ -80,6 +92,8 @@ public class LegacyAnimator : MonoBehaviour {
 
 		return this;
 	}
+
+    public async UniTask WaitForTrigger(string triggerName) => await UniTask.Delay((int)(animationComponent[triggerName].length * 1000));
 
     /// <summary>
     /// Chain this with other methods but not the first one.
@@ -283,7 +297,10 @@ public class LegacyAnimator : MonoBehaviour {
         {
             foreach (LegacyAnimatorNode lan in nodes)
             {
-                animationComponent.AddClip(lan.AnimationClip, lan.ClipName);
+				if(lan.AnimationClip != null)
+				{
+					animationComponent.AddClip(lan.AnimationClip, lan.ClipName);
+				}
             }
         }
     }

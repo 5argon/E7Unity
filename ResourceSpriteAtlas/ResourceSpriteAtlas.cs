@@ -42,7 +42,7 @@ public class ResourceSpriteAtlas
             loadedAtlas = await loadTextureOperation;
             if (loadedAtlas == null)
             {
-                throw new Exception($"The address {Address} returns null atlas!");
+                throw new System.IO.IOException($"The address {Address} returns null atlas!");
             }
             allSprites = new Sprite[loadedAtlas.spriteCount];
             loadedAtlas.GetSprites(allSprites); //slow
@@ -70,11 +70,11 @@ public class ResourceSpriteAtlas
     {
         if(loadedAtlas == null)
         {
-            throw new System.Exception("You must call LoadTexture() first!");
+            throw new System.IO.IOException("You must call LoadTexture() first!");
         }
         Sprite sp = loadedAtlas.GetSprite(spriteName);
 
-        return sp ? sp : throw new System.Exception($"{spriteName} is not in the atlas {loadedAtlas.name}! Oh no!");
+        return sp ? sp : throw new System.IO.IOException($"{spriteName} is not in the atlas {loadedAtlas.name}! Oh no!");
     }
 
 }

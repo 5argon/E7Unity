@@ -8,8 +8,8 @@ using System.IO;
 
 public abstract class RuntimeScriptableObject<T> : ScriptableObject where T : ScriptableObject
 {
-    private static string[] guids;
-    private static string path;
+    // private static string[] guids;
+    // private static string path;
     private static T cached;
     private const string resourcesFolderName = "RSO";
 
