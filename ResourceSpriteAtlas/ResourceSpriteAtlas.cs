@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.AddressableAssets;
 using UniRx.Async;
-using System;
 using UnityEngine.ResourceManagement;
 
 /// <summary>

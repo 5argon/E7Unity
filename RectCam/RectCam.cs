@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// If you put 16 and 9 for example, on iPad you will get a top and bottom letterbox. and the rest will
-/// looks just like iPhone 5 size. Use this if it is difficult to make your UI responsive.
+/// Clamp the aspect making a letterbox if it is too squared or too squashed.
 /// </summary>
+[ExecuteInEditMode]
 public class RectCam : MonoBehaviour {
 
     [SerializeField] private Camera cameraComponent;
-    [SerializeField] private int widthRatio;
-    [SerializeField] private int heightRatio;
+    [Space]
+    [SerializeField] private bool enableSquashBound;
+    [SerializeField] private bool enableSquareBound;
+    [SerializeField] private float squashBound;
+    [SerializeField] private float squareBound;
+    [Space]
     [SerializeField] private bool setAspectOnAwake;
 
     void Awake()
@@ -21,24 +25,49 @@ public class RectCam : MonoBehaviour {
         }
     }
 
+#if UNITY_EDITOR
+    void Update()
+    {
+        if(!Application.isPlaying)
+        {
+            SetAspect();
+        }
+    }
+#endif
+
     /// <summary>
     /// You can use this to stop using RectCam for the camera.
     /// </summary>
+    [ContextMenu(nameof(ResetAspect))]
     public void ResetAspect()
     {
-        cameraComponent.ResetAspect();
+        cameraComponent.rect = new Rect(0,0,1,1);
     }
 
     [ContextMenu(nameof(SetAspect))]
     public void SetAspect()
     {
-        cameraComponent.ResetAspect();
-        float heightPixel = (float)Screen.width * heightRatio / widthRatio;
-        float letterboxHeightSum = Screen.height - heightPixel;
-        float letterboxHalfNormalized = (letterboxHeightSum / 2) / Screen.height;
-        Rect renderRect = cameraComponent.rect;
-        renderRect.y = letterboxHalfNormalized;
-        renderRect.height = 1 - (letterboxHalfNormalized * 2);
-        cameraComponent.rect = renderRect;
+        ResetAspect();
+
+        int width = cameraComponent.pixelWidth;
+        int height = cameraComponent.pixelHeight;
+
+        float screenRatio = width / (float)height;
+        //Lower number = more square
+        if (enableSquareBound && screenRatio < squareBound)
+        {
+            //The screen too square, we calculate the height that should be lost
+            var correctHeight = width / squareBound;
+            var lostHeight = height - correctHeight;
+            var lostHeightNormalized = lostHeight / height;
+            cameraComponent.rect = new Rect(0, lostHeightNormalized / 2, 1, (1 - lostHeightNormalized));
+        }
+        else if (enableSquashBound && screenRatio > squashBound)
+        {
+            var correctWidth = height * squashBound;
+            var lostWidth = width - correctWidth;
+            var lostWidthNormalized = lostWidth / width;
+            cameraComponent.rect = new Rect(lostWidthNormalized / 2, 0, 1 - lostWidthNormalized, 1);
+        }
 	}
 }

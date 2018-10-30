@@ -14,7 +14,6 @@ using UnityEngine.AddressableAssets;
 
 public static class IAsyncOperationExtensions
 {
-
     public static AsyncOperationAwaiter GetAwaiter(this IAsyncOperation operation)
     {
         return new AsyncOperationAwaiter(operation);
@@ -60,17 +59,15 @@ public static class IAsyncOperationExtensions
         public T GetResult() => _operation.Result;
 
     }
-
-    // async public static UniTask<T> ToUniTask<T>(this IAsyncOperation<T> operation)
-    // {
-    //                     UnityEngine.Debug.Log($"No way!");
-    //     await operation;
-    //     return operation.Result;
-    // }
 }
 
 public static class AddressablesExtension
 {
+    public static bool IsNullOrEmpty(this AssetReference aref)
+    {
+        return aref == null || aref.RuntimeKey == Hash128.Parse("");
+    }
+
     /// <summary>
     /// Use the Addressables system if in real play, use `editorAsset` if in edit mode.
     /// </summary>

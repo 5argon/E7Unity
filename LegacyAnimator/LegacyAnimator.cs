@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UniRx.Async;
+using System.Threading;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
@@ -93,7 +94,15 @@ public class LegacyAnimator : MonoBehaviour {
 		return this;
 	}
 
-    public async UniTask WaitForTrigger(string triggerName) => await UniTask.Delay((int)(animationComponent[triggerName].length * 1000));
+    /// <summary>
+    /// Wait equal to trigger's play time. It does not matter if it is currently playing or not. It just wait for this fixed time.
+    /// </summary>
+    public async UniTask WaitForTrigger(string triggerName, CancellationToken cancellationToken= default(CancellationToken)) => await UniTask.Delay((int)(animationComponent[triggerName].length * 1000), cancellationToken: cancellationToken);
+
+    /// <summary>
+    /// Wait equal to trigger's play time. It does not matter if it is currently playing or not. It just wait for this fixed time.
+    /// </summary>
+    public async UniTask WaitForTrigger(string triggerName, float timeModification, CancellationToken cancellationToken = default(CancellationToken)) => await UniTask.Delay((int)((animationComponent[triggerName].length + timeModification) * 1000), cancellationToken: cancellationToken);
 
     /// <summary>
     /// Chain this with other methods but not the first one.
