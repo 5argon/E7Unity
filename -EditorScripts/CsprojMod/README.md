@@ -1,3 +1,0 @@
-# CsprojMod
-
-Mod the proj!!

@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using UniRx.Async;
 using System;
-using UnityEngine.AddressableAssets;
+
+public static class UniTaskCustomExtension
+{
+}
 
 public static class IAsyncOperationExtensions
 {

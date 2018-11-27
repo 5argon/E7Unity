@@ -81,15 +81,15 @@ public class LegacyAnimator : MonoBehaviour {
 		//Stop same layer does not work lol...
         animationComponent.Play(triggerName, PlayMode.StopSameLayer);
 
-		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
-		if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
-		{
-			AutoDisable();
-		}
-		else
-		{
-			StopPreviousAutoDisable();
-		}
+		// WrapMode wrapMode = animationComponent[triggerName].wrapMode;
+		// if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
+		// {
+		// 	AutoDisable();
+		// }
+		// else
+		// {
+		// 	StopPreviousAutoDisable();
+		// }
 
 		return this;
 	}
@@ -115,15 +115,15 @@ public class LegacyAnimator : MonoBehaviour {
 
 		animationComponent.PlayQueued(triggerName,QueueMode.CompleteOthers);
 
-		WrapMode wrapMode = animationComponent[triggerName].wrapMode;
-		if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
-		{
-			AutoDisable();
-		}
-		else
-		{
-			StopPreviousAutoDisable();
-		}
+		// WrapMode wrapMode = animationComponent[triggerName].wrapMode;
+		// if(wrapMode != WrapMode.Loop && wrapMode != WrapMode.PingPong)
+		// {
+		// 	AutoDisable();
+		// }
+		// else
+		// {
+		// 	StopPreviousAutoDisable();
+		// }
 
 		return this;
 	}
@@ -152,7 +152,7 @@ public class LegacyAnimator : MonoBehaviour {
 		animationComponent.Stop();
 		animationComponent.Play(waitClipName);
 
-		AutoDisable();
+		// AutoDisable();
 		return this;
 	}
 
@@ -164,7 +164,7 @@ public class LegacyAnimator : MonoBehaviour {
 		cumulativePlayTime += seconds;
 		SetWaitTime(seconds);
 		animationComponent.PlayQueued(waitClipName,QueueMode.CompleteOthers);
-		AutoDisable();
+		// AutoDisable();
 		return this;
 	}
 
@@ -179,7 +179,7 @@ public class LegacyAnimator : MonoBehaviour {
     public void Stop()
     {
         animationComponent.Stop();
-        AutoDisable();
+        // AutoDisable();
     }
 
     private void StopBeforePlayLogic(AnimationState aState)
@@ -245,28 +245,28 @@ public class LegacyAnimator : MonoBehaviour {
         SetTrigger(nodes[1].Trigger);
 	}
 
-    private void AutoDisable()
-    {
-		StopPreviousAutoDisable();
-        autoDisableRoutine = AutoDisableRoutine(cumulativePlayTime);
-        StartCoroutine(autoDisableRoutine);
-    }
+    // private void AutoDisable()
+    // {
+	// 	StopPreviousAutoDisable();
+    //     autoDisableRoutine = AutoDisableRoutine(cumulativePlayTime);
+    //     StartCoroutine(autoDisableRoutine);
+    // }
 
-    private void StopPreviousAutoDisable()
-    {
-        if (autoDisableRoutine != null)
-        {
-            StopCoroutine(autoDisableRoutine);
-        }
-    }
+    // private void StopPreviousAutoDisable()
+    // {
+    //     if (autoDisableRoutine != null)
+    //     {
+    //         StopCoroutine(autoDisableRoutine);
+    //     }
+    // }
 
-    private IEnumerator autoDisableRoutine;
-    private IEnumerator AutoDisableRoutine(float inTime)
-    {
-        yield return new WaitForSeconds(inTime);
-        yield return null;
-        animationComponent.enabled = false;
-    }
+    // private IEnumerator autoDisableRoutine;
+    // private IEnumerator AutoDisableRoutine(float inTime)
+    // {
+    //     yield return new WaitForSeconds(inTime);
+    //     yield return null;
+    //     animationComponent.enabled = false;
+    // }
 
     private bool prepared = false;
     private void Prepare()

@@ -23,6 +23,9 @@ public static class Travel
         return -1;
     }
 
+    /// <summary>
+    /// Use a special "expand out" search from remembered index. You can cache the previous search result and start from there!
+    /// </summary>
     public static int DataIndexOfPosition(NativeList<TravelEvent> travelEvents, float position, ref int inputRememberIndex)
     {
         if (travelEvents.Length == 0)
@@ -77,7 +80,8 @@ public static class Travel
 }
 
 /// <summary>
-/// This type is not blittable! But as a struct it can lives in a job.
+/// Interval-based data storage. You can get the PREVIOUS data based on 
+/// Travel can be in a job and burst compiled but not blittable as it contains `NativeList`.
 /// </summary>
 public struct Travel<T> : System.IDisposable where T : struct
 {
@@ -145,6 +149,11 @@ public struct Travel<T> : System.IDisposable where T : struct
 
     public bool NoEvent => travelEvents.Length == 0;
 
+    /// <summary>
+    /// Search until it found the interval with specified position.
+    /// Note that in the case that position goes back and forth in time, it will just use the first one found.
+    /// It will start the subsequent search from around the previous time's result.
+    /// </summary>
     public (T data, TravelEvent travelEvent) DataEventOfPosition(float position)
     {
         //Debug.Log("Finding of " + position);
@@ -163,7 +172,9 @@ public struct Travel<T> : System.IDisposable where T : struct
     /// <summary>
     /// Adds event at position/time zero if there's nothing at zero yet.
     /// This prevents the travel returning null for all positive time and position
+    /// 
     /// If you have something at zero already this does nothing.
+    /// 
     /// BUT if you don't have anything at zero but have other data... it will crash
     /// Travel does not support adding a data in backward direction.
     /// </summary>
@@ -191,7 +202,7 @@ public struct Travel<T> : System.IDisposable where T : struct
         }
     }
 
-    public (T data,TravelEvent travelEvent) PreviousOf(TravelEvent te)
+    public (T data, TravelEvent travelEvent) PreviousOf(TravelEvent te)
     {
         int prevIndex = te.DataIndex - 1;
         if (prevIndex >= 0 && datas.Length > 0)
@@ -214,7 +225,7 @@ public struct Travel<T> : System.IDisposable where T : struct
 #endif
         if (travelEvents.Length != 0 && timeElapsed <= 0)
         {
-            throw new System.Exception($"Time elapsed except the first one must be positive. position : {position} timeElapsed : {timeElapsed}");
+            throw new System.Exception($"Time elapsed must be positive, except the first one which can be zero. position : {position} timeElapsed : {timeElapsed}");
         }
         TravelEvent lastEvent = LastEvent;
         TravelEvent newTe = new TravelEvent(position, (NoEvent ? 0 : lastEvent.Time) + timeElapsed, travelEvents.Length);
@@ -241,8 +252,6 @@ public struct Travel<T> : System.IDisposable where T : struct
 /// </summary>
 public struct TravelEvent 
 {
-    // private static readonly TravelEvent constINVALID = new TravelEvent(Mathf.NegativeInfinity, float.NegativeInfinity, -1);
-    // public static ref readonly TravelEvent INVALID => ref constINVALID;
     public static TravelEvent INVALID => new TravelEvent(Mathf.NegativeInfinity, float.NegativeInfinity, -1);
 
     public bool Invalid => Position == INVALID.Position && Time == INVALID.Time;
@@ -260,7 +269,7 @@ public struct TravelEvent
     /// </summary>
     public float TimeNext { get; private set; }
 
-    public int DataIndex { get;}
+    public int DataIndex { get; }
 
     public TravelEvent(float absolutePosition, float time, int dataIndex)
     {
@@ -271,7 +280,7 @@ public struct TravelEvent
         this.DataIndex = dataIndex;
     }
 
-    public void LinkToNext<T>(TravelEvent te, Travel<T> owningTravel) where T : struct
+    internal void LinkToNext<T>(TravelEvent te, Travel<T> owningTravel) where T : struct
     {
 #if TRAVEL_DEBUG
         Debug.Log($"Linking to next : {te.Time} {te.Position}");
@@ -283,7 +292,7 @@ public struct TravelEvent
         //Debug.Log("Link result : " + this.ToString());
     }
 
-    public bool IsPositionInRange(float position)
+    internal bool IsPositionInRange(float position)
     {
 #if TRAVEL_DEBUG
         Debug.Log($"Is in range? {Position} - {position} - {PositionNext}");
@@ -292,7 +301,7 @@ public struct TravelEvent
         return (position >= Position) && (position < PositionNext);
     }
 
-    public bool IsTimeInRange(float time)
+    internal bool IsTimeInRange(float time)
     {
 #if TRAVEL_DEBUG
         Debug.LogFormat($"Is time in range? {Time} - {time} - {TimeNext}");
@@ -303,6 +312,6 @@ public struct TravelEvent
 
     public override string ToString()
     {
-        return string.Format($"P {Position}-{PositionNext} T {Time}-{TimeNext}"); 
+        return string.Format($"P {Position}-{PositionNext} T {Time}-{TimeNext}");
     }
 }
