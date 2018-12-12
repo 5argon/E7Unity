@@ -6,18 +6,27 @@
         "Unity.Entities.Hybrid",
         "Unity.Mathematics",
         "Unity.TextMeshPro",
+        "UniRx.Async",
         "Unity.Addressables",
         "Unity.ResourceManager",
-        "UniRx.Async"
+        "Unity.PackageManagerUI.EditorTests",
+        "Unity.Timeline"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": true,
+    "overrideReferences": false,
     "precompiledReferences": [
-        "Unity.Compat.dll"
+        "Unity.Compat.dll",
+        "Sirenix.OdinInspector.Attributes.dll",
+        "Sirenix.Utilities.dll",
+        "Sirenix.Serialization.dll",
+        "Sirenix.OdinInspector.Editor.dll",
+        "Firebase.App.dll",
+        ""
     ],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": []
 }

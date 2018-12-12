@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.AddressableAssets;
-using System;
 using UnityEngine.ResourceManagement;
+using System;
 using Sirenix.OdinInspector;
 
 #if ODIN_INSPECTOR
