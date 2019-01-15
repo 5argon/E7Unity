@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System.Text;
-
+using TMPro;
 
 //Use this to make a game credits!
 //You can use # , ##, etc. like markdown to make it bigger!
@@ -13,9 +13,8 @@ using System.Text;
 [ExecuteInEditMode]
 public class TextAssetToText : MonoBehaviour
 {
-
     public TextAsset textAsset;
-    public Text text;
+    public TextMeshProUGUI text;
     public bool enableMarkdown;
     [Tooltip("If not enabled, you have to right click the component's header and select Read Text.")]
     public bool autoRead;

@@ -8,9 +8,7 @@
         "Unity.TextMeshPro",
         "UniRx.Async",
         "Unity.Addressables",
-        "Unity.ResourceManager",
-        "Unity.PackageManagerUI.EditorTests",
-        "Unity.Timeline"
+        "Unity.ResourceManager"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [],
@@ -23,10 +21,8 @@
         "Sirenix.Utilities.dll",
         "Sirenix.Serialization.dll",
         "Sirenix.OdinInspector.Editor.dll",
-        "Firebase.App.dll",
-        ""
+        "Firebase.App.dll"
     ],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": []
+    "defineConstraints": []
 }

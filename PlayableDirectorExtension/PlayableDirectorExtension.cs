@@ -21,4 +21,9 @@ public static class PlayableDirectorExtension
         pd.playableGraph.GetRootPlayable(0).SetSpeed(1);
     }
 
+    public static bool PlayheadAtTheEnd(this PlayableDirector pd)
+    {
+        return pd.time >= pd.duration;
+    }
+
 }

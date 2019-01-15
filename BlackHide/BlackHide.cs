@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class BlackHide : MonoBehaviour
 {
     Image im;
+    Animation fadeToBlack;
+
     void Awake()
     {
         im = GetComponent<Image>();
@@ -15,6 +17,8 @@ public class BlackHide : MonoBehaviour
 
     public void Unhide() => im.enabled = false;
 
+    public void FadeToBlack() => fadeToBlack.Play();
+
     /// <summary>
     /// Convenience method to show the scene quick.
     /// </summary>
@@ -22,4 +26,5 @@ public class BlackHide : MonoBehaviour
     {
         GameObject.FindObjectOfType<BlackHide>().Unhide();
     }
+
 }
