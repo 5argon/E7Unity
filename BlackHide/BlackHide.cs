@@ -11,6 +11,7 @@ public class BlackHide : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log($"Awaking BLACK HIDE");
         im = GetComponent<Image>();
         im.enabled = true;
     }

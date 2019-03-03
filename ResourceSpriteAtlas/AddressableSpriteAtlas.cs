@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.U2D;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement;
 using System;
@@ -39,12 +40,12 @@ public class AddressableSpriteAtlas
 
             return new ChainOperation<Sprite, SpriteAtlas>().Start(null, null, atlLoad, (atl) =>
             {
-                loadedAtlas = atl;
+                loadedAtlas = atl.Result;
                 
                 sp = loadedAtlas.GetSprite(spriteName);
                 if(sp == null)
                 {
-                    throw new System.Exception("Loading sprite atlas " + atl.name + " succeeded but sprite named " + spriteName + "is not in it.");
+                    throw new System.Exception("Loading sprite atlas " + atl.Result.name + " succeeded but sprite named " + spriteName + "is not in it.");
                 }
 
                 return new CompletedOperation<Sprite>().Start(null, null,sp );

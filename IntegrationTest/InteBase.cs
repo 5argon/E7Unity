@@ -10,24 +10,13 @@ using NUnit.Framework;
 public abstract class InteBase {
 
     /// <summary>
-    /// The only way to check if we are in a test or not. Because only test runner can activate [SetUp] and [TearDown].
-    /// </summary>
-    public static bool IsTesting { get; private set; } = false;
-
-    [SetUp]
-    public void IsTestingOn() => IsTesting = true;
-
-    [TearDown]
-    public void IsTestingOff() => IsTesting = false;
-
-
-    /// <summary>
     /// We likely do a scene load after starting a test. Scene load with Single mode won't destroy the test runner game object with this.
     /// </summary>
     [SetUp]
     public void ProtectTestRunner()
     {
         GameObject g = GameObject.Find("Code-based tests runner");
+        Debug.Log($"Protecting test runner {g} {g.name}");
         GameObject.DontDestroyOnLoad(g);
     }
 }

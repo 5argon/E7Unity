@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.AddressableAssets;
 using UniRx.Async;
-using UnityEngine.ResourceManagement;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// TODO : Make it so that getting sprite name is able to load Addressable from multiple atlas source.

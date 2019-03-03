@@ -153,6 +153,16 @@ public static class InteHelper
         }
     }
 
+    public static int ActiveChildCount(GameObject go)
+    {
+        var counter = 0;
+        for (int i = 0; i < go.transform.childCount; i++)
+        {
+            if (go.transform.GetChild(i).gameObject.activeSelf) counter++;
+        }
+        return counter;
+    }
+
     /// <summary>
     /// Will try to find the parent first regardless of type, then a child under that parent regardless of type, then get component of type T.
     /// </summary>
