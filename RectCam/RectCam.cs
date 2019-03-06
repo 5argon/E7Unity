@@ -8,6 +8,7 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class RectCam : MonoBehaviour {
 
+#pragma warning disable 0649
     [SerializeField] private Camera cameraComponent;
     [Space]
     [SerializeField] private bool enableSquashBound;
@@ -16,6 +17,7 @@ public class RectCam : MonoBehaviour {
     [SerializeField] private float squareBound;
     [Space]
     [SerializeField] private bool setAspectOnAwake;
+#pragma warning restore 0649
 
     void Awake()
     {

@@ -7,7 +7,9 @@ using UnityEngine.UI;
 public class BlackHide : MonoBehaviour
 {
     Image im;
-    Animation fadeToBlack;
+#pragma warning disable 0649
+    [SerializeField] private Animation fadeToBlack;
+#pragma warning restore 0649
 
     void Awake()
     {

@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class LerpOnRatio : MonoBehaviour {
 
+#pragma warning disable 0649
     [SerializeField] private float value43;
     [SerializeField] private float value169;
+#pragma warning restore 0649
 
     public float Value 
     {

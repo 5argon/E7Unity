@@ -23,14 +23,14 @@ static class CrossSceneDrawer
 
             if (labelGetter.Value == null)
             {
-                labelGetter.Value = new StringMemberHelper(property.ParentType, attribute.GroupName);
+                labelGetter.Value = new StringMemberHelper(property, attribute.GroupName);
             }
 
             SirenixEditorGUI.BeginBox(attribute.ShowLabel ? labelGetter.Value.GetString(property) : null, attribute.CenterLabel);
 
             for (int i = 0; i < property.Children.Count; i++)
             {
-                InspectorUtilities.DrawProperty(property.Children[i], property.Children[i].Label);
+                property.Draw(property.Children[i].Label);
             }
 
             SirenixEditorGUI.EndBox();
@@ -41,8 +41,11 @@ static class CrossSceneDrawer
 
 public class MainSideDrawer : OdinGroupDrawer<MainSideAttribute>
 {
-    protected override void DrawPropertyGroupLayout(InspectorProperty property, MainSideAttribute attribute, GUIContent label)
+    protected override void DrawPropertyLayout(GUIContent label)
     {
+        var property = this.Property;
+        var attribute = this.Attribute;
+        
         bool result = DeepReflection.CreateWeakInstanceValueGetter<bool>(property.ParentType, "mainSide")(property.ParentValues[0]);
 
         CrossSceneDrawer.DrawPropertyGroupLayout<MainSideAttribute>(this, property, attribute, label, result);
@@ -51,8 +54,11 @@ public class MainSideDrawer : OdinGroupDrawer<MainSideAttribute>
 
 public class TargetSideDrawer : OdinGroupDrawer<TargetSideAttribute>
 {
-    protected override void DrawPropertyGroupLayout(InspectorProperty property, TargetSideAttribute attribute, GUIContent label)
+    protected override void DrawPropertyLayout(GUIContent label)
     {
+        var property = this.Property;
+        var attribute = this.Attribute;
+
         bool result = DeepReflection.CreateWeakInstanceValueGetter<bool>(property.ParentType, "mainSide")(property.ParentValues[0]);
 
         result = !result;

@@ -6,6 +6,8 @@ using UnityEngine;
 using Sirenix.OdinInspector;
 #endif
 
+#pragma warning disable 0649
+
 [System.Serializable]
 #if ODIN_INSPECTOR
 [InlineProperty(LabelWidth = 5)]
@@ -33,7 +35,9 @@ public class LegacyAnimatorNode {
 	[Tooltip("Run this on a separate layer than those unchecked.")]
 	[SerializeField] bool secondLayer;
 
-	public string Trigger => trigger;
+#pragma warning restore 0649
+
+    public string Trigger => trigger;
 	public AnimationClip AnimationClip => animationClip;
 	public string ClipName => animationClip.name;
 	public float SpeedAdjust => speedAdjust;

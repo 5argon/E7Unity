@@ -11,6 +11,8 @@ using Sirenix.OdinInspector;
 
 public class LegacyAnimator : MonoBehaviour {
 
+#pragma warning disable 0649
+
 #if ODIN_INSPECTOR
 	[ValueDropdown("LimitToTriggers")]
 #endif
@@ -28,6 +30,8 @@ public class LegacyAnimator : MonoBehaviour {
 	[Space]
 	[SerializeField]
 	private LegacyAnimatorNode[] nodes;
+	
+#pragma warning restore 0649
 
 	private Dictionary<string,LegacyAnimatorNode> nodeSearch;
 

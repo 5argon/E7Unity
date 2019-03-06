@@ -19,10 +19,12 @@ public abstract class CrossSceneConnector<T> : MonoBehaviour where T : CrossScen
     //Also, it is not guaranteed that the being loaded scene will have it's Awake called before the current scene's Start!
     //Turn Start into IEnumerator and wait for the connector to complete is highly advised.
 
+#pragma warning disable 0649
     [Tooltip("Prevents Awake script from running.")]
     [SerializeField] private bool disable;
     [Space]
     [SerializeField] private bool mainSide;
+#pragma warning restore 0649
     protected bool MainSide => mainSide;
 
     /// <summary>

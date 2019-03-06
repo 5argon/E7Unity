@@ -265,12 +265,12 @@ public class PrefabInstantiator : MonoBehaviour {
 #if UNITY_EDITOR
     public void ApplyFirstChild()
     {
-        if (gameObject.transform.childCount > 0)
-        {
-            GameObject instance = gameObject.transform.GetChild(0).gameObject;
-            PrefabUtility.ReplacePrefab(instance, PrefabUtility.GetCorrespondingObjectFromSource(instance), ReplacePrefabOptions.ConnectToPrefab);
-            Debug.Log("Applied changes!");
-        }
+        // if (gameObject.transform.childCount > 0)
+        // {
+        //     GameObject instance = gameObject.transform.GetChild(0).gameObject;
+        //     PrefabUtility.SaveAsPrefabAssetAndConnect(instance, AssetDatabase.AssetPathToGUID PrefabUtility.GetCorrespondingObjectFromSource(instance));
+        //     Debug.Log("Applied changes!");
+        // }
     }
 #endif
 

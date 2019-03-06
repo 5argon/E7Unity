@@ -12,10 +12,14 @@ using Sirenix.OdinInspector;
 [Serializable]
 public class AddressableSpriteAtlas
 {
+
+#pragma warning disable 0649
 #if ODIN_INSPECTOR
     [HideLabel]
 #endif
     [SerializeField] private AssetReference atlasAddress;
+#pragma warning restore 0649
+
     private SpriteAtlas loadedAtlas;
 
     /// <summary>
@@ -25,7 +29,7 @@ public class AddressableSpriteAtlas
     public IAsyncOperation<Sprite> LoadSprite(string spriteName)
     {
         //Debug.Log($"Loading {spriteName}");
-        if(atlasAddress == null || atlasAddress.RuntimeKey == Hash128.Parse(""))
+        if (atlasAddress == null || atlasAddress.RuntimeKey == Hash128.Parse(""))
         {
             //Returns null sprite when it is empty
             return new CompletedOperation<Sprite>().Start(null, null, null);
@@ -41,19 +45,19 @@ public class AddressableSpriteAtlas
             return new ChainOperation<Sprite, SpriteAtlas>().Start(null, null, atlLoad, (atl) =>
             {
                 loadedAtlas = atl.Result;
-                
+
                 sp = loadedAtlas.GetSprite(spriteName);
-                if(sp == null)
+                if (sp == null)
                 {
                     throw new System.Exception("Loading sprite atlas " + atl.Result.name + " succeeded but sprite named " + spriteName + "is not in it.");
                 }
 
-                return new CompletedOperation<Sprite>().Start(null, null,sp );
+                return new CompletedOperation<Sprite>().Start(null, null, sp);
             });
         }
 
         sp = loadedAtlas.GetSprite(spriteName);
-        if(sp == null)
+        if (sp == null)
         {
             throw new System.Exception("Sprite named " + spriteName + "is not in the loaded atlas " + loadedAtlas.name);
         }

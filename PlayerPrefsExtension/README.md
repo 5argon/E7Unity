@@ -18,3 +18,15 @@ This extension aims to make `PlayerPrefs` easier to use. It is not to make `Play
 - C# 7.3
 
 It utilize the latest, cutting-edge technology, [Enum constriant](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/generics/constraints-on-type-parameters#enum-constraints)!! But I did nothing useful from the constrained type currently lol
+
+## Receipes
+
+### Magical persistent enum property
+
+```cs
+public static ChartDifficulty RememberedDifficulty 
+{
+    get => Persistent.State<State, ChartDifficulty>(State.RememberedDifficulty);
+    set => SetPersistent.State(State.RememberedDifficulty, value);
+} 
+```

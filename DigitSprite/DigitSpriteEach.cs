@@ -5,13 +5,18 @@ using UnityEngine.UI;
 
 public class DigitSpriteEach : MonoBehaviour
 {
+#pragma warning disable 0649
+    [SerializeField] private bool imageMode;
 
-    public bool imageMode;
     [Space]
-    public SpriteRenderer spriteRenderer;
-    public Image image;
+
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    [SerializeField] private Image image;
+
 	[Space]
+
 	[SerializeField] private Animator animator;
+#pragma warning restore 0649
 
     public virtual void SetTriggerToAnimator(string trigger)
     {

@@ -6,7 +6,9 @@ namespace E7.E7Unity.ScriptPostprocessor
     [CreateAssetMenu]
     public class ScriptPostprocessorConfig : ScriptableObject
     {
+#pragma warning disable 0649
         [SerializeField] private ScriptPostprocessorOrder[] orders;
+#pragma warning restore 0649
         public IEnumerable<ScriptPostprocessorOrder> Orders => orders;
     }
 

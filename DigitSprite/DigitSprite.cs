@@ -10,10 +10,13 @@ using UnityEngine.UI;
 /// </summary>
 public class DigitSprite : MonoBehaviour {
 
-	public Sprite[] digits;
-	public Sprite plusSign;
+#pragma warning disable 0649
+	[SerializeField] private Sprite[] digits;
+	[SerializeField] private Sprite plusSign;
 
 	[SerializeField] private DigitSpriteEach[] digitSpriteEach;
+#pragma warning restore 0649
+
 	public DigitSpriteEach[] DigitSpriteEach => digitSpriteEach;
 
     public virtual void Display(string toDisplay)
