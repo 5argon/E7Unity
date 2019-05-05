@@ -1,0 +1,20 @@
+/* AnimatorTrigger
+{
+    width: 12;
+    height: 14;
+    background-image: url("./marker.png");
+}
+
+AnimatorTrigger:checked
+{
+    width: 12;
+    height: 14;
+    background-image: url("./marker.png");
+}
+
+AnimatorTrigger:focused:checked
+{
+    width: 12;
+    height: 14;
+    background-image: url("./marker.png");
+} */

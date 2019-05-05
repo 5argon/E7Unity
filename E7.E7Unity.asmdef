@@ -1,14 +1,12 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "Unity.Entities",
-        "Unity.Collections",
-        "Unity.Entities.Hybrid",
-        "Unity.Mathematics",
-        "Unity.TextMeshPro",
         "UniRx.Async",
         "Unity.Addressables",
+        "Unity.Collections",
+        "Unity.Mathematics",
         "Unity.ResourceManager",
+        "Unity.TextMeshPro",
         "Unity.Timeline"
     ],
     "optionalUnityReferences": [],
@@ -25,5 +23,6 @@
         "Firebase.App.dll"
     ],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": []
 }

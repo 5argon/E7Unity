@@ -3,6 +3,6 @@
     "author": "Sirawat Pitaksarit (5argon) - Exceed7 Experiments",
     "displayName": "E7Unity",
     "version": "0.0.1",
-    "unity": "2018.1",
-    "description": "Things Exceed7 Experiments use in all projects. I don't care if you are missing some plugin dependencies!"
+    "unity": "2019.1",
+    "description": "Fun stuff Exceed7 Experiments use in all projects. I don't care about whatever problem this may cause to you."
 }

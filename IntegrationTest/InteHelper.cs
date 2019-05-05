@@ -95,15 +95,17 @@ public static class InteHelper
     }
 
     /// <summary>
-    /// REMEMBER!! must be active..
-    /// And remember that if there are multiples it returns the first one
+    /// Find the first game object of type <typeparamref name="T"> AND IT MUST BE ACTIVE.
     /// </summary>
-    /// <returns></returns>
     public static T Find<T>() where T : Component
     {
         return UnityEngine.Object.FindObjectOfType<T>() as T;
     }
 
+    /// <summary>
+    /// Find the first game object of type <typeparamref name="T"> AND IT MUST BE ACTIVE.
+    /// Narrow the search on only scene named <paramref name="sceneName">.
+    /// </summary>
     public static T Find<T>(string sceneName) where T : Component 
     {
         T[] objs = UnityEngine.Object.FindObjectsOfType<T>() as T[];
@@ -115,6 +117,15 @@ public static class InteHelper
             }
         }
         throw new GameObjectNotFoundException($"Type {typeof(T).Name} not found on scene {sceneName}!");
+    }
+
+    /// <summary>
+    /// Like <see cref="Find{T}"> but it returns a game object.
+    /// The object must be ACTIVE to be found!
+    /// </summary>
+    public static GameObject FindGameObject<T>() where T : Component 
+    {
+        return Find<T>().gameObject;
     }
 
     private static Transform FindChildRecursive(Transform transform, string childName)
@@ -136,10 +147,8 @@ public static class InteHelper
     }
     
     /// <summary>
-    /// Get a component of game object with a specific name.
+    /// Get a component of type <typeparamref name="T"> from a game object with a specific name <paramref name="gameObjectName">.
     /// </summary>
-    /// <param name="gameObjectName"></param>
-    /// <returns></returns>
     public static T FindNamed<T>(string gameObjectName) where T : Component
     {
         GameObject go = GameObject.Find(gameObjectName);
@@ -153,6 +162,9 @@ public static class InteHelper
         }
     }
 
+    /// <summary>
+    /// Check for amount of childs of a game object <paramref name="go">.
+    /// </summary>
     public static int ActiveChildCount(GameObject go)
     {
         var counter = 0;
@@ -164,22 +176,22 @@ public static class InteHelper
     }
 
     /// <summary>
-    /// Will try to find the parent first regardless of type, then a child under that parent regardless of type, then get component of type T.
+    /// Will try to find the parent first regardless of type, then a child under that parent regardless of type, then get component of type <typeparamref name="T">.
     /// </summary>
-    public static T FindNamed<T>(string parentName,string childName) where T : Component 
+    public static T FindNamed<T>(string parentName, string childName) where T : Component
     {
         GameObject parent = GameObject.Find(parentName);
-        if(parent == null)
+        if (parent == null)
         {
             throw new ArgumentException($"Parent name {parentName} not found!");
         }
         Transform child = FindChildRecursive(parent.transform, childName);
-        if(child == null)
+        if (child == null)
         {
             throw new ArgumentException($"Child name {childName} not found!");
         }
         T component = child.GetComponent<T>();
-        if(component == null)
+        if (component == null)
         {
             throw new ArgumentException($"Component of type {typeof(T).Name} does not exist on {parentName} -> {childName}!");
         }
@@ -208,8 +220,6 @@ public static class InteHelper
         }
         return found;
     }
-
-
 
     /// <summary>
     /// Useful in case there are many T in the scene, usually from a separate sub-scene
@@ -246,14 +256,6 @@ public static class InteHelper
         throw new GameObjectNotFoundException($"{typeof(T).Name} not found on scene root!");
     }
 
-    /// <summary>
-    /// The object must be ACTIVE to be found!
-    /// </summary>
-    public static GameObject FindGameObject<T>() where T : Component 
-    {
-        return (UnityEngine.Object.FindObjectOfType(typeof(T)) as T).gameObject;
-    }
-
     public static bool CheckGameObject(string name)
     {
         GameObject go = GameObject.Find(name);
@@ -267,11 +269,6 @@ public static class InteHelper
         }
     }
 
-    /// <summary>
-    /// Time to utilize hacky way of using string...
-    /// </summary>
-    /// <param name="gameObjectName"></param>
-    /// <returns></returns>
     public static Vector2 CenterOfRectNamed(string gameObjectName)
     {
         GameObject go = GameObject.Find(gameObjectName);

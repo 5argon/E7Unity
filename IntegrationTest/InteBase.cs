@@ -1,5 +1,4 @@
 ﻿//When integration testing using "on device" button DEVELOPMENT_BUILD is automatically on.
-//#if UNITY_EDITOR || (DEVELOPMENT_BUILD && !UNITY_EDITOR)
 using UnityEngine;
 using NUnit.Framework;
 
@@ -20,4 +19,3 @@ public abstract class InteBase {
         GameObject.DontDestroyOnLoad(g);
     }
 }
-//#endif

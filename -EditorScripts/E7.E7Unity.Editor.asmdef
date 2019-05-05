@@ -1,12 +1,19 @@
 {
     "name": "E7.E7Unity.Editor",
     "references": [
-        "E7.E7Unity"
+        "E7.E7Unity",
+        "Unity.Timeline",
+        "Unity.Timeline.Editor"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": false
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
 }

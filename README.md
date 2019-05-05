@@ -4,7 +4,7 @@ Free Unity stuff! But don't underestimate them because I have this as a UPM pack
 
 This is previously submodule based, but the new era is on npm-based Unity Package Manager! So I have transformed this in th UPM-based repo. (That means I have committed all the `.meta` files)
 
-**The license for everything here is MIT.** This repo will keeps growing over time.
+**The license for everything here is MIT.** This repo will keeps growing **or shrinking** over time. When I don't like something anymore I will delete it!
 
 I am not taking any responsibility for any problem caused by this, if there are bugs, they don't compile, or causes any revenue loss to your game!
 
