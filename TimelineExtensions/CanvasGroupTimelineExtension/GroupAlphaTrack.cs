@@ -8,12 +8,12 @@ namespace E7.E7Unity
 {
     [TrackBindingType(typeof(CanvasGroup))]
     [TrackColor(0.4f, 0, 0)]
-    [TrackClipType(typeof(CanvasGroupAlphaClip))]
-    public class CanvasGroupAlphaTrack : TrackAsset
+    [TrackClipType(typeof(GroupAlphaClip))]
+    public class GroupAlphaTrack : TrackAsset
     {
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
-            return ScriptPlayable<CanvasGroupAlphaMixerBehaviour>.Create(graph, inputCount);
+            return ScriptPlayable<GroupAlphaMixerBehaviour>.Create(graph, inputCount);
         }
 
         public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)
@@ -23,7 +23,7 @@ namespace E7.E7Unity
                 var binding = director.GetGenericBinding(this);
                 if (binding is CanvasGroup cg)
                 {
-                    driver.AddFromComponent(cg.gameObject, cg);
+                    driver.AddFromName<CanvasGroup>(cg.gameObject, "m_Alpha");
                 }
             }
         }

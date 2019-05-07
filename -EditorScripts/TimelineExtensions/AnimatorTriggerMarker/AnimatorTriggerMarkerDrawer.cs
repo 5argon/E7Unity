@@ -40,6 +40,13 @@ public class AnimatorTriggerMarkerDrawer : Editor
             this.Q(name: null, className: "unity-object-field-display").RemoveFromClassList("unity-object-field-display");
         }
 
+        public ReadOnlyObjectField(T obj, string label) : base(label)
+        {
+            SetValueWithoutNotify(obj);
+            this.Q(name: null, className: "unity-object-field__selector").RemoveFromClassList("unity-object-field__selector");
+            this.Q(name: null, className: "unity-object-field-display").RemoveFromClassList("unity-object-field-display");
+        }
+
         public float MeasureWidth()
         {
             Image icon = this.Q<Image>();
@@ -84,7 +91,7 @@ public class AnimatorTriggerMarkerDrawer : Editor
             arrow.Add(arrowInner);
             horizontalEqually.Add(arrow);
 
-            var rac = new ReadOnlyObjectField<RuntimeAnimatorController>(animator.runtimeAnimatorController);
+            var rac = new ReadOnlyObjectField<RuntimeAnimatorController>(animator.runtimeAnimatorController, animator.runtimeAnimatorController == null ? "No animator controller" : string.Empty);
             rac.style.width = rac.MeasureWidth();
             horizontalEqually.Add(rac);
 
@@ -94,11 +101,12 @@ public class AnimatorTriggerMarkerDrawer : Editor
 
             var availableTriggers = animator.parameters.Where(x => x.type == AnimatorControllerParameterType.Trigger).Select(x => x.name).ToList();
 
+            var label = new Label(availableTriggers.Count > 0 ? "Available Triggers" : "No trigger defined");
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            vis.Add(label);
+
             if (availableTriggers.Count > 0)
             {
-                var label = new Label("Available Triggers");
-                label.style.unityFontStyleAndWeight = FontStyle.Bold;
-                vis.Add(label);
 
                 foreach (string trigger in availableTriggers)
                 {
