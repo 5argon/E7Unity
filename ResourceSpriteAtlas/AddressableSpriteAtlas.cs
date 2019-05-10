@@ -29,10 +29,10 @@ public class AddressableSpriteAtlas
     public AsyncOperationHandle<Sprite> LoadSprite(string spriteName)
     {
         //Debug.Log($"Loading {spriteName}");
-        if (atlasAddress == null || atlasAddress.RuntimeKey == Hash128.Parse(""))
+        if (atlasAddress == null || !atlasAddress.RuntimeKeyIsValid())
         {
             //Returns null sprite when it is empty
-            return new CompletedOperation<Sprite>().Start(null, null, null);
+            return Addressables.ResourceManager.CreateCompletedOperation<Sprite>(null, "Atlas address is null");
         }
 
         //Debug.Log($"Ok {spriteName} is not null!");
@@ -40,9 +40,9 @@ public class AddressableSpriteAtlas
 
         if (loadedAtlas == null)
         {
-            var atlLoad = atlasAddress.LoadAsset<SpriteAtlas>();
+            var atlLoad = atlasAddress.LoadAssetAsync<SpriteAtlas>();
 
-            return new ChainOperation<Sprite, SpriteAtlas>().Start(null, null, atlLoad, (atl) =>
+            return Addressables.ResourceManager.CreateChainOperation<Sprite, SpriteAtlas>(atlLoad, (atl) =>
             {
                 loadedAtlas = atl.Result;
 
@@ -52,7 +52,7 @@ public class AddressableSpriteAtlas
                     throw new System.Exception("Loading sprite atlas " + atl.Result.name + " succeeded but sprite named " + spriteName + "is not in it.");
                 }
 
-                return new CompletedOperation<Sprite>().Start(null, null, sp);
+                return Addressables.ResourceManager.CreateCompletedOperation<Sprite>(sp, string.Empty);
             });
         }
 
@@ -61,7 +61,7 @@ public class AddressableSpriteAtlas
         {
             throw new System.Exception("Sprite named " + spriteName + "is not in the loaded atlas " + loadedAtlas.name);
         }
-        return new CompletedOperation<Sprite>().Start(null, null, sp);
+        return Addressables.ResourceManager.CreateCompletedOperation<Sprite>(sp, "no error");
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public class AddressableSpriteAtlas
     /// </summary>
     public void ReleaseAtlas()
     {
-        Addressables.ReleaseAsset(loadedAtlas);
+        Addressables.Release(loadedAtlas);
         loadedAtlas = null;
     }
 }

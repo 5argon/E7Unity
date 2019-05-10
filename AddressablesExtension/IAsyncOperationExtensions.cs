@@ -25,7 +25,7 @@ public static class IAsyncOperationExtensions
 
         public bool IsCompleted => _operation.Status != AsyncOperationStatus.None;
 
-        public void OnCompleted(Action continuation) => _operation.IsDone += (op) => continuation?.Invoke();
+        public void OnCompleted(Action continuation) => _operation.Completed += (op) => continuation?.Invoke();
 
         public object GetResult() 
         {

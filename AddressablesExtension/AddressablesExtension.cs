@@ -13,7 +13,7 @@ public static class AddressablesExtension
 {
     public static bool IsNullOrEmpty(this AssetReference aref)
     {
-        return aref == null || aref.RuntimeKey == Hash128.Parse("");
+        return aref == null || !aref.RuntimeKeyIsValid();
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public static class AddressablesExtension
             return (T)aref.editorAsset;
         }
 #endif
-        var op = aref.LoadAsset<T>();
+        var op = aref.LoadAssetAsync<T>();
         var result = await op;
         //Debug.Log($"{op.Status} {object.ReferenceEquals(null, op.Result)} {op.IsDone} {op.IsValid} {op.OperationException}");
         return result;
@@ -48,6 +48,6 @@ public static class AddressablesExtension
             return AssetDatabase.LoadAssetAtPath<T>(pathForEditor);
         }
 #endif
-        return await Addressables.LoadAsset<T>(key);
+        return await Addressables.LoadAssetAsync<T>(key);
     }
 }

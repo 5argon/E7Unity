@@ -37,7 +37,7 @@ public class ResourceSpriteAtlas
         if (loadTextureCalled == false)
         {
             loadTextureCalled = true;
-            loadTextureOperation = Addressables.LoadAsset<SpriteAtlas>(Address); //should be fast
+            loadTextureOperation = Addressables.LoadAssetAsync<SpriteAtlas>(Address); //should be fast
             loadedAtlas = await loadTextureOperation;
             if (loadedAtlas == null)
             {
@@ -56,7 +56,7 @@ public class ResourceSpriteAtlas
     {
         if (loadedAtlas != null && loadTextureCalled )
         {
-            Addressables.ReleaseAsset(loadedAtlas);
+            Addressables.Release(loadedAtlas);
             loadedAtlas = null;
             loadTextureCalled = false;
         }

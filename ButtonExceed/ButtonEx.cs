@@ -189,6 +189,7 @@ public class ButtonEx : Selectable, IPointerClickHandler
         ClearAndTrigger(triggerUp);
     }
 
+    //TODO: It is possible to down while uninteractable, then up when interactable and trigger this click..
     public virtual void OnPointerClick(PointerEventData eventData)
     {
         if (!IsActive() || !IsInteractable())
