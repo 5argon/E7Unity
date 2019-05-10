@@ -6,6 +6,15 @@ using UnityEngine.Playables;
 public class AnimatorTriggerReceiver : MonoBehaviour, INotificationReceiver
 {
     public Animator triggerTarget;
+
+    public void OnValidate()
+    {
+        if(triggerTarget == null)
+        {
+            triggerTarget = GetComponent<Animator>();
+        }
+    }
+
     public void OnNotify(Playable origin, INotification notification, object context)
     {
         if(notification is AnimatorTriggerMarker atm)

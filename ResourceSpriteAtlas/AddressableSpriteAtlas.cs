@@ -26,7 +26,7 @@ public class AddressableSpriteAtlas
     /// - If called once before, get the sprite immediately.
     /// - If some other AddressablesSpriteAtlas loaded the same sheet before also get the sprite immediately.
     /// </summary>
-    public IAsyncOperation<Sprite> LoadSprite(string spriteName)
+    public AsyncOperationHandle<Sprite> LoadSprite(string spriteName)
     {
         //Debug.Log($"Loading {spriteName}");
         if (atlasAddress == null || atlasAddress.RuntimeKey == Hash128.Parse(""))

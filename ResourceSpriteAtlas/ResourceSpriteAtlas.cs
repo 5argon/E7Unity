@@ -21,7 +21,7 @@ public class ResourceSpriteAtlas
 
     //Because we cannot check valid status of IAsync
     private bool loadTextureCalled = false;
-    IAsyncOperation<SpriteAtlas> loadTextureOperation;
+    AsyncOperationHandle<SpriteAtlas> loadTextureOperation;
 
     /// <param name="address">Put the string of Addressable Asset System here.</param>
     public ResourceSpriteAtlas(string address)

@@ -4,28 +4,28 @@ using System;
 
 public static class IAsyncOperationExtensions
 {
-    public static AsyncOperationAwaiter GetAwaiter(this IAsyncOperation operation)
+    public static AsyncOperationAwaiter GetAwaiter(this AsyncOperationHandle operation)
     {
         return new AsyncOperationAwaiter(operation);
     }
 
-    public static AsyncOperationAwaiter<T> GetAwaiter<T>(this IAsyncOperation<T> operation) 
+    public static AsyncOperationAwaiter<T> GetAwaiter<T>(this AsyncOperationHandle<T> operation) 
     {
         return new AsyncOperationAwaiter<T>(operation);
     }
 
     public readonly struct AsyncOperationAwaiter : INotifyCompletion
     {
-        readonly IAsyncOperation _operation;
+        readonly AsyncOperationHandle _operation;
 
-        public AsyncOperationAwaiter(IAsyncOperation operation)
+        public AsyncOperationAwaiter(AsyncOperationHandle operation)
         {
             _operation = operation;
         }
 
         public bool IsCompleted => _operation.Status != AsyncOperationStatus.None;
 
-        public void OnCompleted(Action continuation) => _operation.Completed += (op) => continuation?.Invoke();
+        public void OnCompleted(Action continuation) => _operation.IsDone += (op) => continuation?.Invoke();
 
         public object GetResult() 
         {
@@ -40,9 +40,9 @@ public static class IAsyncOperationExtensions
 
     public readonly struct AsyncOperationAwaiter<T> : INotifyCompletion 
     {
-        readonly IAsyncOperation<T> _operation;
+        readonly AsyncOperationHandle<T> _operation;
 
-        public AsyncOperationAwaiter(IAsyncOperation<T> operation)
+        public AsyncOperationAwaiter(AsyncOperationHandle<T> operation)
         {
             _operation = operation;
         }
