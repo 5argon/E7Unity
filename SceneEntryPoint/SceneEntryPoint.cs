@@ -16,13 +16,22 @@ namespace E7.E7Unity
     /// </summary>
     public class SceneEntryPoint : MonoBehaviour
     {
+        /// <summary>
+        /// In editor only lags once.
+        /// </summary>
+        private static bool used;
+
         public void Awake()
         {
 #if UNITY_EDITOR
-            StartCoroutine(LagCombatRoutine());
-#else
-        GetComponent<ISceneEntryPoint>().EntryPoint();
+            if (!used)
+            {
+                used = true;
+                StartCoroutine(LagCombatRoutine());
+                return;
+            }
 #endif
+            GetComponent<ISceneEntryPoint>().EntryPoint();
         }
 
         IEnumerator LagCombatRoutine()

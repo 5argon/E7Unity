@@ -351,16 +351,25 @@ public static class InteHelper
             foreach(RaycastResult rr in results)
             {
                 Debug.Log("Hit : " + rr.gameObject.name);
-                Button b = rr.gameObject.GetComponent<Button>();
-                if (b != null && b.interactable)
+                Selectable selectable = rr.gameObject.GetComponent<Selectable>();
+                bool interactable = selectable != null ? selectable.interactable : true;
+
+                var down = rr.gameObject.GetComponent<IPointerDownHandler>();
+                if (down != null)
                 {
-                    b.onClick.Invoke();
+                    down.OnPointerDown(fakeClick);
                 }
 
-                EventTrigger et = rr.gameObject.GetComponent<EventTrigger>();
-                if (et != null)
+                var up = rr.gameObject.GetComponent<IPointerUpHandler>();
+                if (up != null)
                 {
-                    et.OnPointerClick(fakeClick);
+                    up.OnPointerUp(fakeClick);
+                }
+
+                var click = rr.gameObject.GetComponent<IPointerClickHandler>();
+                if (click != null)
+                {
+                    click.OnPointerClick(fakeClick);
                 }
             }
 

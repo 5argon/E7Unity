@@ -2,6 +2,10 @@
 using UnityEngine;
 using NUnit.Framework;
 using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+using System.Collections;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.ResourceProviders;
 
 /// <summary>
 /// A play mode test which starts on a specific scene by loading solely that scene.
@@ -14,9 +18,14 @@ public abstract class SceneTest : InteBase
     /// </summary>
     protected abstract string Scene { get; }
 
-    [SetUp]
-    public void StartScene()
+    protected SceneInstance SceneInstance {get; private set;}
+
+    [UnitySetUp]
+    public IEnumerator StartScene()
     {
-        SceneManager.LoadScene(Scene, LoadSceneMode.Single);
+        var handle = Addressables.LoadSceneAsync(Scene, loadMode: LoadSceneMode.Single, activateOnLoad: false);
+        yield return handle;
+        SceneInstance = handle.Result;
     }
+    
 }
