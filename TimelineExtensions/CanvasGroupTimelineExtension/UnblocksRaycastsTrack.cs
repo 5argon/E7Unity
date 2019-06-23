@@ -6,7 +6,7 @@ using UnityEngine.Timeline;
 namespace E7.Timeline
 {
     /// <summary>
-    /// If having more than 1 clip, on the duration of <see cref="UninteractableClip">, <see cref="CanvasGroup"> is uninteractable.
+    /// If having more than 1 clip, on the duration of <see cref="UnblocksRaycastsClip">, <see cref="CanvasGroup"> is uninteractable.
     /// If the track contains no clips at all, the entire track is uninteractable as a special case as that's common thing I want to do.
     /// 
     /// Useful for making UI animations, where usually you don't want your player to mess with the UI while the intro/outro sequence is still running.
@@ -14,10 +14,10 @@ namespace E7.Timeline
     /// </summary>
     [TrackBindingType(typeof(CanvasGroup))]
     [TrackColor(0.4f, 0, 0)]
-    [TrackClipType(typeof(UninteractableClip))]
-    public class UninteractableTrack : TrackAsset
+    [TrackClipType(typeof(UnblocksRaycastsClip))]
+    public class UnblocksRaycastsTrack : TrackAsset
     {
-        public UninteractableTrackMixerBehaviour template;
+        public UnblocksRaycastsTrackMixerBehaviour template;
 
         /// <summary>
         /// Make the track evaluate even if empty.
@@ -27,7 +27,7 @@ namespace E7.Timeline
         public override Playable CreateTrackMixer(PlayableGraph graph, GameObject go, int inputCount)
         {
             //Debug.Log($"Creating track mixer {Time.frameCount}");
-            return ScriptPlayable<UninteractableTrackMixerBehaviour>.Create(graph, template, inputCount);
+            return ScriptPlayable<UnblocksRaycastsTrackMixerBehaviour>.Create(graph, template, inputCount);
         }
 
         public override void GatherProperties(PlayableDirector director, IPropertyCollector driver)

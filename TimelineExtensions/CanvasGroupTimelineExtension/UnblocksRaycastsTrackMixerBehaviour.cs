@@ -5,7 +5,7 @@ using UnityEngine.Playables;
 namespace E7.Timeline
 {
     [Serializable]
-    public class UninteractableTrackMixerBehaviour : PlayableBehaviour
+    public class UnblocksRaycastsTrackMixerBehaviour : PlayableBehaviour
     {
 #pragma warning disable 0649
         [SerializeField] private PostPlaybackState postPlaybackState;
@@ -13,8 +13,16 @@ namespace E7.Timeline
 
         public enum PostPlaybackState
         {
-            Interactable,
-            Uninteractable,
+            /// <summary>
+            /// Blocks raycasts = you **could** click on things.
+            /// </summary>
+            BlocksRaycasts,
+
+            /// <summary>
+            /// Unblocks raycasts = you **could NOT** click on things, the ray went through.
+            /// </summary>
+            UnblocksRaycasts,
+
             Revert
         };
 
@@ -26,10 +34,10 @@ namespace E7.Timeline
             {
                 switch (postPlaybackState)
                 {
-                    case PostPlaybackState.Interactable:
+                    case PostPlaybackState.BlocksRaycasts:
                         affectedCg.blocksRaycasts = true;
                         break;
-                    case PostPlaybackState.Uninteractable:
+                    case PostPlaybackState.UnblocksRaycasts:
                         affectedCg.blocksRaycasts = false;
                         break;
                     case PostPlaybackState.Revert:

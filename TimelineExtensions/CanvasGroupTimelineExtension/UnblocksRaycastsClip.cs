@@ -7,7 +7,7 @@ namespace E7.Timeline
     /// <summary>
     /// On the duration of this clip, <see cref="CanvasGroup"> is not blocking raycast.
     /// </summary>
-    public class UninteractableClip : PlayableAsset, ITimelineClipAsset
+    public class UnblocksRaycastsClip : PlayableAsset, ITimelineClipAsset
     {
         public ClipCaps clipCaps => ClipCaps.None;
 

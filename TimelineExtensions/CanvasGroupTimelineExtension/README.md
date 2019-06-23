@@ -8,10 +8,9 @@ Use this track to control `CanvasGroup`'s alpha based on weight of the clip. Use
 
 Cmd + click and drag the edge of the clip to make a weight slope which affects alpha.
 
-## UninteractableTrack
+## UnblocksRaycastsTrack
 
-On the duration of `UninteractableClip`, `CanvasGroup` is uninteractable.
-Except the last and the first frame of the timeline, even with the clip, the `CanvasGroup` is still interactable.
+On the duration of the click, `CanvasGroup` let the raycast pass through.
 
 Useful for making UI animations, where usually you don't want your player to mess with the UI while the intro/outro sequence is still running.
 The clip should usually span the entire length, but you could shrink them a bit to allow player to interact with the UI tree earlier.

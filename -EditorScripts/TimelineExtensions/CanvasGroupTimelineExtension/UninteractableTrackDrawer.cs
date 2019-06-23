@@ -2,6 +2,6 @@ using UnityEditor;
 
 namespace E7.Timeline
 {
-    [CustomEditor(typeof(UninteractableTrack))]
-    public class UninteractableTrackDrawer : DrawThingsInTemplate { }
+    [CustomEditor(typeof(UnblocksRaycastsTrack))]
+    public class UnblocksRaycastsTrackDrawer : DrawThingsInTemplate { }
 }
