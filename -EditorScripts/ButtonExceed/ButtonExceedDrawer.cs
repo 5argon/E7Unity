@@ -7,6 +7,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+#if ODIN_INSPECTOR
+
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
@@ -102,3 +104,5 @@ public class ButtonExceedDrawer : OdinEditor
         }
     }
 }
+
+#endif

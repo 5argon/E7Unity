@@ -104,11 +104,13 @@ public class ButtonEx : Selectable, IPointerClickHandler
         tran = downState.AddTransition(upState, false);
         tran.hasExitTime = false;
         tran.duration = 0;
+        tran.name = "Down -> Up by Up";
         tran.AddCondition(AnimatorConditionMode.If, 0, triggerUp);
 
         tran = downState.AddTransition(upState, false);
         tran.hasExitTime = false;
         tran.duration = 0;
+        tran.name = "Down -> Up by Click";
         tran.AddCondition(AnimatorConditionMode.If, 0, triggerClick);
 
         tran = upState.AddTransition(downState, false);
@@ -176,8 +178,8 @@ public class ButtonEx : Selectable, IPointerClickHandler
         base.OnPointerDown(eventData);
         if (!IsActive() || !IsInteractable())
             return;
-        onDown.Invoke();
         ClearAndTrigger(triggerDown);
+        onDown.Invoke();
     }
 
     public override void OnPointerUp(PointerEventData eventData)
@@ -185,8 +187,8 @@ public class ButtonEx : Selectable, IPointerClickHandler
         base.OnPointerUp(eventData);
         if (!IsActive() || !IsInteractable())
             return;
-        onUp.Invoke();
         ClearAndTrigger(triggerUp);
+        onUp.Invoke();
     }
 
     //TODO: It is possible to down while uninteractable, then up when interactable and trigger this click..
@@ -194,8 +196,9 @@ public class ButtonEx : Selectable, IPointerClickHandler
     {
         if (!IsActive() || !IsInteractable())
             return;
-        onClick.Invoke();
+
         ClearAndTrigger(triggerClick);
+        onClick.Invoke();
     }
 
 
@@ -210,7 +213,7 @@ public class ButtonEx : Selectable, IPointerClickHandler
     /// </summary>
     private void ClearAndTrigger(string trigger)
     {
-        if (animator != null && animator.playableGraph.IsValid())
+        if (AnimatorUsable)
         {
             animator.ResetTrigger(triggerNormal);
             animator.ResetTrigger(triggerDown);
@@ -222,15 +225,23 @@ public class ButtonEx : Selectable, IPointerClickHandler
         }
     }
 
+    private bool AnimatorUsable => animator != null && animator.playableGraph.IsValid();
+
     protected override void DoStateTransition(SelectionState state, bool instant)
     {
+        //Debug.Log($"Transition to state {state}");
         base.DoStateTransition(state, instant);
         switch (state)
         {
             // case SelectionState.Normal:
             //     break;
             case SelectionState.Disabled:
-                ClearAndTrigger(triggerDisabled);
+                //Disabled state could be triggered without clearing out unused triggers
+                if(AnimatorUsable)
+                {
+                    animator.SetTrigger(triggerDisabled);
+                }
+                //ClearAndTrigger(triggerDisabled);
                 break;
             // case SelectionState.Highlighted:
             //     break;

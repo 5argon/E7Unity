@@ -7,6 +7,7 @@
         "Unity.Mathematics",
         "Unity.ResourceManager",
         "Unity.TextMeshPro",
+        "Unity.ugui",
         "Unity.Timeline"
     ],
     "optionalUnityReferences": [],

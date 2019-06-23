@@ -2,11 +2,10 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.E7Unity
+namespace E7.Timeline
 {
     /// <summary>
-    /// On the duration of this clip, <see cref="CanvasGroup"> is uninteractable.
-    /// Except the last and the first frame of the timeline, even with this clip, it is still interactable.
+    /// On the duration of this clip, <see cref="CanvasGroup"> is not blocking raycast.
     /// </summary>
     public class UninteractableClip : PlayableAsset, ITimelineClipAsset
     {

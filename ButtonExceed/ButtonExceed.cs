@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-using Sirenix.OdinInspector;
 
 public class ButtonExceed : Button 
 {

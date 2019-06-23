@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.E7Unity
+namespace E7.Timeline
 {
     [TrackBindingType(typeof(CanvasGroup))]
     [TrackColor(0.4f, 0, 0)]

@@ -3,7 +3,8 @@
     "references": [
         "E7.E7Unity",
         "Unity.Timeline",
-        "Unity.Timeline.Editor"
+        "Unity.Timeline.Editor",
+        "Unity.ugui"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

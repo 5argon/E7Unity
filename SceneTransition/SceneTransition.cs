@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
@@ -15,6 +16,11 @@ namespace E7.E7Unity
         public void LoadScene(string sceneName)
         {
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        }
+
+        public void LoadSceneAddressables(string sceneName)
+        {
+            Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Single);
         }
 
         public void OnNotify(Playable origin, INotification notification, object context)

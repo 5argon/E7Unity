@@ -2,13 +2,16 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-public class GroupAlphaClip : PlayableAsset, ITimelineClipAsset
+namespace E7.Timeline
 {
-    public bool interactable;
-    public ClipCaps clipCaps => ClipCaps.Extrapolation | ClipCaps.Blending;
-
-    public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
+    public class GroupAlphaClip : PlayableAsset, ITimelineClipAsset
     {
-        return Playable.Create(graph);
+        public GroupAlphaClipBehaviour template;
+        public ClipCaps clipCaps => ClipCaps.Extrapolation | ClipCaps.Blending;
+
+        public override Playable CreatePlayable(PlayableGraph graph, GameObject owner)
+        {
+            return ScriptPlayable<GroupAlphaClipBehaviour>.Create(graph, template);
+        }
     }
 }

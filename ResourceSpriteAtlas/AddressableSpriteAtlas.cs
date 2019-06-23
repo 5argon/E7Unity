@@ -4,7 +4,10 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement;
 using System;
+
+#if ODIN_INSPECTOR
 using Sirenix.OdinInspector;
+#endif
 
 #if ODIN_INSPECTOR
 [InlineProperty]
