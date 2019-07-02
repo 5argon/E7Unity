@@ -10,9 +10,9 @@ Cmd + click and drag the edge of the clip to make a weight slope which affects a
 
 ## UnblocksRaycastsTrack
 
-On the duration of the click, `CanvasGroup` let the raycast pass through.
+On the duration of the clip, `CanvasGroup` let the raycast pass through. ( = you couldn't click on anything)
 
 Useful for making UI animations, where usually you don't want your player to mess with the UI while the intro/outro sequence is still running.
 The clip should usually span the entire length, but you could shrink them a bit to allow player to interact with the UI tree earlier.
 
-Put the `UninteractableTrack.png` in your `Assets/Gizmos` to get a track icon.
+Put the `UnblocksRaycastsTrack.png` in your `Assets/Gizmos` to get a track icon.
