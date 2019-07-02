@@ -73,12 +73,16 @@ namespace E7.E7Unity
         private void Entry()
         {
             entryPoint.Invoke();
-            if(entryDirector != null)
+            if (entryDirector != null)
             {
                 entryDirector.Play();
                 entryDirector.Evaluate();
             }
-            GetComponent<ISceneEntryPoint>().EntryPoint();
+            var entryPointComponent = GetComponent<ISceneEntryPoint>();
+            if (entryPointComponent != null)
+            {
+                entryPointComponent.EntryPoint();
+            }
         }
 
     }

@@ -40,6 +40,18 @@ public class ButtonEx : Selectable, IPointerClickHandler
     private const string triggerDisabled = "Disabled";
 
 #if UNITY_EDITOR
+    protected override void OnValidate()
+    {
+        base.OnValidate();
+        transition = Transition.None;
+    }
+
+    protected override void Reset()
+    {
+        base.Reset();
+        transition = Transition.None;
+    }
+
     [ContextMenu("Create Animator")]
     void CreateAnimator()
     {
@@ -159,18 +171,6 @@ public class ButtonEx : Selectable, IPointerClickHandler
     protected override void OnEnable()
     {
         base.OnEnable();
-    }
-
-    protected override void OnValidate()
-    {
-        base.OnValidate();
-        transition = Transition.None;
-    }
-
-    protected override void Reset()
-    {
-        base.Reset();
-        transition = Transition.None;
     }
 
     public override void OnPointerDown(PointerEventData eventData)
