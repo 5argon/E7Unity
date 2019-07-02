@@ -13,13 +13,27 @@ namespace E7.E7Unity
 
     /// <summary>
     /// Instead of starting the scene immediately with `Start`, use `EntryPoint()` instead.
+    /// By use this a a single starting hub per scene, we could add some functionality commonly to all scenes at once.
+    /// 
+    /// - Lag combat routine (editor only)
+    /// 
     /// In editor, this will delay for a bit of frames to separate out the scene loading lag from the actual entry point.
     /// Plus you could still use `Awake` for setup before this happen.
+    /// 
+    /// - Current screen Firebase Analytics integration (TODO)
+    /// 
+    /// You could set the current screen so that all reported logs will have a screen information. Unity game has no concept of usual
+    /// app's screen. With this, you could automatically set the screen.
     /// </summary>
     public class SceneEntryPoint : MonoBehaviour
     {
+        [Tooltip("While in editor lag combat routine, it could make a canvas group not blocking raycast so you can't accidentally cause impossible action that is impossible in real build.")]
         public CanvasGroup lagCombatUninteractable;
         public UnityEvent entryPoint;
+
+        [Tooltip("This director is special because it will be Play() AND Evaluate() on the first frame, so you don't see a flash of unintended state on the first frame.")]
+
+        public PlayableDirector entryDirector;
 
         /// <summary>
         /// In editor only lags once.
@@ -59,6 +73,11 @@ namespace E7.E7Unity
         private void Entry()
         {
             entryPoint.Invoke();
+            if(entryDirector != null)
+            {
+                entryDirector.Play();
+                entryDirector.Evaluate();
+            }
             GetComponent<ISceneEntryPoint>().EntryPoint();
         }
 

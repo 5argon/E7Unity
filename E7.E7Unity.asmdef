@@ -3,11 +3,9 @@
     "references": [
         "UniRx.Async",
         "Unity.Addressables",
-        "Unity.Collections",
         "Unity.Mathematics",
         "Unity.ResourceManager",
         "Unity.TextMeshPro",
-        "Unity.ugui",
         "Unity.Timeline"
     ],
     "optionalUnityReferences": [],

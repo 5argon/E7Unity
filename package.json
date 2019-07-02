@@ -4,5 +4,8 @@
     "displayName": "E7Unity",
     "version": "0.0.1",
     "unity": "2019.1",
+    "dependencies": {
+        "com.unity.mathematics": "1.0.1"
+    },
     "description": "Fun stuff Exceed7 Experiments use in all projects. I don't care about whatever problem this may cause to you."
 }
