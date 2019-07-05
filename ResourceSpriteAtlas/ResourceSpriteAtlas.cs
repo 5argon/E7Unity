@@ -1,3 +1,4 @@
+#if HAS_AAS
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -77,3 +78,4 @@ public class ResourceSpriteAtlas
     }
 
 }
+#endif

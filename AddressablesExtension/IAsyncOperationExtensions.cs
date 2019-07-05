@@ -1,3 +1,4 @@
+#if HAS_AAS
 using UnityEngine.ResourceManagement.AsyncOperations;
 using System.Runtime.CompilerServices;
 using System;
@@ -62,3 +63,4 @@ public static class IAsyncOperationExtensions
 
     }
 }
+#endif

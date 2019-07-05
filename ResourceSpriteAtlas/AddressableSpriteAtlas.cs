@@ -1,3 +1,4 @@
+#if HAS_AAS
 using UnityEngine;
 using UnityEngine.U2D;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -76,3 +77,4 @@ public class AddressableSpriteAtlas
         loadedAtlas = null;
     }
 }
+#endif

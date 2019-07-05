@@ -1,4 +1,5 @@
-﻿#if UNITY_EDITOR
+﻿#if HAS_AAS
+#if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
@@ -51,3 +52,4 @@ public static class AddressablesExtension
         return await Addressables.LoadAssetAsync<T>(key);
     }
 }
+#endif
