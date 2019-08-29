@@ -10,7 +10,7 @@ using TMPro;
 //You can use # , ##, etc. like markdown to make it bigger!
 //Markdown # will not work if you don't have enough elements of markdownHashSize AND markdownHashColor.
 
-[ExecuteInEditMode]
+[ExecuteAlways]
 public class TextAssetToText : MonoBehaviour
 {
     public TextAsset textAsset;
@@ -34,6 +34,12 @@ public class TextAssetToText : MonoBehaviour
         }
     }
 
+    public void ReadText(TextAsset ta)
+    {
+        this.textAsset = ta;
+        ReadText();
+    }
+
     [ContextMenu("Read Text")]
     public void ReadText()
     {
@@ -48,7 +54,7 @@ public class TextAssetToText : MonoBehaviour
                     string read = stringReader.ReadLine();
                     if (read != null)
                     {
-                        stringBuider.AppendLine(ConvertMDHash(read));
+                        stringBuider.AppendLine(MarkdownToRichText(read));
                     }
                     else
                     {
@@ -62,6 +68,21 @@ public class TextAssetToText : MonoBehaviour
                 text.text = textAsset.text;
             }
         }
+    }
+
+    private string MarkdownToRichText(string input)
+        => ConvertBulletPoint(ConvertMDHash(input));
+
+    /// <summary>
+    /// Should comes last as it applies alignment.
+    /// </summary>
+    private string ConvertBulletPoint(string input)
+    {
+        if (input.IndexOf("- ") == 0)
+        {
+            return $"<align=\"left\">{input}</align>";
+        }
+        return input;
     }
 
     private string ConvertMDHash(string input)
@@ -80,6 +101,9 @@ public class TextAssetToText : MonoBehaviour
                 break;
             }
         }
+
+        //Trim one space after the hash
+        input = input.TrimStart(' ');
         if (hashCount > 0 && markdownHashSize.Length >= hashCount && markdownHashColor.Length >= hashCount)
         {
             return string.Format("<color={1}><size={0}>{2}</size></color>", markdownHashSize[hashCount - 1], HexConverter(markdownHashColor[hashCount - 1]), input);
