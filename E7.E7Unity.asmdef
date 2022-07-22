@@ -1,7 +1,7 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "UniRx.Async",
+        "UniTask",
         "Unity.Addressables",
         "Unity.Mathematics",
         "Unity.ResourceManager",

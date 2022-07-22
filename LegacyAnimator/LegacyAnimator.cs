@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using UniRx.Async;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 
 #if ODIN_INSPECTOR
 using Sirenix.OdinInspector;

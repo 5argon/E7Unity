@@ -7,6 +7,6 @@ public class CustomCanvasScaler : CanvasScaler
 {
     public void ForceUpdateScaler()
     {
-        Update();
+        // Update();
     }
 }

@@ -49,7 +49,7 @@ namespace E7.Timeline
             //Clip starts with some preset duration, we want it to stretch the full length but that preset duration ruins the timeline length.
             clip.duration = float.Epsilon;
             //Now we can ask for the correct timeline length before the clip came
-            clip.duration = clip.parentTrack.parent.duration;
+            clip.duration = clip.GetParentTrack().parent.duration;
             if(clip.duration <= float.Epsilon)
             {
                 clip.duration = 1;

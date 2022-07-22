@@ -1,4 +1,4 @@
-using UniRx.Async;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace E7.AnimatorExtension
