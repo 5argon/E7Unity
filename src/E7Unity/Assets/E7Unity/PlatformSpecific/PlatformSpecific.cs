@@ -3,12 +3,16 @@ using UnityEngine;
 namespace E7.E7Unity
 {
     /// <summary>
-    /// Keeps its game object active only on the listed runtime platforms, and deactivates it everywhere else.
+    /// Marks its game object as belonging on a specific set of runtime platforms, gating its visibility
+    /// through <see cref="PlatformResolver" /> so the decision can be simulated in the editor.
     /// </summary>
     /// <remarks>
-    /// The decision is made once in <c>Awake</c> by comparing <see cref="Application.platform"/> against
-    /// <see cref="platforms"/>, so the game object may be left active in the scene while authoring and still
-    /// disappear on the platforms it is not meant for.
+    /// On its own this component can only hide an object it was authored active on — a disabled game object
+    /// receives no <c>Awake</c> and so can never re-enable itself, and it deliberately does nothing in edit
+    /// mode so authoring stays unaffected. Put a <see cref="PlatformSwitch" /> on a common ancestor to drive
+    /// tagged objects in <em>both</em> directions and to preview them live in the editor, which lets the
+    /// mutually-exclusive variants be authored inactive instead of overlapping. The serialized
+    /// <see cref="platforms" /> field is the data a <see cref="PlatformSwitch" /> reads.
     /// </remarks>
     public class PlatformSpecific : MonoBehaviour
     {
@@ -17,17 +21,20 @@ namespace E7.E7Unity
         /// </summary>
         public RuntimePlatform[] platforms;
 
-        void Awake()
+        void Awake() => Apply();
+
+        // React to a simulated-platform flip during Play (including Play Mode tests). This can only hide;
+        // re-activation is owned by a PlatformSwitch ancestor.
+        void OnEnable() => PlatformResolver.Changed += Apply;
+
+        void OnDisable() => PlatformResolver.Changed -= Apply;
+
+        void Apply()
         {
-            foreach (var p in platforms)
+            if (!PlatformResolver.IsActiveOn(platforms))
             {
-                if (Application.platform == p)
-                {
-                    this.gameObject.SetActive(true);
-                    return;
-                }
+                gameObject.SetActive(false);
             }
-            this.gameObject.SetActive(false);
         }
     }
 }
