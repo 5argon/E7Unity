@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     /// <summary>
     /// A helper editor so you could have the behaviour template named "template" in your playable asset

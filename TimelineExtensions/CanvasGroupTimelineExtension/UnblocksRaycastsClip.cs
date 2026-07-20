@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     /// <summary>
     /// On the duration of this clip, <see cref="CanvasGroup"> is not blocking raycast.

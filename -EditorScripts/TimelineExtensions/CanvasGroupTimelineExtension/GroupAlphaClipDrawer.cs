@@ -1,6 +1,6 @@
 using UnityEditor;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     [CustomEditor(typeof(GroupAlphaClip))]
     public class GroupAlphaClipDrawer : DrawThingsInTemplate { }

@@ -1,22 +1,25 @@
 using UnityEngine;
 
-/// <summary>
-/// Ensure that the game object is active or not depending on listed platforms.
-/// </summary>
-public class PlatformSpecific : MonoBehaviour
+namespace E7.E7Unity
 {
-    public RuntimePlatform[] platforms;
-
-    void Awake()
+    /// <summary>
+    /// Ensure that the game object is active or not depending on listed platforms.
+    /// </summary>
+    public class PlatformSpecific : MonoBehaviour
     {
-        foreach(var p in platforms)
+        public RuntimePlatform[] platforms;
+
+        void Awake()
         {
-            if(Application.platform == p)
+            foreach(var p in platforms)
             {
-                this.gameObject.SetActive(true);
-                return;
+                if(Application.platform == p)
+                {
+                    this.gameObject.SetActive(true);
+                    return;
+                }
             }
+            this.gameObject.SetActive(false);
         }
-        this.gameObject.SetActive(false);
     }
 }

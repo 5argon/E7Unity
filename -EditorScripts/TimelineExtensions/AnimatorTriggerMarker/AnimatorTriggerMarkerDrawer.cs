@@ -6,7 +6,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     [CustomEditor(typeof(AnimatorTriggerMarker))]
     [CanEditMultipleObjects]

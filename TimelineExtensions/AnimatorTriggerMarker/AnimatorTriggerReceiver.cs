@@ -1,25 +1,27 @@
-using E7.E7Unity;
 using UnityEngine;
 using UnityEngine.Playables;
 
-[RequireComponent(typeof(Animator))]
-public class AnimatorTriggerReceiver : MonoBehaviour, INotificationReceiver
+namespace E7.E7Unity.Timeline
 {
-    public Animator triggerTarget;
-
-    public void OnValidate()
+    [RequireComponent(typeof(Animator))]
+    public class AnimatorTriggerReceiver : MonoBehaviour, INotificationReceiver
     {
-        if(triggerTarget == null)
+        public Animator triggerTarget;
+
+        public void OnValidate()
         {
-            triggerTarget = GetComponent<Animator>();
+            if(triggerTarget == null)
+            {
+                triggerTarget = GetComponent<Animator>();
+            }
         }
-    }
 
-    public void OnNotify(Playable origin, INotification notification, object context)
-    {
-        if(notification is AnimatorTriggerMarker atm)
+        public void OnNotify(Playable origin, INotification notification, object context)
         {
-            triggerTarget.SetTrigger(atm.trigger);
+            if(notification is AnimatorTriggerMarker atm)
+            {
+                triggerTarget.SetTrigger(atm.trigger);
+            }
         }
     }
 }

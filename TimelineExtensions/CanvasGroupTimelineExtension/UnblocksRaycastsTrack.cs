@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     /// <summary>
     /// If having more than 1 clip, on the duration of <see cref="UnblocksRaycastsClip">, <see cref="CanvasGroup"> is uninteractable.

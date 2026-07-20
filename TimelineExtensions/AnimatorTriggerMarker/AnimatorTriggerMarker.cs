@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
 
-namespace E7.E7Unity
+namespace E7.E7Unity.Timeline
 {
     //[CustomStyle("AnimatorTrigger")]
     [DisplayName(nameof(E7.E7Unity) + "/" + nameof(AnimatorTriggerMarker))]

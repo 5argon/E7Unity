@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Playables;
 
-namespace E7.Timeline
+namespace E7.E7Unity.Timeline
 {
     public class GroupAlphaMixerBehaviour : PlayableBehaviour
     {
