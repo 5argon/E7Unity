@@ -7,8 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using System.Threading.Tasks;
-using UniRx.Async;
+using Cysharp.Threading.Tasks;
 
 public static class AddressablesExtension
 {
