@@ -1,33 +1,15 @@
 {
     "name": "E7.E7Unity",
     "references": [
-        "UniTask",
-        "Unity.Addressables",
-        "Unity.Mathematics",
-        "Unity.ResourceManager",
         "Unity.TextMeshPro",
         "Unity.Timeline"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [
-        "Unity.Compat.dll",
-        "Sirenix.OdinInspector.Attributes.dll",
-        "Sirenix.Utilities.dll",
-        "Sirenix.Serialization.dll",
-        "Sirenix.OdinInspector.Editor.dll",
-        "Firebase.App.dll"
-    ],
+    "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.addressables",
-            "expression": "",
-            "define": "HAS_AAS"
-        }
-    ]
+    "versionDefines": []
 }

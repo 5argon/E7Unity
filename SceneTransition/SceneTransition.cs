@@ -2,10 +2,6 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 
-#if HAS_AAS
-using UnityEngine.AddressableAssets;
-#endif
-
 namespace E7.E7Unity
 {
     /// <summary>
@@ -20,13 +16,6 @@ namespace E7.E7Unity
         {
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
-
-#if HAS_AAS
-        public void LoadSceneAddressables(string sceneName)
-        {
-            Addressables.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-        }
-#endif
 
         public void OnNotify(Playable origin, INotification notification, object context)
         {

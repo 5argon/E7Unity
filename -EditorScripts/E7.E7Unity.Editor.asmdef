@@ -6,7 +6,6 @@
         "Unity.Timeline.Editor",
         "Unity.ugui"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
     ],
