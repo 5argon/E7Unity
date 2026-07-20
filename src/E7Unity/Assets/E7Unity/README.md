@@ -6,20 +6,6 @@ Not a framework — each piece is self-contained and solves one recurring annoya
 a click. Timeline tracks that fade or lock a whole uGUI tree. A scene that decides for itself when it has really
 started. Take the ones you want; nothing here depends on anything else here.
 
-This repository is a **Unity project** (so you can open it and work on the package in place). The package itself lives
-at [`src/E7Unity/Assets/E7Unity`](src/E7Unity/Assets/E7Unity), and its documentation — guides plus the generated C#
-API reference — is built from
-[`src/E7Unity/Assets/E7Unity/Documentation~`](src/E7Unity/Assets/E7Unity/Documentation~).
-
-## Install (Unity Package Manager, Git URL)
-
-Unity can install a package that lives in a repo subfolder via the `?path=` query. Add this to your project's
-`Packages/manifest.json` dependencies:
-
-```json
-"com.e7.e7unity": "https://github.com/5argon/E7Unity.git?path=src/E7Unity/Assets/E7Unity"
-```
-
 ## Contents
 
 **Components** — `ButtonEx`, `SceneEntryPoint`, `SceneTransition`, `PlatformSpecific`, `LerpOnRatio`, `VersionNumber`
@@ -30,16 +16,29 @@ Unity can install a package that lives in a repo subfolder via the `?path=` quer
 
 Unity 2019.1 or newer. The only package dependency is `com.unity.timeline`; uGUI and TextMeshPro ship with Unity.
 
-## Building the documentation
+## Installation
 
-The site is built with [DocFX](https://dotnet.github.io/docfx/) from `.docfx_project`:
+Add it through the Package Manager from this repository's git URL, from disk, or keep it embedded under your
+project's `Packages/` folder.
 
-```bash
-./build-docs.sh           # full build (API metadata + site), then serve
-./build-docs.sh --fast    # skip the API compile — for Markdown/CSS edits
-```
+The runtime assembly is `E7.E7Unity` (editor half: `E7.E7Unity.Editor`). It is `autoReferenced`, so `Assembly-CSharp`
+sees it with no setup; assembly definitions of your own need it added to their references.
 
-Open `src/E7Unity` in Unity once first, so it generates the `.sln` the API-metadata step compiles against.
+## Documentation
+
+Offline documentation is included under `Documentation~`. Open it with any Markdown reader — start at
+[`Documentation~/index.md`](Documentation~/index.md), or jump to
+[Getting Started / Installing](Documentation~/getting-started/installing.md).
+
+(`Documentation~` ends with `~` so Unity's Asset Database leaves it out of your project.)
+
+## Related packages
+
+Some scripts that once lived here have their own repositories:
+
+- [OdinHierarchy](https://github.com/5argon/OdinHierarchy)
+- [protobuf-unity](https://github.com/5argon/protobuf-unity)
+- [E7ECS](https://github.com/5argon/E7ECS)
 
 ## License
 

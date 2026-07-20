@@ -1,0 +1,7 @@
+{
+    "_appTitle": "E7Unity",
+    "_appName": "E7Unity",
+    "_description": "A small set of self-contained Unity components: a touch-oriented button with separate down/up/click events, a per-scene entry point, and Timeline tracks that fade or lock a whole uGUI tree through its CanvasGroup.",
+    "_appFooter": "<div>A Unity package by <a href='http://5argon.info' target='_blank'>5argon</a> from <a href='http://exceed7.com' target='_blank'>Exceed7 Experiments</a>.</div><div><b>Problems/suggestions/contact</b> : <span class='contact-list'><span class='contact-list-item'>5argon@exceed7.com</span></span></div>",
+    "rootUrl": "https://exceed7.com/e7unity"
+}

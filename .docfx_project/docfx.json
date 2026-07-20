@@ -1,0 +1,55 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../src/E7Unity",
+          "files": [
+            "*.sln"
+          ]
+        }
+      ],
+      "dest": "../src/E7Unity/Assets/E7Unity/Documentation~/api",
+      "disableGitFeatures": true,
+      "disableDefaultFilter": false,
+      "filter": "filterConfig.yml"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "src": "../src/E7Unity/Assets/E7Unity",
+        "files": [
+          "CHANGELOG.md"
+        ]
+      },
+      {
+        "src": "../src/E7Unity/Assets/E7Unity/Documentation~",
+        "files": [
+          "*.md",
+          "*.yml",
+          "**/*.md",
+          "**/*.yml"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "src": "../src/E7Unity/Assets/E7Unity/Documentation~",
+        "files": [
+          "**/images/*"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadataFiles": [
+      "global.json"
+    ],
+    "template": [
+      "default",
+      "modern",
+      "exc7-theme"
+    ],
+    "disableGitFeatures": true
+  }
+}

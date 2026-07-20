@@ -1,0 +1,18 @@
+{
+    "name": "com.e7.e7unity",
+    "author": "Sirawat Pitaksarit (5argon) - Exceed7 Experiments",
+    "displayName": "E7Unity",
+    "version": "0.0.1",
+    "unity": "2019.1",
+    "dependencies": {
+        "com.unity.timeline": "1.0.0"
+    },
+    "description": "A small set of self-contained Unity components Exceed7 Experiments reaches for across projects: a touch-oriented button with separate down/up/click events, a per-scene entry point, Timeline tracks that fade or lock a whole uGUI tree through its CanvasGroup, and a marker that hands an Animator back to its own controller.",
+    "keywords": [
+        "animator",
+        "button",
+        "canvas-group",
+        "timeline",
+        "ugui"
+    ]
+}
