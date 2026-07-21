@@ -2,7 +2,8 @@
     "name": "E7.E7Unity",
     "references": [
         "Unity.TextMeshPro",
-        "Unity.Timeline"
+        "Unity.Timeline",
+        "GUID:eec0964c48f6f4e40bc3ec2257ccf8c5"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,5 +12,11 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [
+        {
+            "name": "com.unity.localization",
+            "expression": "",
+            "define": "E7UNITY_LOCALIZATION"
+        }
+    ]
 }
