@@ -1,0 +1,4 @@
+- name: LocalizeTmpFontAsset
+  href: localize-tmp-font-asset.md
+- name: LocalizeEntryToPrompt
+  href: localize-entry-to-prompt.md

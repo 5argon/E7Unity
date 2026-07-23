@@ -27,7 +27,7 @@ namespace E7.E7Unity
         public override void OnCreate()
         {
             Subscribe();
-            PlatformResolver.NotifyChanged();
+            NotifyPlatformChanged();
         }
 
         public override VisualElement OnCreateUI()
@@ -66,7 +66,7 @@ namespace E7.E7Unity
                 deviceSimulator.deviceChanged -= OnDeviceChanged;
                 _subscribed = false;
             }
-            PlatformResolver.NotifyChanged();
+            NotifyPlatformChanged();
         }
 
         void Subscribe()
@@ -80,8 +80,19 @@ namespace E7.E7Unity
         // reset, which drops every PlatformResolver.Changed subscriber including this one.
         void OnDeviceChanged()
         {
-            PlatformResolver.NotifyChanged();
+            NotifyPlatformChanged();
             Refresh();
+        }
+
+        // Unity Localization reads its platform entry overrides during the table entry lookup rather than
+        // through an event, so components that already resolved keep the previous platform's entry until they
+        // are asked again.
+        static void NotifyPlatformChanged()
+        {
+            PlatformResolver.NotifyChanged();
+#if E7UNITY_LOCALIZATION
+            E7.E7Unity.Localization.LocalizedComponentRefresh.RefreshLoadedComponents();
+#endif
         }
 
         void Refresh()

@@ -2,6 +2,8 @@
   href: getting-started/
 - name: Components
   href: components/
+- name: Localization
+  href: localization/
 - name: Timeline
   href: timeline/
 - name: Changelog
