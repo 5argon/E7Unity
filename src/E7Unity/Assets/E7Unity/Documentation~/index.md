@@ -31,6 +31,7 @@ when that package is installed, so a project without it simply does not get them
 | --- | --- |
 | [LocalizeTmpFontAsset](localization/localize-tmp-font-asset.md) | Swap a TextMeshPro font per locale from an asset table. |
 | [LocalizeEntryToPrompt](localization/localize-entry-to-prompt.md) | Copy a translation prompt for an entry, ready to paste into an LLM. |
+| [LocalizedPlatformBranches](localization/localized-platform-branches.md) | See and edit a string's per-platform variants from the game object. |
 
 ## Timeline
 

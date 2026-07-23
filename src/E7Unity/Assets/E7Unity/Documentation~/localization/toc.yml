@@ -2,3 +2,5 @@
   href: localize-tmp-font-asset.md
 - name: LocalizeEntryToPrompt
   href: localize-entry-to-prompt.md
+- name: LocalizedPlatformBranches
+  href: localized-platform-branches.md
