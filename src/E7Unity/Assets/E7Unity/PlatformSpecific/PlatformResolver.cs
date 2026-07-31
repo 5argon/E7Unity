@@ -80,7 +80,18 @@ namespace E7.E7Unity
         {
             get
             {
-                RuntimePlatform platform = UnityEngine.Device.Application.platform;
+                RuntimePlatform platform;
+                try
+                {
+                    platform = UnityEngine.Device.Application.platform;
+                }
+                catch (NullReferenceException)
+                {
+                    // The Simulator window installs its shim before handing it a device, and asking the shim
+                    // in that window throws from inside it. Having no device yet is the same answer as
+                    // presenting none.
+                    return null;
+                }
                 return IsEditorPlatform(platform) ? (RuntimePlatform?)null : platform;
             }
         }

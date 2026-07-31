@@ -27,7 +27,7 @@ namespace E7.E7Unity
         public override void OnCreate()
         {
             Subscribe();
-            NotifyPlatformChanged();
+            NotifyPlatformChangedNextTick();
         }
 
         public override VisualElement OnCreateUI()
@@ -66,7 +66,7 @@ namespace E7.E7Unity
                 deviceSimulator.deviceChanged -= OnDeviceChanged;
                 _subscribed = false;
             }
-            NotifyPlatformChanged();
+            NotifyPlatformChangedNextTick();
         }
 
         void Subscribe()
@@ -83,6 +83,11 @@ namespace E7.E7Unity
             NotifyPlatformChanged();
             Refresh();
         }
+
+        // The window builds its plugins before its shim has a device, and tears the plugins down before the
+        // shim is gone, so at either end the platform only reads correctly from the next editor tick onward.
+        static void NotifyPlatformChangedNextTick()
+            => UnityEditor.EditorApplication.delayCall += NotifyPlatformChanged;
 
         // Unity Localization reads its platform entry overrides during the table entry lookup rather than
         // through an event, so components that already resolved keep the previous platform's entry until they
