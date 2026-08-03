@@ -1,5 +1,11 @@
-- name: ButtonEx
-  href: button-ex.md
+- name: Animator UI
+  href: animator-ui.md
+- name: ButtonAnimatorUi
+  href: button-animator-ui.md
+- name: ToggleAnimatorUi
+  href: toggle-animator-ui.md
+- name: NonDrawingGraphic
+  href: non-drawing-graphic.md
 - name: SceneEntryPoint
   href: scene-entry-point.md
 - name: SceneTransition

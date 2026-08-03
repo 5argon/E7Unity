@@ -15,7 +15,10 @@ Ordinary components you drop onto a game object.
 
 | Page | What it does |
 | --- | --- |
-| [ButtonEx](components/button-ex.md) | A touch-oriented button with separate down, up and click events. |
+| [Animator UI](components/animator-ui.md) | The animation model behind the widgets below — triggers, flags, focus, and mouse-versus-keyboard. |
+| [ButtonAnimatorUi](components/button-animator-ui.md) | A touch-oriented button with separate down, up and click events. |
+| [ToggleAnimatorUi](components/toggle-animator-ui.md) | A toggle with separately authored ways in and out, and a group where only one may be on. |
+| [NonDrawingGraphic](components/non-drawing-graphic.md) | A press area that takes raycasts without drawing anything. |
 | [SceneEntryPoint](components/scene-entry-point.md) | One place where a scene decides it has started. |
 | [SceneTransition](components/scene-transition.md) | Load a scene from a UnityEvent or a Timeline marker. |
 | [LerpOnRatio](components/lerp-on-ratio.md) | A `0..1` float driven by the screen's aspect ratio. |

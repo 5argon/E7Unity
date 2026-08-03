@@ -1,6 +1,9 @@
-# ButtonEx
+# ButtonAnimatorUi
 
 A touch-oriented button that separates pressing down, lifting up, and clicking into three distinct events.
+
+It builds on [Animator UI](animator-ui.md), which covers the animation model the whole family shares. This page is
+what the button adds on top.
 
 ## Why three events
 
@@ -11,7 +14,7 @@ click, meaning the finger lifted while still inside the button.
 Those are different moments, and lifting *outside* the button is a third one: the player started a press and thought
 better of it. That deserves the graphic to spring back, but definitely not the action.
 
-`ButtonEx` exposes exactly those three:
+`ButtonAnimatorUi` exposes exactly those three:
 
 | Event | Fires when |
 | --- | --- |
@@ -21,35 +24,29 @@ better of it. That deserves the graphic to spring back, but definitely not the a
 
 A genuine click therefore raises `onUp` *and* `onClick`. Backing out raises only `onUp`.
 
-All three are `UnityEvent`s, so they can be wired in the inspector like any button.
+All three are `UnityEvent`s, so they can be wired in the inspector like any button. `onDown` and `onUp` come from
+`SelectableAnimatorUi` and are shared with every widget in the family; `onClick` is the button's own.
 
-## Animation
-
-`ButtonEx` derives from `Selectable`, but it does not use the built-in transition system —
-`transition` is forced to `None`. Instead it drives an `Animator` through five explicit triggers:
-
-`Normal`, `Down`, `Up`, `Click`, `Disabled`
-
-The point of the split is that a click and a mere release can look different, which the `Normal`/`Pressed` pair of a
-stock button cannot express. Only one trigger is ever pending: setting any of them resets the other four, so a
-rapid press-release cannot leave two animations fighting.
-
-The animator is required on the same game object. Triggers are only set when the animator's playable graph is valid,
-so a button with no controller assigned simply animates nothing rather than throwing.
-
-### Creating the controller
+## Creating the controller
 
 Right-click the component header and choose **Create Animator**. You will be asked where to save, and the generated
 controller comes with:
 
 - A state and clip per trigger, on the base layer, wired with any-state transitions.
-- A separate **Click Effect Layer** so a click flourish can play over the base state.
-- A separate **Idle Layer** with a looping idle clip.
+- A **Click Effect Layer** so a click flourish can play over the base state.
+- A **Focus Layer** holding the keyboard cursor steady under whatever the base layer is doing.
+- An **Idle Layer** with a looping idle clip.
 
 The clips are empty — it is a starting skeleton, not a finished look.
 
-> [!NOTE]
-> The "selected" state is not supported, and neither is keyboard or gamepad navigation. This is a button for fingers.
+## Mouse and keyboard together
+
+The keyboard cursor is `Focused`, not `Selected`, because a mouse press takes the event system's selection too and a
+cursor drawn on `Selected` would appear under every click. A light hover reads `Highlighted` together with
+`PointerMode`; the bolder cursor lives on the Focus Layer. Only one is ever live, so the player never sees two
+cursors at once.
+
+[Animator UI](animator-ui.md) explains the whole arrangement, including `UiInputMode`.
 
 ## Known gap
 

@@ -14,6 +14,18 @@ A cleanup pass that reduced the package to the parts actually in use, and gave i
 - **XML documentation comments** across every public type, method, property and field, so the generated API reference
   is worth reading.
 - **`CHANGELOG.md`**.
+- **`SelectableAnimatorUi`**, the animator-driven interaction model extracted out of `ButtonAnimatorUi` so more than
+  one widget can share it. Adds a focus layer for keyboard and gamepad play, plus `Highlighted`, `Pressed`,
+  `Selected` and `PointerMode` bools to write animator conditions against.
+- **`ToggleAnimatorUi`** and **`ToggleGroupAnimatorUi`**, a toggle on that same model with separately authored
+  animations for turning on and turning off, and a group in which only one member can be on at a time. Unity's own
+  `ToggleGroup` takes only a `Toggle`, so the group is its own type rather than a reuse of that one.
+- **`AnimatorFlag`**, the parameter set behind a state that persists rather than passes — a bool holding what is
+  true, two triggers for the authored ways in and out, and two more for arriving without playing anything.
+- **`UiInputMode`**, tracking whether the player is pointing or navigating so that hover and the keyboard cursor are
+  never both on screen at once.
+- **`NonDrawingGraphic`**, a `Graphic` that takes raycasts across its rect without producing any geometry, for press
+  areas that need to be hit rather than seen.
 
 ### Changed
 
@@ -29,7 +41,7 @@ A cleanup pass that reduced the package to the parts actually in use, and gave i
   `ValueTuple`, nested prefabs), broken against modern Unity (`LegacyAnimator`, `MouseTouch` on the old Input
   Manager, `TextFallback` on legacy uGUI `Text`), or dead behind `ODIN_INSPECTOR` / `HAS_AAS` defines that no longer
   resolve.
-- **`ButtonExceed`**, superseded by `ButtonEx`.
+- **`ButtonExceed`**, superseded by `ButtonAnimatorUi`.
 - **`GraphicConstructionKit`** sprite set and the `SubmoduleMetaBackup` script, neither of which belonged in a code
   package.
 - **Per-folder `README.md` files**, folded into `Documentation~`.

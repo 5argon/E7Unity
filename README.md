@@ -22,7 +22,7 @@ Unity can install a package that lives in a repo subfolder via the `?path=` quer
 
 ## Contents
 
-**Components** — `ButtonEx`, `SceneEntryPoint`, `SceneTransition`, `PlatformSpecific`, `LerpOnRatio`, `VersionNumber`
+**Components** — `ButtonAnimatorUi`, `ToggleAnimatorUi`, `ToggleGroupAnimatorUi`, `NonDrawingGraphic`, `SceneEntryPoint`, `SceneTransition`, `PlatformSpecific`, `LerpOnRatio`, `VersionNumber`
 
 **Timeline** — CanvasGroup alpha track, CanvasGroup raycast track, Animator trigger marker and receiver
 

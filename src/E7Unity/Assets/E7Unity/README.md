@@ -8,7 +8,7 @@ started. Take the ones you want; nothing here depends on anything else here.
 
 ## Contents
 
-**Components** — `ButtonEx`, `SceneEntryPoint`, `SceneTransition`, `PlatformSpecific`, `LerpOnRatio`, `VersionNumber`
+**Components** — `ButtonAnimatorUi`, `ToggleAnimatorUi`, `ToggleGroupAnimatorUi`, `NonDrawingGraphic`, `SceneEntryPoint`, `SceneTransition`, `PlatformSpecific`, `LerpOnRatio`, `VersionNumber`
 
 **Timeline** — CanvasGroup alpha track, CanvasGroup raycast track, Animator trigger marker and receiver
 
