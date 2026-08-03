@@ -172,8 +172,14 @@ namespace E7.E7Unity
             controller.AddParameter(SelectableAnimatorUi.triggerClick, AnimatorControllerParameterType.Trigger);
             AnimatorState click = controller.AddMotion(OneShotClip(controller, SelectableAnimatorUi.triggerClick), 1);
 
-            machine.defaultState = machine.AddState("Wait State");
+            AnimatorState wait = machine.AddState("Wait State");
+            machine.defaultState = wait;
+
             AnyStateTransition(machine, click, SelectableAnimatorUi.triggerClick);
+
+            // A one-shot flourish returns to a state animating nothing, so the layer stops overriding what is
+            // underneath instead of parking on the clip's last frame forever.
+            ExitTimeTransition(click, wait);
         }
 
         private static void BuildInteractionLayer(AnimatorController controller)

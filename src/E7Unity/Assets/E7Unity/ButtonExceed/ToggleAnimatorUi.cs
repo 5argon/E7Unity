@@ -159,13 +159,10 @@ namespace E7.E7Unity
             SetGroup(group, false, false);
         }
 
-        protected override bool ApplyRestingPose()
+        protected override void WriteRestingPose()
         {
-            if (!base.ApplyRestingPose())
-                return false;
-
+            base.WriteRestingPose();
             ApplyToggleState(false);
-            return true;
         }
 
         protected override void OnDisable()

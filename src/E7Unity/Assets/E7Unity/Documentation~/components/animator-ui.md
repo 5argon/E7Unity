@@ -142,6 +142,34 @@ of interrupting it.
 | 2 — Focus Layer | The keyboard cursor, steady across presses and clicks. |
 | 3+ | Whatever the widget adds — an idle layer for a button, an on/off layer for a toggle. |
 
+## Reopening after an interrupted press
+
+A screen closing on a click cuts the press animation off partway through. The widget is disabled mid-clip, and
+whatever that clip had written stays written.
+
+Enabling it again does not undo that by itself. `Animator.keepAnimatorStateOnDisable` is off by default, so the state
+machine *does* return to each layer's default state — but a state writes nothing back unless its own clip animates
+the same properties, and a resting clip rarely animates what a press clip does. The state machine ends up correct
+while the object still looks pressed, which is why firing a `Normal` trigger on enable does not fix it either.
+
+Enabling therefore rebinds, restores the bound properties, puts every persisting state back with its snap trigger,
+and evaluates once:
+
+```csharp
+animator.Rebind();
+animator.WriteDefaultValues();
+// the flags and bools that persist
+animator.Update(0f);
+```
+
+That last evaluation is what makes the pose land on the frame the object appears rather than the frame after —
+without it the first visible frame still shows however the last press left things.
+
+> [!NOTE]
+> This makes reopening correct, but the player still never *sees* the click animation finish. If that flourish is
+> feedback worth having, the remedy is on the game's side: delay closing the screen until it has played. The reset is
+> worth keeping regardless, since a screen can be closed by something other than the button that was pressed.
+
 ## Parameters you leave out
 
 A parameter the running controller does not declare is skipped rather than set. A controller written before a
@@ -176,25 +204,24 @@ public class MyWidget : SelectableAnimatorUi
 }
 ```
 
-If it holds state of its own, give it an `AnimatorFlag`, apply it with `ApplyFlag`, and override `ApplyRestingPose`
+If it holds state of its own, give it an `AnimatorFlag`, apply it with `ApplyFlag`, and override `WriteRestingPose`
 so enabling arrives at the right pose without playing the way there:
 
 ```csharp
 private static readonly AnimatorFlag armedFlag =
     new AnimatorFlag("Armed", "Arm", "Disarm", "SnapArmed", "SnapDisarmed");
 
-protected override bool ApplyRestingPose()
+protected override void WriteRestingPose()
 {
-    if (!base.ApplyRestingPose())
-        return false;
-
+    base.WriteRestingPose();
     ApplyFlag(armedFlag, armed, false);
-    return true;
 }
 ```
 
-Returning the base's answer matters. The `Animator` is ordered after the widget on the game object, so on the frame
-the object is enabled its playable graph may not exist yet; a `false` tells the base to try again next frame.
+Call the base first: it writes the states the base owns, and yours belong on top of those. The surrounding rebind and
+the single evaluation that follows are handled for you, as is the case where the animator is not ready yet — it is
+ordered after the widget on the game object, so on the frame the object is enabled its playable graph may not exist,
+and the whole pass is retried next frame.
 
 `SelectableAnimatorUiBuilder.BuildFlagLayer` builds the four-state layer for a flag, if you write a **Create
 Animator** menu item of your own.

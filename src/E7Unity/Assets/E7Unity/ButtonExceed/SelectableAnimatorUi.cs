@@ -142,22 +142,52 @@ namespace E7.E7Unity
         }
 
         /// <summary>
-        /// Put everything that persists into the pose it should already be in, without playing the way there.
-        /// Override to add whatever else a widget holds, calling the base first and giving up if it did.
+        /// Return the animator to a clean pose and put every state that persists back into it, without playing the
+        /// way there.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// A screen can close on top of a press, leaving the animator parked partway through a clip with everything
+        /// that clip wrote still applied. Enabling the object again does not undo that: the state machine returns to
+        /// its default state, but a state writes nothing back unless its own clip animates the same properties, and
+        /// a resting clip rarely animates what a press clip does. Rebinding and writing defaults is what puts those
+        /// properties back.
+        /// </para>
+        /// <para>
+        /// Evaluating once at the end lands the result on the frame the object appears rather than the frame after,
+        /// which is the difference between a clean open and a flash of however the last press left it.
+        /// </para>
+        /// </remarks>
         /// <returns>Whether the animator was ready to be told.</returns>
-        protected virtual bool ApplyRestingPose()
+        private bool ApplyRestingPose()
         {
             if (!AnimatorUsable)
                 return false;
 
+            animator.Rebind();
+            animator.WriteDefaultValues();
+
+            // Rebinding returned every parameter to its default, so nothing previously applied still holds.
+            focusKnown = false;
+
+            WriteRestingPose();
+
+            animator.Update(0f);
+            return true;
+        }
+
+        /// <summary>
+        /// Put every state that persists into its pose. Override to add whatever else a widget holds, calling the
+        /// base first.
+        /// </summary>
+        protected virtual void WriteRestingPose()
+        {
             EventSystem events = EventSystem.current;
             selected = events != null && events.currentSelectedGameObject == gameObject;
 
             SetBool(hashSelected, selected);
             SetBool(hashPointerMode, UiInputMode.IsPointer);
             ApplyFocus(false);
-            return true;
         }
 
         /// <summary>
