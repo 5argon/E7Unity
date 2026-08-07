@@ -26,6 +26,12 @@ A cleanup pass that reduced the package to the parts actually in use, and gave i
   never both on screen at once.
 - **`NonDrawingGraphic`**, a `Graphic` that takes raycasts across its rect without producing any geometry, for press
   areas that need to be hit rather than seen.
+- **`DirectorSettle`** and **`SettleAtEnd`**, closing the one gap a control track leaves in Timeline's sampled
+  model. A control track writes its target director's time only from inside its own clip and nothing recomputes it
+  afterwards, so a frame long enough to step over the end of the clip strands the target mid-animation.
+  `DirectorSettle` on the driving director pushes each target to its final frame once playback stops, and
+  `SettleAtEnd` on a target declares that it wants that — leaving alone the sub-directors whose ending is a
+  handover back to component-driven playback rather than a pose.
 
 ### Changed
 

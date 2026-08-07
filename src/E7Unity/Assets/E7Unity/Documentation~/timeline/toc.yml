@@ -4,3 +4,5 @@
   href: canvas-group-raycasts.md
 - name: Animator trigger
   href: animator-trigger.md
+- name: Control track settle
+  href: control-track-settle.md
