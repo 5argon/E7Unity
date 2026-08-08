@@ -170,6 +170,27 @@ without it the first visible frame still shows however the last press left thing
 > feedback worth having, the remedy is on the game's side: delay closing the screen until it has played. The reset is
 > worth keeping regardless, since a screen can be closed by something other than the button that was pressed.
 
+## The selectable registry
+
+`Selectable` keeps every enabled selectable in a static array with a static count, and clears neither. With editor
+Domain Reload turned off both survive a play session, and they can be driven apart in a way that never recovers:
+`OnEnable` raises the count before marking the selectable enabled, with a `DoStateTransition` call in between, while
+`OnDisable` returns early unless that mark was set. An exception from that call therefore leaves the count raised
+with nothing to lower it. Since the array grows only when the count is *exactly* its length, a count that has passed
+the length can never grow, and every selectable enabled afterwards writes past the end:
+
+```
+IndexOutOfRangeException: Index was outside the bounds of the array.
+UnityEngine.UI.Selectable.OnEnable ()
+```
+
+One exception, anywhere, and the rest of the editor session throws that on every enable. Recompiling or restarting
+Unity clears it, since either forces a domain reload.
+
+`SelectableRegistryReset` empties both at `SubsystemRegistration`, giving each play session the state a fresh domain
+would have. It covers every selectable in the project, not only this package's, because the registry is shared — and
+it lives here because those two fields are `protected static`, reachable only from a subclass.
+
 ## Parameters you leave out
 
 A parameter the running controller does not declare is skipped rather than set. A controller written before a
