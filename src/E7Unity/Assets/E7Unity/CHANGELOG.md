@@ -37,6 +37,15 @@ A cleanup pass that reduced the package to the parts actually in use, and gave i
   `DirectorSettle` on the driving director pushes each target to its final frame once playback stops, and
   `SettleAtEnd` on a target declares that it wants that — leaving alone the sub-directors whose ending is a
   handover back to component-driven playback rather than a pose.
+- **Animation Path Retargeter** at `Window ▸ Animation ▸ Path Retargeter`, repairing the clips of an Animator or
+  Animation after the objects they animate were renamed, reparented or wrapped in a new layer. A clip binds by a
+  path string relative to its player, and Unity fixes none of them when a hierarchy moves; the only built-in remedy
+  is retyping each path into an undocumented field on one curve row at a time. The window groups every binding by
+  path instead — one rename usually breaks the same path in every clip of a controller — reports which paths still
+  resolve, and takes a game object dropped anywhere on a row as the new path so none is ever typed. Suggestions
+  rank the hierarchy by whether a candidate carries every property the group animates, then by name, and `Auto-Fix`
+  accepts the ones that are unambiguous. Nothing is written until `Apply`, which goes through `AnimationUtility` so
+  the runtime binding hashes stay in step with the path strings.
 
 ### Changed
 

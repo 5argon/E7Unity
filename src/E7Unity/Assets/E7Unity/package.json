@@ -7,11 +7,13 @@
     "dependencies": {
         "com.unity.timeline": "1.0.0"
     },
-    "description": "A small set of self-contained Unity components Exceed7 Experiments reaches for across projects: a touch-oriented button with separate down/up/click events, a per-scene entry point, Timeline tracks that fade or lock a whole uGUI tree through its CanvasGroup, a marker that hands an Animator back to its own controller, and a pair that keeps control-track sub-directors from being stranded mid-animation by a stalled frame.",
+    "description": "A small set of self-contained Unity components Exceed7 Experiments reaches for across projects: a touch-oriented button with separate down/up/click events, a per-scene entry point, Timeline tracks that fade or lock a whole uGUI tree through its CanvasGroup, a marker that hands an Animator back to its own controller, a pair that keeps control-track sub-directors from being stranded mid-animation by a stalled frame, and an editor window that retargets animation clip paths after a hierarchy rename.",
     "keywords": [
+        "animation",
         "animator",
         "button",
         "canvas-group",
+        "editor-window",
         "playable-director",
         "timeline",
         "ugui"
