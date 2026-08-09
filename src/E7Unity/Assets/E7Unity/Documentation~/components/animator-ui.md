@@ -187,9 +187,16 @@ UnityEngine.UI.Selectable.OnEnable ()
 One exception, anywhere, and the rest of the editor session throws that on every enable. Recompiling or restarting
 Unity clears it, since either forces a domain reload.
 
-`SelectableRegistryReset` empties both at `SubsystemRegistration`, giving each play session the state a fresh domain
-would have. It covers every selectable in the project, not only this package's, because the registry is shared — and
-it lives here because those two fields are `protected static`, reachable only from a subclass.
+`SelectableRegistryRepair` widens the array to fit the count and lifts a negative count back to zero — once at
+`SubsystemRegistration`, and again before any of this package's widgets enables. Neither is a state the registry can
+reach on its own, and neither repair discards a registration. It lives here because those two fields are
+`protected static`, reachable only from a subclass.
+
+> [!WARNING]
+> Emptying the registry instead looks like the obvious repair and is a trap. A prefab opened for editing keeps its
+> preview scene alive across a play-mode transition, so selectables can already be registered when a play session
+> begins. Zeroing the count underneath them sends it negative as they disable, and the next enable writes to
+> `s_Selectables[-1]` — the same exception, arrived at from the other direction.
 
 ## Parameters you leave out
 
@@ -202,6 +209,36 @@ per press.
 
 Parameters are also only set while the animator's playable graph is valid, meaning a widget with no controller
 assigned animates nothing rather than throwing.
+
+## Outside the running game
+
+`Selectable` is `[ExecuteAlways]`, so a widget sitting in a scene in the editor runs the same enable path a player
+would. So does a prefab opened for editing, whose contents are instantiated into a preview scene and enabled there —
+and that happens during play mode as readily as outside it.
+
+Neither has an animator worth driving, and both are detectable: either the game is not playing, or the object belongs
+to a preview scene. Everything is inert in those cases — no parameters written, no resting pose applied, no input
+mode followed. What you see while authoring is whatever the controller's default states show, which is what the
+Animator window previews anyway.
+
+## Before the animator wakes up
+
+A separate problem, and a harder one. The animator is ordered *after* the widget on the game object, so on a game
+object's very first activation the widget's `OnEnable` runs before the animator has awakened. Driving one that has
+not is an assertion failure:
+
+```
+Assertion failed on expression: 'm_DidAwake'
+UnityEngine.Animator:Update (single)
+```
+
+Nothing observable reports that condition. The playable graph reports itself valid and `Animator.isInitialized`
+reports true on an animator that has never awakened, so neither can be used to ask. It is therefore not detected but
+waited out: the opening pose is applied from `Start`, the first moment every `Awake` on the object has run.
+
+Nothing is lost by waiting. An animator that has never run has written nothing, so a first activation has no stale
+pose to correct — the widget simply shows what it was authored with. Every later enable, which is where a pose *can*
+be stale because a press was interrupted, happens with the animator long since awake and is applied immediately.
 
 ## The inspector
 

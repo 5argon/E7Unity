@@ -76,6 +76,7 @@ namespace E7.E7Unity
         private bool selected;
         private bool focusApplied;
         private bool focusKnown;
+        private bool hasStarted;
 
         internal const string triggerNormal = "Normal";
         internal const string triggerDown = "Down";
@@ -120,13 +121,46 @@ namespace E7.E7Unity
 
         protected override void OnEnable()
         {
+            // The base is about to write into uGUI's static registry using a count that nothing else validates.
+            SelectableRegistryRepair.Repair();
+
             base.OnEnable();
 
             parametersCached = false;
             focusKnown = false;
+
+            // Enabling happens to editor copies as well — scenes sitting in the editor, and prefabs opened for
+            // editing in a preview scene — where there is no animator to drive and no player to follow.
+            if (!IsLiveInstance)
+                return;
+
             UiInputMode.Changed += OnInputModeChanged;
 
-            if (!ApplyRestingPose() && Application.isPlaying)
+            // The first enable of all arrives before the animator has awakened. Nothing observable says so — the
+            // playable graph reports itself valid and the animator reports itself initialised — but the animator is
+            // ordered after this component on the game object, and driving one that has not awakened is an
+            // assertion failure. Start is the first moment every Awake on the object has run, so the opening pose
+            // is left to it. Nothing is stale that early anyway: an animator that has never run has written nothing.
+            if (!hasStarted)
+                return;
+
+            ApplyRestingPoseWhenPossible();
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            hasStarted = true;
+
+            if (IsLiveInstance)
+            {
+                ApplyRestingPoseWhenPossible();
+            }
+        }
+
+        private void ApplyRestingPoseWhenPossible()
+        {
+            if (!ApplyRestingPose())
             {
                 StartCoroutine(ApplyRestingPoseWhenAnimatorReady());
             }
@@ -364,10 +398,50 @@ namespace E7.E7Unity
         }
 
         /// <summary>
-        /// Whether the <see cref="Animator"/> is in a state where parameters can be set at all. It is not while the
-        /// controller is missing, or while the object is inactive and the playable graph has been torn down.
+        /// Whether the <see cref="Animator"/> is in a state where parameters can be set at all.
         /// </summary>
-        protected bool AnimatorUsable => animator != null && animator.playableGraph.IsValid();
+        /// <remarks>
+        /// <para>
+        /// It is not, while the controller is missing, while the object is inactive and the playable graph has been
+        /// torn down, at edit time, or anywhere the animator has not awakened.
+        /// </para>
+        /// <para>
+        /// <see cref="Selectable"/> is <c>[ExecuteAlways]</c>, so enabling a widget in the editor runs the same
+        /// lifecycle a player would — and a prefab opened for editing runs it inside a preview scene, which happens
+        /// during play mode as readily as outside it. Neither has an animator worth driving.
+        /// </para>
+        /// <para>
+        /// This cannot tell whether the animator has awakened, which is a separate condition and the one that
+        /// matters on a game object's very first activation. Nothing observable reports it: the playable graph
+        /// reports itself valid and <c>isInitialized</c> reports true regardless. That case is handled by waiting
+        /// for <c>Start</c> instead of by asking here.
+        /// </para>
+        /// </remarks>
+        protected bool AnimatorUsable =>
+            IsLiveInstance && animator != null && animator.isInitialized && animator.playableGraph.IsValid();
+
+        /// <summary>
+        /// Whether this is a widget a player could actually reach, rather than an editor's copy of one.
+        /// </summary>
+        /// <remarks>
+        /// A scene sitting in the editor is the obvious case. The one worth naming is a prefab opened for editing:
+        /// its contents are instantiated into a preview scene and enabled there, and that happens during play mode
+        /// as readily as outside it, so asking whether the game is playing does not settle it on its own.
+        /// </remarks>
+        private bool IsLiveInstance
+        {
+            get
+            {
+            #if UNITY_EDITOR
+                if (!Application.isPlaying)
+                    return false;
+
+                if (UnityEditor.SceneManagement.EditorSceneManager.IsPreviewSceneObject(this))
+                    return false;
+            #endif
+                return true;
+            }
+        }
 
         private void OnInputModeChanged()
         {

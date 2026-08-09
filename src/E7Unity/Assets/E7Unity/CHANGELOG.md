@@ -26,11 +26,13 @@ A cleanup pass that reduced the package to the parts actually in use, and gave i
   never both on screen at once.
 - **`NonDrawingGraphic`**, a `Graphic` that takes raycasts across its rect without producing any geometry, for press
   areas that need to be hit rather than seen.
-- **`SelectableRegistryReset`**, emptying uGUI's static registry of selectables as the runtime starts. `Selectable`
-  never clears it, so with editor Domain Reload off a single exception thrown out of any `DoStateTransition` raises
-  the registry's count without the matching entry ever being removed, and every selectable enabled after that writes
-  past the end of the array for the rest of the editor session. Applies to every selectable in the project, not only
-  this package's.
+- **`SelectableRegistryRepair`**, keeping uGUI's static registry of selectables writable. `Selectable` never clears
+  it, so with editor Domain Reload off a single exception thrown out of any `DoStateTransition` raises the
+  registry's count without the matching entry ever being removed, and since the array only grows when the count is
+  exactly its length, every selectable enabled after that writes past the end for the rest of the editor session.
+  The repair widens the array to fit the count and lifts a negative count back to zero, discarding nothing —
+  emptying the registry instead would send the count negative underneath the selectables a prefab stage keeps
+  registered across a play-mode transition.
 - **`DirectorSettle`** and **`SettleAtEnd`**, closing the one gap a control track leaves in Timeline's sampled
   model. A control track writes its target director's time only from inside its own clip and nothing recomputes it
   afterwards, so a frame long enough to step over the end of the clip strands the target mid-animation.
