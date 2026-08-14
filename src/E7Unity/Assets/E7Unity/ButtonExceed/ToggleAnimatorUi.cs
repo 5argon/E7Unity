@@ -35,8 +35,8 @@ namespace E7.E7Unity
     /// </para>
     /// <para>
     /// To get started, right-click the component header and choose <b>Create Animator</b>. It builds a controller
-    /// wired with the interaction triggers, a click layer, a focus layer and a toggle state layer, as a
-    /// reasonable starting point.
+    /// wired with the interaction triggers, a click layer, a focus layer, a disabled layer, an idle layer and a
+    /// toggle state layer, as a reasonable starting point.
     /// </para>
     /// </remarks>
     [RequireComponent(typeof(Animator))]

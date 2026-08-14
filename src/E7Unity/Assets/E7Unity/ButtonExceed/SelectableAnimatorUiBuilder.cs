@@ -7,23 +7,32 @@ namespace E7.E7Unity
 {
     /// <summary>
     /// Builds the starting-point <see cref="AnimatorController"/> that every <see cref="SelectableAnimatorUi"/>
-    /// shares: an interaction layer carrying the <c>Normal</c>/<c>Down</c>/<c>Up</c>/<c>Disabled</c> states, a click
-    /// layer overlaying a one-shot <c>Click</c> on top of whichever of those is showing, and a focus layer holding
-    /// the keyboard cursor steady underneath both.
+    /// shares: an interaction layer carrying the <c>Normal</c>/<c>Down</c>/<c>Up</c> states, a click layer
+    /// overlaying a one-shot <c>Click</c> on top of whichever of those is showing, a focus layer holding the
+    /// keyboard cursor steady underneath both, and an idle layer for a resting animation to loop in.
     /// </summary>
     /// <remarks>
-    /// Each widget adds its own layers after those — <see cref="ButtonAnimatorUi"/> an idle layer,
-    /// <see cref="ToggleAnimatorUi"/> a layer holding the on and off poses and the two paths between them.
+    /// Each widget adds its own layers after those — <see cref="ToggleAnimatorUi"/> a layer holding the on and
+    /// off poses and the two paths between them. The disabled layer comes after even those, because greying out
+    /// has to cover whatever the widget is showing rather than be painted over by it.
     /// </remarks>
     internal static class SelectableAnimatorUiBuilder
     {
         internal const string clickLayer = "Click Effect Layer";
         internal const string focusLayer = "Focus Layer";
+        internal const string disabledLayer = "Disabled Layer";
+        internal const string idleLayer = "Idle Layer";
 
         /// <summary>
-        /// Index of the first layer a widget adds for itself, after the three every widget shares.
+        /// Index of the layer holding a widget's resting animation.
         /// </summary>
-        internal const int firstExtraLayer = 3;
+        internal const int idleLayerIndex = 3;
+
+        /// <summary>
+        /// Index of the first layer a widget adds for itself, after the ones every widget shares. The disabled
+        /// layer is the exception and sits above them all — see <see cref="Create" />.
+        /// </summary>
+        internal const int firstExtraLayer = 4;
 
         /// <summary>
         /// Ask where to save the controller. Returns an empty string when the dialog is cancelled.
@@ -46,10 +55,14 @@ namespace E7.E7Unity
 
             controller.AddLayer(clickLayer);
             controller.AddLayer(focusLayer);
+            controller.AddLayer(idleLayer);
             foreach (string extraLayer in extraLayers)
             {
                 controller.AddLayer(extraLayer);
             }
+
+            // Last, so that it is the topmost layer and greys whatever every other one is doing.
+            controller.AddLayer(disabledLayer);
 
             // Layer weights have to be written back through the array property, since reading `layers` hands out
             // copies rather than the live layers.
@@ -69,7 +82,64 @@ namespace E7.E7Unity
             BuildInteractionLayer(controller);
             BuildFlagLayer(controller, 2, SelectableAnimatorUi.focusedFlag,
                 "Unfocused", "Focused", "Focusing", "Unfocusing");
+            BuildFlagLayer(controller, firstExtraLayer + extraLayers.Length, SelectableAnimatorUi.disabledFlag,
+                "Enabled", "Disabled", "Disabling", "Enabling");
+            BuildIdleLayer(controller);
             return controller;
+        }
+
+        /// <summary>
+        /// Fill the idle layer with a looping clip that plays while nothing else is happening, and a still state
+        /// it holds while the widget is disabled. Both clips are left animating nothing, for whoever authors the
+        /// widget to fill in.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// An idle is usually what makes a widget look pressable — a breath, a shine, a wobble — so it works
+        /// against the greying happening above it. Stopping is therefore the default, and an author who wants the
+        /// idle to carry on regardless need only delete the two transitions.
+        /// </para>
+        /// <para>
+        /// The condition is <see cref="AnimatorFlag.value"/> rather than the triggers beside it, because a trigger
+        /// is consumed by the first transition that takes it — the disabled layer's — and would never reliably
+        /// reach a second layer watching for the same thing.
+        /// </para>
+        /// </remarks>
+        private static void BuildIdleLayer(AnimatorController controller)
+        {
+            AnimationClip idle = AnimatorController.AllocateAnimatorClip("Idle");
+            AssetDatabase.AddObjectToAsset(idle, controller);
+            idle.wrapMode = WrapMode.Loop;
+
+            AnimationClipSettings settings = AnimationUtility.GetAnimationClipSettings(idle);
+            settings.loopTime = true;
+            AnimationUtility.SetAnimationClipSettings(idle, settings);
+
+            AnimatorStateMachine machine = controller.layers[idleLayerIndex].stateMachine;
+            AnimatorState idling = controller.AddMotion(idle, idleLayerIndex);
+            machine.defaultState = idling;
+
+            // Named apart from the disabled layer's own pose: both clips are sub-assets of the one controller,
+            // where a shared name collides rather than merely reads ambiguously.
+            AnimatorState still = controller.AddMotion(OneShotClip(controller, "IdleDisabled"), idleLayerIndex);
+
+            BoolTransition(idling, still, SelectableAnimatorUi.disabledFlag.value, true);
+            BoolTransition(still, idling, SelectableAnimatorUi.disabledFlag.value, false);
+        }
+
+        /// <summary>
+        /// An immediate transition between two states taken while <paramref name="parameter"/> holds
+        /// <paramref name="value"/>. Suited to a bool that stays true, which a trigger cannot express — and which
+        /// more than one layer can read, since nothing consumes it.
+        /// </summary>
+        internal static AnimatorStateTransition BoolTransition(AnimatorState from, AnimatorState to,
+            string parameter, bool value)
+        {
+            AnimatorStateTransition transition = from.AddTransition(to, false);
+            transition.hasExitTime = false;
+            transition.duration = 0;
+            transition.AddCondition(value ? AnimatorConditionMode.If : AnimatorConditionMode.IfNot, 0, parameter);
+            return transition;
         }
 
         /// <summary>
@@ -189,10 +259,8 @@ namespace E7.E7Unity
             AnimatorState normal = AddTriggerState(controller, SelectableAnimatorUi.triggerNormal, 0);
             AnimatorState down = AddTriggerState(controller, SelectableAnimatorUi.triggerDown, 0);
             AnimatorState up = AddTriggerState(controller, SelectableAnimatorUi.triggerUp, 0);
-            AnimatorState disabled = AddTriggerState(controller, SelectableAnimatorUi.triggerDisabled, 0);
 
             AnyStateTransition(machine, normal, SelectableAnimatorUi.triggerNormal);
-            AnyStateTransition(machine, disabled, SelectableAnimatorUi.triggerDisabled);
 
             TriggerTransition(normal, down, SelectableAnimatorUi.triggerDown);
             TriggerTransition(down, up, SelectableAnimatorUi.triggerUp).name = "Down -> Up by Up";

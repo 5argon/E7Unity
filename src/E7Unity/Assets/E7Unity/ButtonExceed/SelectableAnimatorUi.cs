@@ -22,8 +22,8 @@ namespace E7.E7Unity
     /// </para>
     /// <para>
     /// Animation follows the same split. Rather than the <c>Normal</c>/<c>Pressed</c> pair of a stock selectable, it
-    /// drives five explicit <see cref="Animator"/> triggers — <c>Normal</c>, <c>Down</c>, <c>Up</c>, <c>Click</c> and
-    /// <c>Disabled</c> — so a click and a mere release can look different. Only one is ever pending: setting any of
+    /// drives four explicit <see cref="Animator"/> triggers — <c>Normal</c>, <c>Down</c>, <c>Up</c> and
+    /// <c>Click</c> — so a click and a mere release can look different. Only one is ever pending: setting any of
     /// them resets the rest.
     /// </para>
     /// <para>
@@ -32,6 +32,13 @@ namespace E7.E7Unity
     /// enum reports whichever of pressed, selected or highlighted ranks highest, and the rest is lost. Focus is
     /// therefore an <see cref="AnimatorFlag"/> on a layer of its own, overlaying whatever the interaction layer is
     /// doing underneath.
+    /// </para>
+    /// <para>
+    /// Being unavailable is not one of those moments either, and for a sharper reason: a widget is often switched
+    /// off by the very click it just handled, all within one frame. As a trigger on the interaction layer that
+    /// arrived as an immediate any-state transition, cutting the release animation off part-way. As
+    /// <see cref="disabledFlag"/> on its own layer it greys whatever is playing underneath instead, and the
+    /// release finishes.
     /// </para>
     /// <para>
     /// Focus is narrower than selection. A mouse press selects a widget too, so the event system's selection cannot
@@ -68,21 +75,20 @@ namespace E7.E7Unity
         /// </summary>
         public UnityEvent onDown;
 
-        private SelectionState currentState = SelectionState.Normal;
-
         private readonly HashSet<int> declaredParameters = new HashSet<int>();
         private bool parametersCached;
 
         private bool selected;
         private bool focusApplied;
         private bool focusKnown;
+        private bool disabledApplied;
+        private bool disabledKnown;
         private bool hasStarted;
 
         internal const string triggerNormal = "Normal";
         internal const string triggerDown = "Down";
         internal const string triggerUp = "Up";
         internal const string triggerClick = "Click";
-        internal const string triggerDisabled = "Disabled";
 
         internal const string boolHighlighted = "Highlighted";
         internal const string boolPressed = "Pressed";
@@ -95,11 +101,23 @@ namespace E7.E7Unity
         internal static readonly AnimatorFlag focusedFlag =
             new AnimatorFlag("Focused", "Focus", "Unfocus", "SnapFocused", "SnapUnfocused");
 
+        /// <summary>
+        /// Whether the widget is currently refusing input, kept true across everything the interaction layer does
+        /// underneath it.
+        /// </summary>
+        /// <remarks>
+        /// Being unavailable is a condition, not a moment, for the same reason focus is: it outlasts the press,
+        /// release and click that may still be finishing when it arrives. A widget switched off by what its own
+        /// click started — a Connect button that begins connecting — would otherwise have its release animation
+        /// cut off mid-way by a trigger on the interaction layer, since all of that happens in one frame.
+        /// </remarks>
+        internal static readonly AnimatorFlag disabledFlag =
+            new AnimatorFlag("IsDisabled", "Disable", "Enable", "SnapDisabled", "SnapEnabled");
+
         private static readonly int hashNormal = Animator.StringToHash(triggerNormal);
         private static readonly int hashDown = Animator.StringToHash(triggerDown);
         private static readonly int hashUp = Animator.StringToHash(triggerUp);
         private static readonly int hashClick = Animator.StringToHash(triggerClick);
-        private static readonly int hashDisabled = Animator.StringToHash(triggerDisabled);
         private static readonly int hashHighlighted = Animator.StringToHash(boolHighlighted);
         private static readonly int hashPressed = Animator.StringToHash(boolPressed);
         private static readonly int hashSelected = Animator.StringToHash(boolSelected);
@@ -128,6 +146,7 @@ namespace E7.E7Unity
 
             parametersCached = false;
             focusKnown = false;
+            disabledKnown = false;
 
             // Enabling happens to editor copies as well — scenes sitting in the editor, and prefabs opened for
             // editing in a preview scene — where there is no animator to drive and no player to follow.
@@ -203,6 +222,7 @@ namespace E7.E7Unity
 
             // Rebinding returned every parameter to its default, so nothing previously applied still holds.
             focusKnown = false;
+            disabledKnown = false;
 
             WriteRestingPose();
 
@@ -222,6 +242,7 @@ namespace E7.E7Unity
             SetBool(hashSelected, selected);
             SetBool(hashPointerMode, UiInputMode.IsPointer);
             ApplyFocus(false);
+            ApplyDisabled(!IsInteractable(), false);
         }
 
         /// <summary>
@@ -356,6 +377,8 @@ namespace E7.E7Unity
             SetBool(hashSelected, false);
             focusKnown = false;
             ApplyFocus(false);
+            disabledKnown = false;
+            ApplyDisabled(!IsInteractable(), false);
         }
 
         /// <summary>
@@ -370,7 +393,6 @@ namespace E7.E7Unity
             ResetTrigger(hashDown);
             ResetTrigger(hashUp);
             ResetTrigger(hashClick);
-            ResetTrigger(hashDisabled);
 
             SetTrigger(trigger);
         }
@@ -509,23 +531,26 @@ namespace E7.E7Unity
         protected override void DoStateTransition(SelectionState state, bool instant)
         {
             base.DoStateTransition(state, instant);
-            switch (state)
-            {
-                case SelectionState.Disabled:
-                    //Disabled state could be triggered without clearing out unused triggers
-                    if (AnimatorUsable)
-                    {
-                        SetTrigger(hashDisabled);
-                    }
-                    break;
-                default:
-                    if (currentState == SelectionState.Disabled)
-                    {
-                        ClearAndTrigger(hashNormal);
-                    }
-                    break;
-            }
-            currentState = state;
+
+            // On its own layer, so the interaction layer keeps playing whatever it was playing underneath.
+            ApplyDisabled(state == SelectionState.Disabled, !instant);
+        }
+
+        /// <summary>
+        /// Drive the disabled layer, skipping the value it already holds so the way in is not replayed every time
+        /// something else moves the selection state.
+        /// </summary>
+        private void ApplyDisabled(bool disabled, bool animate)
+        {
+            if (!AnimatorUsable)
+                return;
+
+            if (disabledKnown && disabledApplied == disabled)
+                return;
+
+            disabledApplied = disabled;
+            disabledKnown = true;
+            ApplyFlag(disabledFlag, disabled, animate);
         }
     }
 }
