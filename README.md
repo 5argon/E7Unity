@@ -28,7 +28,7 @@ Unity can install a package that lives in a repo subfolder via the `?path=` quer
 
 ## Requirements
 
-Unity 2019.1 or newer. The only package dependency is `com.unity.timeline`; uGUI and TextMeshPro ship with Unity.
+Unity 6000.3 or newer. The only package dependency is `com.unity.timeline`; uGUI and TextMeshPro ship with Unity.
 
 ## Building the documentation
 

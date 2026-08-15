@@ -14,7 +14,7 @@ started. Take the ones you want; nothing here depends on anything else here.
 
 ## Requirements
 
-Unity 2019.1 or newer. The only package dependency is `com.unity.timeline`; uGUI and TextMeshPro ship with Unity.
+Unity 6000.3 or newer. The only package dependency is `com.unity.timeline`; uGUI and TextMeshPro ship with Unity.
 
 ## Installation
 

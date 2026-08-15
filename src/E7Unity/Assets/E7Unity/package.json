@@ -2,8 +2,8 @@
     "name": "com.e7.e7unity",
     "author": "Sirawat Pitaksarit (5argon) - Exceed7 Experiments",
     "displayName": "E7Unity",
-    "version": "0.0.1",
-    "unity": "2019.1",
+    "version": "1.0.0",
+    "unity": "6000.3",
     "dependencies": {
         "com.unity.timeline": "1.0.0"
     },
