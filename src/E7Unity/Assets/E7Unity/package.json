@@ -3,6 +3,7 @@
     "author": "Sirawat Pitaksarit (5argon) - Exceed7 Experiments",
     "displayName": "E7Unity",
     "version": "1.0.0",
+    "license": "MIT",
     "unity": "6000.3",
     "dependencies": {
         "com.unity.timeline": "1.0.0"
